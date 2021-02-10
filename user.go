@@ -14,7 +14,7 @@ type Person struct {
     PassHash   string    `json:",empty"`
 }
 
-func (self *Pertokenson) CheckPass(s string) bool {
+func (self *Person) CheckPass(s string) bool {
     byteHash := []byte(self.PassHash)
     err := CheckPass(byteHash, s)
     if err != nil {
