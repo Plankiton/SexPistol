@@ -5,6 +5,7 @@ import (
     "crypto/sha1"
     "fmt"
     "io"
+    "os"
 )
 
 type Response struct {
@@ -31,4 +32,12 @@ func ToPassHash(s string) (string, error) {
 func CheckPass(p []byte, s string) (error) {
     err := bcrypt.CompareHashAndPassword(p, []byte(s))
     return err
+}
+
+func getEnv(key string, def string) string {
+    val, ok := os.LookupEnv(key)
+    if !ok {
+        return def
+    }
+    return val
 }
