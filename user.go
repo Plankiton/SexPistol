@@ -1,21 +1,24 @@
 package api
 
 import (
-    "gorm.io/gorm"
+    "time"
 )
 
-type Person struct {
-    gorm.Model
-    ModelType  string    `json:"model_type,omitempty" gorm:"default:'User'"`
+type User struct {
+    Model
 
     Document   string    `json:"doc,omitempty" gorm:"uniqueIndex"`
     Phone      string    `json:"phone,omitempty" gorm:"index,default:null"`
+    Email      string    `json:"email,omitempty" gorm:"index,default:null"`
     Name       string    `json:"name,omitempty" gorm:"index"`
-
+    Born       time.Time `json:"born_date,omitempty" gorm:"index"`
+    Genre      string    `json:"genre,omitempty" gorm:"default:'M'"`
     PassHash   string    `json:",empty"`
 }
 
-func (model *Person) CheckPass(s string) bool {
+// Exclusive functions
+
+func (model *User) CheckPass(s string) bool {
     byteHash := []byte(model.PassHash)
     err := CheckPass(byteHash, s)
     if err != nil {
@@ -24,7 +27,7 @@ func (model *Person) CheckPass(s string) bool {
     return true
 }
 
-func (model *Person) SetPass(s string) (string, error) {
+func (model *User) SetPass(s string) (string, error) {
     hash, err := ToPassHash(s)
     if err != nil {
         return "", nil
@@ -34,3 +37,36 @@ func (model *Person) SetPass(s string) (string, error) {
     return model.PassHash, nil
 }
 
+func (model *User) Create() {
+    ID := model.ID
+    ModelType := model.ModelType
+
+    _database.Create(model)
+
+    e := _database.First(model, ID)
+    if e.Error == nil {
+        Log("Created", ToLabel(ID, ModelType))
+    }
+}
+
+func (model *User) Delete() {
+    ID := model.ID
+    ModelType := model.ModelType
+
+    e := _database.First(model, ID)
+    if e.Error == nil {
+        _database.Delete(model)
+        Log("Deleted", ToLabel(ID, ModelType))
+    }
+}
+
+func (model *User) Update(columns Dict) {
+    ID := model.ID
+    ModelType := model.ModelType
+
+    e := _database.First(model, ID)
+    if e.Error == nil {
+        _database.First(model, ID).Updates(columns.ToStrMap())
+        Log("Updated", ToLabel(ID, ModelType))
+    }
+}

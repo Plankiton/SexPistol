@@ -19,6 +19,17 @@ type Request struct {
     Data    map[string]string  `json:"data,omitempty"`
 }
 
+type List [] interface{}
+type Dict map[interface{}] interface{}
+
+func (self Dict) ToStrMap() map[string]interface{} {
+    m := map[string]interface{}{}
+    for v, k := range self {
+        m[v.(string)] = k
+    }
+    return m
+}
+
 func ToHash(s string) string {
     h := sha1.New()
     io.WriteString(h, s)
@@ -34,10 +45,14 @@ func CheckPass(p []byte, s string) (error) {
     return err
 }
 
-func getEnv(key string, def string) string {
+func GetEnv(key string, def string) string {
     val, ok := os.LookupEnv(key)
     if !ok {
         return def
     }
     return val
+}
+
+func ToLabel(ID uint, Type string) string {
+    return fmt.Sprintf("<%s:%d>", Type, ID)
 }

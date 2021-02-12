@@ -2,13 +2,21 @@ package api
 
 import (
     "gorm.io/gorm"
+    "gorm.io/driver/sqlite"
     "gorm.io/driver/postgres"
 )
 
+type Model struct {
+    gorm.Model
+    ModelType  string    `json:"model_type,omitempty" gorm:"default:null"`
+}
+
 var _database * gorm.DB
-func CreateDB(con_string string) (*gorm.DB, error) {
-    dsn := getEnv("DB_URI", con_string)
-    db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+func Postgres(con_string string) (*gorm.DB, error) {
+    dsn := GetEnv("DB_URI", con_string)
+    db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+        DisableForeignKeyConstraintWhenMigrating: true,
+    })
     if err != nil {
         return db, err
     }
@@ -18,29 +26,16 @@ func CreateDB(con_string string) (*gorm.DB, error) {
     return _database, err
 }
 
-func Add(model interface {}) {
-    e := _database.First(model)
-
-    if e.Error != nil {
-        _database.Create(model)
-        Log("Created <", model.(struct{ ModelType interface{} }).ModelType, " ", model.(struct{ Name interface{} }).Name," :", model.(struct{ ID interface{} }).ID,"> !!")
+func Sqlite(con_string string) (*gorm.DB, error) {
+    dsn := GetEnv("DB_URI", con_string)
+    db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{
+        DisableForeignKeyConstraintWhenMigrating: true,
+    })
+    if err != nil {
+        return db, err
     }
-}
 
-func Del(model interface{}) {
-    e := _database.First(model)
-
-    if e.Error == nil {
-        _database.Delete(model)
-        Log("Deleted <", model.(struct{ ModelType interface{} }).ModelType, " ", model.(struct{ Name interface{} }).Name," :", model.(struct{ ID interface{} }).ID,"> !!")
-    }
-}
-
-func Set(model interface{}) {
-    e := _database.First(model)
-
-    if e.Error == nil {
-        _database.Delete(model)
-        Log("Updated <", model.(struct{ ModelType interface{} }).ModelType, " ", model.(struct{ Name interface{} }).Name," :", model.(struct{ ID interface{} }).ID,"> !!")
-    }
+    _database = db
+    _database.Migrator().CurrentDatabase()
+    return _database, err
 }
