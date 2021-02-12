@@ -17,3 +17,30 @@ func CreateDB(con_string string) (*gorm.DB, error) {
     _database.Migrator().CurrentDatabase()
     return _database, err
 }
+
+func Add(model interface {}) {
+    e := _database.First(model)
+
+    if e.Error != nil {
+        _database.Create(model)
+        Log("Created <", model.(struct{ ModelType interface{} }).ModelType, " ", model.(struct{ Name interface{} }).Name," :", model.(struct{ ID interface{} }).ID,"> !!")
+    }
+}
+
+func Del(model interface{}) {
+    e := _database.First(model)
+
+    if e.Error == nil {
+        _database.Delete(model)
+        Log("Deleted <", model.(struct{ ModelType interface{} }).ModelType, " ", model.(struct{ Name interface{} }).Name," :", model.(struct{ ID interface{} }).ID,"> !!")
+    }
+}
+
+func Set(model interface{}) {
+    e := _database.First(model)
+
+    if e.Error == nil {
+        _database.Delete(model)
+        Log("Updated <", model.(struct{ ModelType interface{} }).ModelType, " ", model.(struct{ Name interface{} }).Name," :", model.(struct{ ID interface{} }).ID,"> !!")
+    }
+}
