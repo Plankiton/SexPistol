@@ -7,6 +7,14 @@ type Auth struct {
     UserId    uint `json:",empty"`
 }
 
+func (model *Auth) Verify(token uint) bool {
+    if _database.First(model, token).Error == nil {
+        return true
+    }
+
+    return false
+}
+
 func (model *Auth) Create() {
     ID := model.ID
     ModelType := model.ModelType
