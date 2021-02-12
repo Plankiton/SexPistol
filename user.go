@@ -16,8 +16,6 @@ type User struct {
     PassHash   string    `json:",empty"`
 }
 
-// Exclusive functions
-
 func (model *User) CheckPass(s string) bool {
     byteHash := []byte(model.PassHash)
     err := CheckPass(byteHash, s)
