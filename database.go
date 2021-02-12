@@ -5,6 +5,7 @@ import (
     "gorm.io/driver/postgres"
 )
 
+var _database * gorm.DB
 func CreateDB(con_string string) (*gorm.DB, error) {
     dsn := getEnv("DB_URI", con_string)
     db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -12,5 +13,7 @@ func CreateDB(con_string string) (*gorm.DB, error) {
         return db, err
     }
 
-    return db, err
+    _database = db
+    _database.Migrator().CurrentDatabase()
+    return _database, err
 }
