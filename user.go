@@ -41,7 +41,7 @@ func (model *User) Create() {
 
     _database.Create(model)
 
-    e := _database.First(model, ID)
+    e := _database.First(model)
     if e.Error == nil {
         Log("Created", ToLabel(ID, ModelType))
     }
@@ -51,10 +51,21 @@ func (model *User) Delete() {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(model, ID)
+    e := _database.First(model)
     if e.Error == nil {
         _database.Delete(model)
         Log("Deleted", ToLabel(ID, ModelType))
+    }
+}
+
+func (model *User) Save() {
+    ID := model.ID
+    ModelType := model.ModelType
+
+    e := _database.First(model)
+    if e.Error == nil {
+        _database.Save(model)
+        Log("Updated", ToLabel(ID, ModelType))
     }
 }
 
@@ -62,9 +73,9 @@ func (model *User) Update(columns Dict) {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(model, ID)
+    e := _database.First(model)
     if e.Error == nil {
-        _database.First(model, ID).Updates(columns.ToStrMap())
+        _database.First(model).Updates(columns.ToStrMap())
         Log("Updated", ToLabel(ID, ModelType))
     }
 }

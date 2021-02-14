@@ -3,6 +3,8 @@ package api
 import (
     "golang.org/x/crypto/bcrypt"
     "crypto/sha1"
+    "reflect"
+    "regexp"
     "fmt"
     "io"
     "os"
@@ -55,4 +57,20 @@ func GetEnv(key string, def string) string {
 
 func ToLabel(ID uint, Type string) string {
     return fmt.Sprintf("<%s:%d>", Type, ID)
+}
+
+func GetPrototype(model interface{}) string {
+    return fmt.Sprintf("%+v", model)
+}
+
+func GetModelType(model interface{}) string {
+    t := reflect.TypeOf(model)
+    type_raw_text := t.String()
+    type_raw_list := ReCompile(`\.`).Split(type_raw_text, -1)
+
+    return type_raw_list[len(type_raw_list)-1]
+}
+
+func ReCompile(pattern string) *regexp.Regexp {
+    return regexp.MustCompile(pattern)
 }

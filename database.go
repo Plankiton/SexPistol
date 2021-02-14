@@ -6,11 +6,6 @@ import (
     "gorm.io/driver/postgres"
 )
 
-type Model struct {
-    gorm.Model
-    ModelType  string    `json:"model_type,omitempty" gorm:"default:null"`
-}
-
 var _database * gorm.DB
 func Postgres(con_string string) (*gorm.DB, error) {
     dsn := GetEnv("DB_URI", con_string)
