@@ -3,18 +3,18 @@ package api
 type Role struct {
     Model
     Name    string  `json:"name,omitempty" gorm:"unique"`
-
-    Roles []interface {}
 }
 
 func (model *Role) Create() {
-    ID := model.ID
-    ModelType := model.ModelType
+    model.ModelType = GetModelType(model)
 
     _database.Create(model)
 
     e := _database.First(model)
     if e.Error == nil {
+
+        ID := model.ID
+        ModelType := model.ModelType
         Log("Created", ToLabel(ID, ModelType))
     }
 }

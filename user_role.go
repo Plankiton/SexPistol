@@ -1,21 +1,12 @@
 package api
 
-type Auth struct {
+type UserRole struct {
     Model
-
-    ID        uint `json:"auth,omitempty" gorm:"PrimaryKey"`
-    UserId    uint `json:",empty"`
+    UserId  uint
+    RoleId  uint
 }
 
-func (model *Auth) Verify(token uint) bool {
-    if _database.First(model, token).Error == nil {
-        return true
-    }
-
-    return false
-}
-
-func (model *Auth) Create() {
+func (model *UserRole) Create() {
     model.ModelType = GetModelType(model)
 
     _database.Create(model)
@@ -30,7 +21,7 @@ func (model *Auth) Create() {
     }
 }
 
-func (model *Auth) Delete() {
+func (model *UserRole) Delete() {
     ID := model.ID
     ModelType := model.ModelType
 
@@ -41,7 +32,7 @@ func (model *Auth) Delete() {
     }
 }
 
-func (model *Auth) Save() {
+func (model *UserRole) Save() {
     ID := model.ID
     ModelType := model.ModelType
 
@@ -52,7 +43,7 @@ func (model *Auth) Save() {
     }
 }
 
-func (model *Auth) Update(columns Dict) {
+func (model *UserRole) Update(columns Dict) {
     ID := model.ID
     ModelType := model.ModelType
 

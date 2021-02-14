@@ -7,7 +7,6 @@ import (
 type User struct {
     Model
 
-    Document   string    `json:"doc,omitempty" gorm:"uniqueIndex"`
     Phone      string    `json:"phone,omitempty" gorm:"index,default:null"`
     Email      string    `json:"email,omitempty" gorm:"index,default:null"`
     Name       string    `json:"name,omitempty" gorm:"index"`
@@ -36,13 +35,16 @@ func (model *User) SetPass(s string) (string, error) {
 }
 
 func (model *User) Create() {
-    ID := model.ID
-    ModelType := model.ModelType
+    model.ModelType = GetModelType(model)
 
     _database.Create(model)
 
     e := _database.First(model)
     if e.Error == nil {
+
+
+        ID := model.ID
+        ModelType := model.ModelType
         Log("Created", ToLabel(ID, ModelType))
     }
 }
