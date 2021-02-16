@@ -1,21 +1,30 @@
 package api
 
-type Auth struct {
-    Model
+import (
+    "time"
+    "gorm.io/gorm"
+)
 
-    ID        uint `json:"auth,omitempty" gorm:"PrimaryKey"`
-    UserId    uint `json:",empty"`
+type Token struct {
+    CreatedAt time.Time
+    UpdatedAt time.Time
+    DeletedAt gorm.DeletedAt `gorm:"index"`
+
+    ModelType string
+
+    ID        string `json:"auth,omitempty" gorm:"PrimaryKey"`
+    UserId    uint   `json:",empty"`
 }
 
-func (model *Auth) Verify(token uint) bool {
-    if _database.First(model, token).Error == nil {
+func (model *Token) Verify() bool {
+    if _database.Where("id = ?", model.ID).First(model).Error == nil {
         return true
     }
 
     return false
 }
 
-func (model *Auth) Create() {
+func (model *Token) Create() {
     model.ModelType = GetModelType(model)
 
     _database.Create(model)
@@ -30,7 +39,7 @@ func (model *Auth) Create() {
     }
 }
 
-func (model *Auth) Delete() {
+func (model *Token) Delete() {
     ID := model.ID
     ModelType := model.ModelType
 
@@ -41,7 +50,7 @@ func (model *Auth) Delete() {
     }
 }
 
-func (model *Auth) Save() {
+func (model *Token) Save() {
     ID := model.ID
     ModelType := model.ModelType
 
@@ -52,7 +61,7 @@ func (model *Auth) Save() {
     }
 }
 
-func (model *Auth) Update(columns Dict) {
+func (model *Token) Update(columns Dict) {
     ID := model.ID
     ModelType := model.ModelType
 

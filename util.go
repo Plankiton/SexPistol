@@ -18,7 +18,7 @@ type Response struct {
 
 type Request struct {
     Token   string             `json:"auth,omitempty"`
-    Data    map[string]string  `json:"data,omitempty"`
+    Data    interface{}        `json:"data,omitempty"`
 }
 
 type List [] interface{}
@@ -55,8 +55,11 @@ func GetEnv(key string, def string) string {
     return val
 }
 
-func ToLabel(ID uint, Type string) string {
-    return fmt.Sprintf("<%s:%d>", Type, ID)
+func ToLabel(ID interface{}, Type string) string {
+    if (reflect.TypeOf(ID).Kind() == reflect.Int) {
+        return fmt.Sprintf("<%s:%d>", Type, ID)
+    }
+    return fmt.Sprintf("<%s:%v>", Type, ID)
 }
 
 func GetPrototype(model interface{}) string {
