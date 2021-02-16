@@ -10,10 +10,13 @@ import (
 )
 
 type RouteFunc func(r *http.Request) (Response, int)
+
 type Route map[string] RouteFunc
 type RouteDict map[string] Route
+
 type RouteConf map[string] interface{}
 type RouteConfDict map[string] RouteConf
+
 type API struct {
     RootPath string
     RouteConfs RouteConfDict
@@ -21,17 +24,27 @@ type API struct {
     Database *gorm.DB
 }
 
-func (router *API) Add(method string, path string, route RouteFunc, conf RouteConf) *API {
+func (router *API) Add(method string, path string, conf RouteConf, route RouteFunc) *API {
     method = strings.ToUpper(method)
-    if path[0] == '/' {
-        path = path[1:]
-    }
     if path[len(path)-1] != '/' {
         path += "/"
     }
 
-    router.RouteConfs[router.RootPath + path] = conf
-    router.Routes[router.RootPath + path][method] = route
+    path = router.RootPath + path
+
+    if len(router.RouteConfs) == 0 {
+        router.RouteConfs = make(RouteConfDict)
+    }
+    if len(router.Routes) == 0 {
+        router.Routes = make(RouteDict)
+    }
+
+    if _, exist := router.Routes[path]; !exist {
+        router.Routes[path] = make(Route)
+    }
+
+    router.RouteConfs[path] = conf
+    router.Routes[path][method] = route
     return router
 }
 
