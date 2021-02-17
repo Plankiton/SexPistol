@@ -77,7 +77,7 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
             }
 
             //             Route        [   "/"    ][ "GET"  ](r)
-            res, status := router.Routes[r.URL.Path][r.Method](r)
+            res, status := router.Routes[path][r.Method](r)
             w.WriteHeader(status)
             json.NewEncoder(w).Encode(
                 res,

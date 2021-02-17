@@ -1,19 +1,11 @@
 package api
 
-import (
-    "time"
-    "gorm.io/gorm"
-)
-
 type Token struct {
-    CreatedAt time.Time
-    UpdatedAt time.Time
-    DeletedAt gorm.DeletedAt `gorm:"index"`
-
+    ModelNoID
+    ID        string `json:"auth,omitempty" gorm:"PrimaryKey"`
     ModelType string
 
-    ID        string `json:"auth,omitempty" gorm:"PrimaryKey"`
-    UserId    uint   `json:",empty"`
+    UserId    uint   `json:",empty" gorm:"index"`
 }
 
 func (model *Token) Verify() bool {
