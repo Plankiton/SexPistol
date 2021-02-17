@@ -7,6 +7,7 @@ import (
     "bytes"
     "fmt"
 
+    "github.com/gorilla/mux"
     "gorm.io/gorm"
 )
 
@@ -23,6 +24,10 @@ type API struct {
     RouteConfs RouteConfDict
     Routes   RouteDict
     Database *gorm.DB
+}
+
+func UrlVars(r *http.Request) map[string]string {
+    return mux.Vars(r)
 }
 
 func (router *API) Add(method string, path string, conf RouteConf, route RouteFunc) *API {
