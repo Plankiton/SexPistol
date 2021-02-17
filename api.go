@@ -3,9 +3,10 @@ package api
 import (
     "encoding/json"
     "net/http"
+    "strings"
+    "bytes"
     "fmt"
 
-    "strings"
     "gorm.io/gorm"
 )
 
@@ -50,14 +51,16 @@ func (router *API) Add(method string, path string, conf RouteConf, route RouteFu
 
 func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
     body := Request {}
-    json.NewDecoder(r.Body).Decode(&body)
+    raw_body := new(bytes.Buffer)
+    raw_body.ReadFrom(r.Body)
 
+    json.NewDecoder(r.Body).Decode(&body)
     path := r.URL.Path
     if path[len(path)-1] != '/' {
         path += "/"
     }
 
-    Log(r.Method, path, r.URL.RawQuery, "\n\t-> Body: ", GetPrototype(body))
+    Log(r.Method, path, r.URL.RawQuery, "\n\t-> Body: ", raw_body)
     if router.Routes[path] != nil{
         if router.Routes[path][r.Method] != nil{
 
