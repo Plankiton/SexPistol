@@ -26,10 +26,6 @@ type API struct {
     Database *gorm.DB
 }
 
-func UrlVars(r *http.Request) map[string]string {
-    return mux.Vars(r)
-}
-
 func (router *API) Add(method string, path string, conf RouteConf, route RouteFunc) *API {
     method = strings.ToUpper(method)
     if path[len(path)-1] != '/' {
@@ -37,6 +33,9 @@ func (router *API) Add(method string, path string, conf RouteConf, route RouteFu
     }
 
     path = router.RootPath + path
+    path_pattern, _ := mux.NewRouter().HandleFunc(path, func(w http.ResponseWriter, r *http.Request){}).GetPathRegexp()
+    path_regex := ReCompile(path_pattern)
+    print("\n\n",path_pattern," == ", path, " -> ",  path_regex.MatchString(path), "\n\n")
 
     if len(router.RouteConfs) == 0 {
         router.RouteConfs = make(RouteConfDict)
@@ -45,12 +44,12 @@ func (router *API) Add(method string, path string, conf RouteConf, route RouteFu
         router.Routes = make(RouteDict)
     }
 
-    if _, exist := router.Routes[path]; !exist {
-        router.Routes[path] = make(Route)
+    if _, exist := router.Routes[path_pattern]; !exist {
+        router.Routes[path_pattern] = make(Route)
     }
 
-    router.RouteConfs[path] = conf
-    router.Routes[path][method] = route
+    router.RouteConfs[path_pattern] = conf
+    router.Routes[path_pattern][method] = route
     return router
 }
 
@@ -65,42 +64,67 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
         path += "/"
     }
 
-    Log(r.Method, path, r.URL.RawQuery, "\n\t-> Body: ", raw_body)
-    if router.Routes[path] != nil{
-        if router.Routes[path][r.Method] != nil{
+    end := "\n\t-> Body: "+raw_body.String()
+    if raw_body.Len() == 0 {
+        end = ""
+    }
 
-            if router.RouteConfs[path]["need-auth"] == true {
-                token := Token { ID: body.Token }
-                if !token.Verify() {
-                    Err("Authentication fail, permission denied")
-                    w.WriteHeader(405)
-                    json.NewEncoder(w).Encode(Response {
-                        Message: "Authentication fail, permission denied",
-                        Type:    "Error",
-                    })
+    Log(r.Method, path, r.URL.RawQuery, end)
+
+    for path_pattern, methods := range router.Routes {
+
+        path_regex := ReCompile(path_pattern)
+
+        route_conf := router.RouteConfs[path_pattern]
+        route_func := methods[r.Method]
+
+
+        if path_regex.MatchString(path) {
+
+            if methods != nil{
+
+                if route_func != nil {
+                    if route_conf["need-auth"] == true {
+                        token := Token { ID: body.Token }
+                        if !token.Verify() {
+                            Err("Authentication fail, permission denied")
+                            w.WriteHeader(405)
+                            json.NewEncoder(w).Encode(Response {
+                                Message: "Authentication fail, permission denied",
+                                Type:    "Error",
+                            })
+                            return
+                        }
+
+                        Log("Authentication sucessfull")
+                    }
+
+                    res, status := route_func(r)
+
+                    w.WriteHeader(status)
+                    json.NewEncoder(w).Encode(
+                        res,
+                    )
                     return
                 }
 
-                Log("Authentication sucessfull")
+                Err("Route not found")
+                w.WriteHeader(404)
+                json.NewEncoder(w).Encode(Response {
+                    Message: "Route not found",
+                    Type:    "Error",
+                })
+                return
             }
 
-            //             Route        [   "/"    ][ "GET"  ](r)
-            res, status := router.Routes[path][r.Method](r)
-            w.WriteHeader(status)
-            json.NewEncoder(w).Encode(
-                res,
-            )
+            Err("Method not allowed")
+            w.WriteHeader(405)
+            json.NewEncoder(w).Encode(Response {
+                Message: "Method not allowed",
+                Type:    "Error",
+            })
             return
-
         }
-
-        Err("Method not allowed")
-        w.WriteHeader(405)
-        json.NewEncoder(w).Encode(Response {
-            Message: "Method not allowed",
-            Type:    "Error",
-        })
-        return
     }
 
     Err("Route not found")
