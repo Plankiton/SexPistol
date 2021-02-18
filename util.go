@@ -3,8 +3,10 @@ package api
 import (
     "golang.org/x/crypto/bcrypt"
     "crypto/sha1"
+    "strings"
     "reflect"
     "regexp"
+    "errors"
     "fmt"
     "io"
     "os"
@@ -76,4 +78,60 @@ func GetModelType(model interface{}) string {
 
 func ReCompile(pattern string) *regexp.Regexp {
     return regexp.MustCompile(pattern)
+}
+
+func SuperPut (v...interface{}) {
+    print("\n\n--------------------------------\n")
+    fmt.Print(v...)
+    print("\n--------------------------------\n\n")
+}
+
+func GetPathVars(t string, p string) (map[string]string, error) {
+    var_patt := ReCompile(`\{(\w{1,}):{0,1}(.{0,})\}`)
+
+    path_tmplt := strings.Split(t, "/")
+    path := strings.Split(p, "/")
+
+    if len(path) != len(path_tmplt) {
+        return map[string]string {}, errors.New("Path don't match with the path template")
+    }
+
+    path_vars_values := []map[string]string{}
+    for i := 0; i < len(path); i++ {
+
+        values := var_patt.FindStringSubmatch(path_tmplt[i])
+
+        tmpl_patt := ReCompile("")
+
+        if len(values)==3 {
+            tmpl_patt = ReCompile(values[2])
+
+            if tmpl_patt.MatchString(path[i]){
+                path_vars_values = append(path_vars_values, map[string]string {
+                    "name": values[1],
+                    "value": path[i],
+                })
+            } else {
+                return map[string]string {}, errors.New(
+                    fmt.Sprintf("Variable \"%s\" need that \"%s\"  match to \"%s\"", values[1], path[i], values[2]),
+                )
+            }
+
+            continue
+        }
+
+        path_vars_values = append(path_vars_values, map[string]string{
+            "value": path[i],
+        })
+
+    }
+
+    path_vars := map[string]string{}
+    for _, v := range path_vars_values {
+        if _, exist := v["name"]; exist {
+            path_vars[v["name"]] = v["value"]
+        }
+    }
+
+    return path_vars, nil
 }
