@@ -12,17 +12,6 @@ import (
     "os"
 )
 
-type Response struct {
-    Message   string       `json:"message,omitempty"`
-    Type      string       `json:"type,omitempty"`
-    Data      interface{}  `json:"data,omitempty"`
-}
-
-type Request struct {
-    Token   string             `json:"auth,omitempty"`
-    Data    interface{}        `json:"data,omitempty"`
-}
-
 type List [] interface{}
 type Dict map[interface{}] interface{}
 
@@ -84,6 +73,35 @@ func SuperPut (v...interface{}) {
     print("\n\n--------------------------------\n")
     fmt.Print(v...)
     print("\n--------------------------------\n\n")
+}
+
+func GetPathPattern(t string) string {
+    var_patt := ReCompile(`\{(\w{1,}):{0,1}(.{0,})\}`)
+
+    path_tmplt := strings.Split(t, "/")
+
+    path_pattern := "^/"
+    for i := 0; i < len(path_tmplt); i++ {
+        if path_tmplt[i] == "" {
+            continue
+        }
+
+        values := var_patt.FindStringSubmatch(path_tmplt[i])
+        if len(values)>=2 {
+            if values[2] == "" {
+                path_pattern += "[a-zA-Z0-9_]{1,}"
+            } else {
+                path_pattern += values[2]
+            }
+        } else {
+            path_pattern += path_tmplt[i]
+        }
+
+        path_pattern += "/"
+    }
+    path_pattern += "$"
+
+    return path_pattern
 }
 
 func GetPathVars(t string, p string) (map[string]string, error) {

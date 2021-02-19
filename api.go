@@ -7,17 +7,29 @@ import (
     "bytes"
     "fmt"
 
-    "github.com/gorilla/mux"
     "gorm.io/gorm"
 )
 
-type RouteFunc func(r *http.Request) (Response, int)
+type Response struct {
+    Message   string             `json:"message,omitempty"`
+    Type      string             `json:"type,omitempty"`
+    Data      interface{}        `json:"data,omitempty"`
+}
+
+type Request struct {
+    Token     string               `json:"auth,omitempty"`
+    Data      interface{}          `json:"data,omitempty"`
+    PathVars  map[string]string
+    Conf      RouteConf
+}
+
 
 type Route map[string] RouteFunc
 type RouteDict map[string] Route
 
 type RouteConf map[string] interface{}
 type RouteConfDict map[string] RouteConf
+type RouteFunc func(r Request) (Response, int)
 
 type API struct {
     RootPath string
@@ -33,9 +45,7 @@ func (router *API) Add(method string, path string, conf RouteConf, route RouteFu
     }
 
     path = router.RootPath + path
-    path_pattern, _ := mux.NewRouter().HandleFunc(path, func(w http.ResponseWriter, r *http.Request){}).GetPathRegexp()
-    path_regex := ReCompile(path_pattern)
-    print("\n\n",path_pattern," == ", path, " -> ",  path_regex.MatchString(path), "\n\n")
+    path_pattern := GetPathPattern(path)
 
     if len(router.RouteConfs) == 0 {
         router.RouteConfs = make(RouteConfDict)
@@ -49,6 +59,8 @@ func (router *API) Add(method string, path string, conf RouteConf, route RouteFu
     }
 
     router.RouteConfs[path_pattern] = conf
+    router.RouteConfs[path_pattern]["path-template"] = path
+
     router.Routes[path_pattern][method] = route
     return router
 }
@@ -78,7 +90,6 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
         route_conf := router.RouteConfs[path_pattern]
         route_func := methods[r.Method]
 
-
         if path_regex.MatchString(path) {
 
             if methods != nil{
@@ -99,7 +110,11 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
                         Log("Authentication sucessfull")
                     }
 
-                    res, status := route_func(r)
+                    body.Conf = route_conf
+                    body.PathVars, _ = GetPathVars(route_conf["path-template"].(string), path)
+                    res, status := route_func(body)
+
+                    if status == 0 {status = 200}
 
                     w.WriteHeader(status)
                     json.NewEncoder(w).Encode(
