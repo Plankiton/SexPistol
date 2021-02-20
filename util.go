@@ -1,15 +1,16 @@
 package api
 
 import (
-    "golang.org/x/crypto/bcrypt"
-    "crypto/sha1"
-    "strings"
-    "reflect"
-    "regexp"
-    "errors"
-    "fmt"
-    "io"
-    "os"
+	"crypto/sha1"
+	"errors"
+	"fmt"
+	"io"
+	"os"
+	"reflect"
+	"regexp"
+	"strings"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type List [] interface{}

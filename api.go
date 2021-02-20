@@ -1,13 +1,12 @@
 package api
 
 import (
-    "encoding/json"
-    "net/http"
-    "strings"
-    "bytes"
-    "fmt"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"strings"
 
-    "gorm.io/gorm"
+	"gorm.io/gorm"
 )
 
 type Response struct {
@@ -67,17 +66,16 @@ func (router *API) Add(method string, path string, conf RouteConf, route RouteFu
 
 func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
     body := Request {}
-    raw_body := new(bytes.Buffer)
-    raw_body.ReadFrom(r.Body)
-
     json.NewDecoder(r.Body).Decode(&body)
+
     path := r.URL.Path
     if path[len(path)-1] != '/' {
         path += "/"
     }
 
-    end := "\n\t-> Body: "+raw_body.String()
-    if raw_body.Len() == 0 {
+    raw_body, _ := json.Marshal(body)
+    end := "\n\t-> Body: "+ string(raw_body)
+    if len(string(raw_body)) == 0 {
         end = ""
     }
 
