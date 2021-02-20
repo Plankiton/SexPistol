@@ -37,7 +37,7 @@ func (model *Token) Delete() {
 
     e := _database.First(model)
     if e.Error == nil {
-        _database.Delete(model)
+        _database.Where("id = ?", ID).Delete(model)
         Log("Deleted", ToLabel(ID, ModelType))
     }
 }

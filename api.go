@@ -66,8 +66,7 @@ func (router *API) Add(method string, path string, conf RouteConf, route RouteFu
 
 func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
     body := Request {}
-    json.NewDecoder(r.Body).Decode(&body)
-
+    parse_err := json.NewDecoder(r.Body).Decode(&body)
     path := r.URL.Path
     if path[len(path)-1] != '/' {
         path += "/"
@@ -80,6 +79,16 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
     }
 
     Log(r.Method, path, r.URL.RawQuery, end)
+
+    if parse_err != nil {
+            Err("Bad request, json parsing error")
+            w.WriteHeader(400)
+            json.NewEncoder(w).Encode(Response {
+                Message: "Bad request, json parsing error",
+                Type:    "Error",
+            })
+            return
+    }
 
     for path_pattern, methods := range router.Routes {
 
