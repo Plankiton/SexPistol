@@ -2,6 +2,7 @@ package api
 
 import (
 	"crypto/sha1"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -22,6 +23,11 @@ func (self Dict) ToStrMap() map[string]interface{} {
         m[v.(string)] = k
     }
     return m
+}
+
+func MapTo(m map[string]interface{}, v interface{}) {
+    encoded, _ := json.Marshal(m)
+    json.Unmarshal(encoded, v)
 }
 
 func ToHash(s string) string {
