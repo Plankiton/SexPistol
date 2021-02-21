@@ -2,9 +2,10 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
+  "bytes"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -15,13 +16,12 @@ type Response struct {
     Data      interface{}        `json:"data,omitempty"`
 }
 
-type Request struct {
+type Request  struct {
     Token     string               `json:"auth,omitempty"`
     Data      interface{}          `json:"data,omitempty"`
     PathVars  map[string]string
     Conf      RouteConf
 }
-
 
 type Route map[string] RouteFunc
 type RouteDict map[string] Route
@@ -56,26 +56,56 @@ func (router *API) Add(method string, path string, conf RouteConf, route RouteFu
     if _, exist := router.Routes[path_pattern]; !exist {
         router.Routes[path_pattern] = make(Route)
     }
+    if _, exist := router.RouteConfs[path_pattern]; !exist {
+        router.RouteConfs[path_pattern] = make(RouteConf)
+    }
 
+    if conf == nil {
+        conf = RouteConf {}
+    }
+
+    conf["path-template"] = path
     router.RouteConfs[path_pattern] = conf
-    router.RouteConfs[path_pattern]["path-template"] = path
 
     router.Routes[path_pattern][method] = route
+
+    Log("Adding", path, "route to", router.RootPath, "router")
     return router
 }
 
 func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
     body := Request {}
-    parse_err := json.NewDecoder(r.Body).Decode(&body)
+
+    raw_body := new(bytes.Buffer)
+    var parse_err error
+
+    end := ""
+    if r.Header.Get("Content-Type") == "application/json" {
+        end = "\n\t-> Body: "+ raw_body.String()
+        raw_body.ReadFrom(r.Body)
+        if raw_body.Len() == 0 {
+            end = ""
+        }
+
+        parse_err = json.Unmarshal(raw_body.Bytes(), &body)
+    }
+
+    if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
+        r.ParseMultipartForm(32 << 20)
+        _, f, err := r.FormFile("data")
+        if err == nil {
+            body.Data = r.MultipartForm
+
+            end = "\n\t-> Body: <File:"+r.FormValue("description")+" <- \""+f.Filename+"\">"
+        } else {
+            end = ""
+        }
+
+    }
+
     path := r.URL.Path
     if path[len(path)-1] != '/' {
         path += "/"
-    }
-
-    raw_body, _ := json.Marshal(body)
-    end := "\n\t-> Body: "+ string(raw_body)
-    if len(string(raw_body)) == 0 {
-        end = ""
     }
 
     Log(r.Method, path, r.URL.RawQuery, end)
@@ -102,7 +132,7 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
             if methods != nil{
 
                 if route_func != nil {
-                    if route_conf["need-auth"] == true {
+                    if route_conf["need-auth"] == false {
                         token := Token { ID: body.Token }
                         if !token.Verify() {
                             Err("Authentication fail, permission denied")

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"os"
 	"reflect"
 	"regexp"
@@ -23,6 +24,9 @@ func (self Dict) ToStrMap() map[string]interface{} {
         m[v.(string)] = k
     }
     return m
+}
+
+func SaveFile(f multipart.FileHeader) {
 }
 
 func MapTo(m map[string]interface{}, v interface{}) {
