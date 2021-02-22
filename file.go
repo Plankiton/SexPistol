@@ -1,6 +1,7 @@
 package api
 
 import (
+    b64 "encoding/base64"
     mp "mime/multipart"
     "bytes"
 )
@@ -13,7 +14,7 @@ type File struct {
 }
 
 func (model *File) Render() string {
-    return "data:" + model.Mime + "," + string(model.Data)
+    return "data:" + model.Mime + ";base64," + string(model.Data)
 }
 
 func (model *File) Create() {
@@ -72,5 +73,6 @@ func (model * File) Load(form *mp.Form) {
         file.Close()
     }
 
-    model.Data = buff.Bytes()
+    model.Data = make([]byte, b64.RawURLEncoding.EncodedLen(buff.Len()))
+    b64.RawURLEncoding.Encode(model.Data, buff.Bytes())
 }
