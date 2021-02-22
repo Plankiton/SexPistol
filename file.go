@@ -13,7 +13,7 @@ type File struct {
 }
 
 func (model *File) Render() string {
-    return model.Mime + "," + string(model.Data)
+    return "data:" + model.Mime + "," + string(model.Data)
 }
 
 func (model *File) Create() {

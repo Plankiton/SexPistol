@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+  "strconv"
   "bytes"
 	"fmt"
 
@@ -91,11 +92,12 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
     }
 
     if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
-        r.ParseMultipartForm(32 << 20)
+        l, _ := strconv.Atoi(r.Header.Get("Content-Lenght"))
+        r.ParseMultipartForm(int64(l))
         _, f, err := r.FormFile("data")
-        if err == nil {
-            body.Data = r.MultipartForm
+        body.Data = r.MultipartForm
 
+        if err == nil {
             end = "\n\t-> Body: <File:"+r.FormValue("description")+" <- \""+f.Filename+"\">"
         } else {
             end = ""

@@ -12,12 +12,13 @@ type IModel interface {
 }
 
 type ModelNoID struct {
-    CreatedAt time.Time `gorm:"index"`
-    UpdatedAt time.Time `gorm:"index"`
-    DeletedAt gorm.DeletedAt `gorm:"index"`
+    CreatedAt time.Time      `json:"-" gorm:"index"`
+    UpdatedAt time.Time      `json:"-" gorm:"index"`
+    DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
+    ModelType string         `json:"class,omitempty"`
 }
 
 type Model struct {
-    gorm.Model
-    ModelType string
+    ModelNoID
+    ID        uint      `json:"id,omitempty" gorm:"primaryKey,auto_increment,NOT NULL"`
 }

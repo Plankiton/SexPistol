@@ -2,8 +2,8 @@ package api
 
 type UserRole struct {
     Model
-    UserId  uint  `json:",empty" gorm:"index"`
-    RoleId  uint  `json:",empty" gorm:"index"`
+    UserId  uint  `json:"-" gorm:"index"`
+    RoleId  uint  `json:"-" gorm:"index"`
 }
 
 func (model *UserRole) Create() {

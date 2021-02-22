@@ -2,8 +2,8 @@ package api
 
 type UserGroup struct {
     Model
-    UserId   uint  `json:",empty" gorm:"index"`
-    GroupId  uint  `json:",empty" gorm:"index"`
+    UserId   uint  `json:"-" gorm:"index"`
+    GroupId  uint  `json:"-" gorm:"index"`
 }
 
 func (model *UserGroup) Create() {

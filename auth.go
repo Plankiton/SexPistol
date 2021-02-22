@@ -5,7 +5,7 @@ type Token struct {
     ID        string `json:"auth,omitempty" gorm:"PrimaryKey"`
     ModelType string
 
-    UserId    uint   `json:",empty" gorm:"index"`
+    UserId    uint   `json:"-" gorm:"index"`
 }
 
 func (model *Token) Verify() bool {

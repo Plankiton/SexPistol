@@ -12,7 +12,7 @@ type User struct {
     Name       string    `json:"name,omitempty" gorm:"index"`
     Born       time.Time `json:"born_date,omitempty" gorm:"index"`
     Genre      string    `json:"genre,omitempty" gorm:"default:'M'"`
-    PassHash   string    `json:",empty"`
+    PassHash   string    `json:"-"`
 }
 
 func (model *User) CheckPass(s string) bool {
