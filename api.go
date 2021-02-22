@@ -151,6 +151,12 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
 
                     body.Conf = route_conf
                     body.PathVars, _ = GetPathVars(route_conf["path-template"].(string), path)
+
+                    body.Conf["headers"] = r.Header
+                    r.ParseForm()
+                    body.Conf["form"] = r.Form
+                    body.Conf["query"] = r.URL.Query()
+
                     res, status := route_func(body)
 
                     if status == 0 {status = 200}

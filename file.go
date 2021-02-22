@@ -73,6 +73,6 @@ func (model * File) Load(form *mp.Form) {
         file.Close()
     }
 
-    model.Data = make([]byte, b64.RawURLEncoding.EncodedLen(buff.Len()))
-    b64.RawURLEncoding.Encode(model.Data, buff.Bytes())
+    model.Data = make([]byte, b64.RawStdEncoding.EncodedLen(buff.Len()))
+    b64.RawStdEncoding.Encode(model.Data, buff.Bytes())
 }
