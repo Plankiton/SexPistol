@@ -24,12 +24,14 @@ type Request  struct {
     Conf      RouteConf
 }
 
-type Route map[string] RouteFunc
+type Route map[string] interface{}
 type RouteDict map[string] Route
 
 type RouteConf map[string] interface{}
 type RouteConfDict map[string] RouteConf
+
 type RouteFunc func(r Request) (Response, int)
+type RawRouteFunc func(r Request) ([]byte, int)
 
 type API struct {
     RootPath string
@@ -38,7 +40,7 @@ type API struct {
     Database *gorm.DB
 }
 
-func (router *API) Add(method string, path string, conf RouteConf, route RouteFunc) *API {
+func (router *API) Add(method string, path string, conf RouteConf, route interface {}) *API {
     method = strings.ToUpper(method)
     if path[len(path)-1] != '/' {
         path += "/"
@@ -157,15 +159,27 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
                     body.Conf["form"] = r.Form
                     body.Conf["query"] = r.URL.Query()
 
-                    res, status := route_func(body)
+                    if IsFunc(route_func) {
+                        res, status := route_func.(func(Request)(Response,int))(body)
 
-                    if status == 0 {status = 200}
+                        if status == 0 {status = 200}
 
-                    w.WriteHeader(status)
-                    json.NewEncoder(w).Encode(
-                        res,
-                    )
-                    return
+                        w.WriteHeader(status)
+                        json.NewEncoder(w).Encode(
+                            res,
+                        )
+                        return
+                    }
+
+                    if IsRawFunc(route_func) {
+                        res, status := route_func.(func(Request)([]byte,int))(body)
+                        if status == 0 {status = 200}
+                        w.WriteHeader(status)
+                        w.Write(res)
+                        return
+                    }
+
+                    Err("Invalid route for ", path)
                 }
 
                 Err("Route not found")

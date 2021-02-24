@@ -164,3 +164,13 @@ func GetPathVars(t string, p string) (map[string]string, error) {
 
     return path_vars, nil
 }
+
+func IsRawFunc(f interface{}) bool {
+    var gf RawRouteFunc
+    return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
+}
+
+func IsFunc(f interface{}) bool {
+    var gf RouteFunc
+    return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
+}
