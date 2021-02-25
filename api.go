@@ -79,20 +79,9 @@ func (router *API) Add(method string, path string, conf RouteConf, route interfa
 func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
     body := Request {}
 
-    raw_body := new(bytes.Buffer)
     var parse_err error
 
     end := ""
-    if r.Header.Get("Content-Type") == "application/json" {
-        end = "\n\t-> Body: "+ raw_body.String()
-        raw_body.ReadFrom(r.Body)
-        if raw_body.Len() == 0 {
-            end = ""
-        }
-
-        parse_err = json.Unmarshal(raw_body.Bytes(), &body)
-    }
-
     if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
         l, _ := strconv.Atoi(r.Header.Get("Content-Lenght"))
         r.ParseMultipartForm(int64(l))
@@ -105,7 +94,17 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
             end = ""
         }
 
+    } else {
+        raw_body := new(bytes.Buffer)
+        raw_body.ReadFrom(r.Body)
+        end = "\n\t-> Body: "+ raw_body.String()
+        if raw_body.Len() == 0 {
+            end = ""
+        }
+
+        parse_err = json.Unmarshal(raw_body.Bytes(), &body)
     }
+
 
     path := r.URL.Path
     if path[len(path)-1] != '/' {
@@ -114,7 +113,8 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
 
     Log(r.Method, path, r.URL.RawQuery, end)
 
-    if parse_err != nil {
+    if strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") &&
+        parse_err != nil {
             Err("Bad request, json parsing error")
             w.WriteHeader(400)
             json.NewEncoder(w).Encode(Response {

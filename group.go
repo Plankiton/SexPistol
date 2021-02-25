@@ -36,7 +36,7 @@ func (model *Group) Save() {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(model)
+    e := _database.First(&Group{}, "id = ?", model.ID)
     if e.Error == nil {
         _database.Save(model)
         Log("Updated", ToLabel(ID, ModelType))
@@ -47,7 +47,7 @@ func (model *Group) Update(columns Dict) {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(model)
+    e := _database.First(&Group{}, "id = ?", model.ID)
     if e.Error == nil {
         _database.First(model).Updates(columns.ToStrMap())
         Log("Updated", ToLabel(ID, ModelType))

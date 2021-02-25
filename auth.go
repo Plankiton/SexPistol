@@ -37,7 +37,7 @@ func (model *Token) Delete() {
 
     e := _database.First(model)
     if e.Error == nil {
-        _database.Where("id = ?", ID).Delete(model)
+        _database.Delete(model)
         Log("Deleted", ToLabel(ID, ModelType))
     }
 }
@@ -46,7 +46,7 @@ func (model *Token) Save() {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(model)
+    e := _database.First(&Token{}, "id = ?", model.ID)
     if e.Error == nil {
         _database.Save(model)
         Log("Updated", ToLabel(ID, ModelType))
@@ -57,7 +57,7 @@ func (model *Token) Update(columns Dict) {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(model)
+    e := _database.First(&Token{}, "id = ?", model.ID)
     if e.Error == nil {
         _database.First(model).Updates(columns.ToStrMap())
         Log("Updated", ToLabel(ID, ModelType))

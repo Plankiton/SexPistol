@@ -34,7 +34,7 @@ func (model *Role) Save() {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(model)
+    e := _database.First(&Role{}, "id = ?", model.ID)
     if e.Error == nil {
         _database.Save(model)
         Log("Updated", ToLabel(ID, ModelType))
@@ -45,7 +45,7 @@ func (model *Role) Update(columns Dict) {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(model)
+    e := _database.First(&Role{}, "id = ?", model.ID)
     if e.Error == nil {
         _database.First(model).Updates(columns.ToStrMap())
         Log("Updated", ToLabel(ID, ModelType))

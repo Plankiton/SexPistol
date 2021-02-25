@@ -56,7 +56,7 @@ func (model *Address) Save() {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(model)
+    e := _database.First(&Address{}, "id = ?", model.ID)
     if e.Error == nil {
         _database.Save(model)
         Log("Updated", ToLabel(ID, ModelType))
@@ -67,7 +67,7 @@ func (model *Address) Update(columns Dict) {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(model)
+    e := _database.First(&Address{}, "id = ?", model.ID)
     if e.Error == nil {
         _database.First(model).Updates(columns.ToStrMap())
         Log("Updated", ToLabel(ID, ModelType))

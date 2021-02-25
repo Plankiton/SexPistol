@@ -53,9 +53,9 @@ func (model *File) Delete() {
     ID := model.ID
     ModelType := model.ModelType
 
-    os.RemoveAll(model.Path + model.Filename)
     e := _database.First(model)
     if e.Error == nil {
+        os.RemoveAll(model.Path + model.Filename)
         _database.Delete(model)
         Log("Deleted", ToLabel(ID, ModelType))
     }
@@ -65,7 +65,7 @@ func (model *File) Save() {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(model)
+    e := _database.First(&File{}, "id = ?", model.ID)
     if e.Error == nil {
         _database.Save(model)
         Log("Updated", ToLabel(ID, ModelType))
@@ -76,7 +76,7 @@ func (model *File) Update(columns Dict) {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(model)
+    e := _database.First(&File{}, "id = ?", model.ID)
     if e.Error == nil {
         _database.First(model).Updates(columns.ToStrMap())
         Log("Updated", ToLabel(ID, ModelType))
