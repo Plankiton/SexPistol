@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"mime/multipart"
 	"os"
 	"reflect"
 	"regexp"
@@ -24,9 +23,6 @@ func (self Dict) ToStrMap() map[string]interface{} {
         m[v.(string)] = k
     }
     return m
-}
-
-func SaveFile(f multipart.FileHeader) {
 }
 
 func MapTo(m map[string]interface{}, v interface{}) {
@@ -74,6 +70,23 @@ func GetModelType(model interface{}) string {
     type_raw_list := ReCompile(`\.`).Split(type_raw_text, -1)
 
     return type_raw_list[len(type_raw_list)-1]
+}
+
+func TypeParse(t string) string {
+    t_re := ReCompile(`([A-Z][a-z_0-9]{1,})?`)
+    list_match := t_re.FindAllStringSubmatch(t, -1)
+
+    type_out := ""
+    for i, v := range list_match {
+        type_out += strings.ToLower(v[0])
+
+        if i < len(list_match)-1 {
+            type_out += "_"
+        }
+    }
+    type_out += "s"
+
+    return type_out
 }
 
 func ReCompile(pattern string) *regexp.Regexp {

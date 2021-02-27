@@ -82,6 +82,7 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
     var parse_err error
 
     end := ""
+
     if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
         l, _ := strconv.Atoi(r.Header.Get("Content-Lenght"))
         r.ParseMultipartForm(int64(l))
