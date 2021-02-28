@@ -7,7 +7,7 @@ import (
 type User struct {
     Model
 
-    Phone      string    `json:"phone,omitempty" gorm:"index,default:null"`
+    Phone      string    `json:"phone,omitempty" gorm:"unique,default:null"`
     Email      string    `json:"email,omitempty" gorm:"index,default:null"`
     Name       string    `json:"name,omitempty" gorm:"index"`
     Born       time.Time `json:"born_date,omitempty" gorm:"index"`

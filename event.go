@@ -7,8 +7,8 @@ type Event struct {
     Name       string       `json:"name,omitempty" gorm:"index"`
     Type       string       `json:"type,omitempty" gorm:"index"`
 
-    AddrId     uint         `json:",empty" gorm:"index"`
-    CoverId    uint         `json:",empty"`
+    AddrId     uint         `json:"-" gorm:"index"`
+    CoverId    uint         `json:"-" gorm:"index"`
 
     BeginAt    time.Time    `json:"begin,omitempty" gorm:"index"`
     EndAt      time.Time    `json:"end,omitempty" gorm:"index"`

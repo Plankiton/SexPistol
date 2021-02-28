@@ -14,7 +14,7 @@ type File struct {
     Model
     AltText   string  `json:"alt_text,omitempty"`
     Path      string  `json:"-"`
-    Filename  string  `json:"-"`
+    Filename  string  `json:"-" gorm:"index"`
     Mime      string  `json:"-"`
 }
 
