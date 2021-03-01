@@ -2,7 +2,7 @@ package api
 
 type Token struct {
     ModelNoID
-    ID        string `json:"auth,omitempty" gorm:"PrimaryKey"`
+    ID        string `json:"Token,omitempty" gorm:"PrimaryKey"`
     ModelType string
 
     UserId    uint   `json:"-" gorm:"index"`
@@ -17,14 +17,11 @@ func (model *Token) Verify() bool {
 }
 
 func (model *Token) Create() {
-    model.ModelType = GetModelType(model)
+    if (model.ModelType == "") {
+        model.ModelType = GetModelType(model)
+    }
 
-    _database.Create(model)
-
-    e := _database.First(model)
-    if e.Error == nil {
-
-
+    if ModelCreate(model) == nil {
         ID := model.ID
         ModelType := model.ModelType
         Log("Created", ToLabel(ID, ModelType))
@@ -35,9 +32,7 @@ func (model *Token) Delete() {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(model)
-    if e.Error == nil {
-        _database.Delete(model)
+    if ModelCreate(model) == nil {
         Log("Deleted", ToLabel(ID, ModelType))
     }
 }
@@ -46,9 +41,7 @@ func (model *Token) Save() {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(&Token{}, "id = ?", model.ID)
-    if e.Error == nil {
-        _database.Save(model)
+    if ModelSave(model) == nil {
         Log("Updated", ToLabel(ID, ModelType))
     }
 }
@@ -57,9 +50,7 @@ func (model *Token) Update(columns Dict) {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(&Token{}, "id = ?", model.ID)
-    if e.Error == nil {
-        _database.First(model).Updates(columns.ToStrMap())
+    if ModelUpdate(model, columns) == nil {
         Log("Updated", ToLabel(ID, ModelType))
     }
 }

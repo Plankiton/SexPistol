@@ -29,12 +29,11 @@ func (model *Address) FromPostalCode(cep string) *Address {
 }
 
 func (model *Address) Create() {
-    model.ModelType = GetModelType(model)
+    if (model.ModelType == "") {
+        model.ModelType = GetModelType(model)
+    }
 
-    _database.Create(model)
-
-    e := _database.First(model)
-    if e.Error == nil {
+    if ModelCreate(model) == nil {
         ID := model.ID
         ModelType := model.ModelType
         Log("Created", ToLabel(ID, ModelType))
@@ -45,9 +44,7 @@ func (model *Address) Delete() {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(model)
-    if e.Error == nil {
-        _database.Delete(model)
+    if ModelCreate(model) == nil {
         Log("Deleted", ToLabel(ID, ModelType))
     }
 }
@@ -56,9 +53,7 @@ func (model *Address) Save() {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(&Address{}, "id = ?", model.ID)
-    if e.Error == nil {
-        _database.Save(model)
+    if ModelSave(model) == nil {
         Log("Updated", ToLabel(ID, ModelType))
     }
 }
@@ -67,9 +62,7 @@ func (model *Address) Update(columns Dict) {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(&Address{}, "id = ?", model.ID)
-    if e.Error == nil {
-        _database.First(model).Updates(columns.ToStrMap())
+    if ModelUpdate(model, columns) == nil {
         Log("Updated", ToLabel(ID, ModelType))
     }
 }

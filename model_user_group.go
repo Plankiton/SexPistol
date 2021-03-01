@@ -11,11 +11,7 @@ func (model *UserGroup) Create() {
         model.ModelType = GetModelType(model)
     }
 
-    _database.Create(model)
-
-    e := _database.First(model)
-    if e.Error == nil {
-
+    if ModelCreate(model) == nil {
         ID := model.ID
         ModelType := model.ModelType
         Log("Created", ToLabel(ID, ModelType))
@@ -26,9 +22,7 @@ func (model *UserGroup) Delete() {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(model)
-    if e.Error == nil {
-        _database.Delete(model)
+    if ModelCreate(model) == nil {
         Log("Deleted", ToLabel(ID, ModelType))
     }
 }
@@ -37,9 +31,7 @@ func (model *UserGroup) Save() {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(&User{}, "id = ?", model.ID)
-    if e.Error == nil {
-        _database.Save(model)
+    if ModelSave(model) == nil {
         Log("Updated", ToLabel(ID, ModelType))
     }
 }
@@ -48,9 +40,7 @@ func (model *UserGroup) Update(columns Dict) {
     ID := model.ID
     ModelType := model.ModelType
 
-    e := _database.First(&User{}, "id = ?", model.ID)
-    if e.Error == nil {
-        _database.First(model).Updates(columns.ToStrMap())
+    if ModelUpdate(model, columns) == nil {
         Log("Updated", ToLabel(ID, ModelType))
     }
 }
