@@ -18,8 +18,8 @@ type Response struct {
 }
 
 type Request  struct {
-    Token     string               `json:"auth,omitempty"`
     Data      interface{}          `json:"data,omitempty"`
+    Token     Token
     PathVars  map[string]string
     Conf      RouteConf
 }
@@ -102,7 +102,7 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
             end = ""
         }
 
-        if json.Unmarshal(raw_body.Bytes(), &body) != nil {
+        if json.Unmarshal(raw_body.Bytes(), &body.Data) != nil {
             Err("Bad request, json parsing error")
             w.WriteHeader(400)
             json.NewEncoder(w).Encode(Response {
@@ -137,8 +137,12 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
             if methods != nil{
 
                 if route_func != nil {
-                    if route_conf["need-auth"] == false {
-                        token := Token { ID: body.Token }
+                    if _, e := route_conf["need-auth"];
+                    e && route_conf["need-auth"] != false {
+                        auth_token := r.Header.Get("Authorization")
+
+                        token := Token { ID: auth_token }
+                        body.Token = token
                         if !token.Verify() {
                             Err("Authentication fail, permission denied")
                             w.WriteHeader(405)
