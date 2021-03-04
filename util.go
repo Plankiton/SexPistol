@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"crypto/sha1"
 	"encoding/json"
 	"errors"
@@ -10,6 +11,8 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+
+	"mime/multipart"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -94,9 +97,9 @@ func ReCompile(pattern string) *regexp.Regexp {
 }
 
 func SuperPut (v...interface{}) {
-    print("\n\n--------------------------------\n")
-    fmt.Print(v...)
-    print("\n--------------------------------\n\n")
+    fmt.Println("\n--------------------------------")
+    fmt.Println(v...)
+    fmt.Print("--------------------------------\n")
 }
 
 func GetPathPattern(t string) string {
@@ -186,4 +189,44 @@ func IsRawFunc(f interface{}) bool {
 func IsFunc(f interface{}) bool {
     var gf RouteFunc
     return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
+}
+
+func GenericInterface () reflect.Type {
+    var i interface{}
+    return reflect.TypeOf(&i).Elem()
+}
+
+func GenericString () reflect.Type {
+    var i string
+    return reflect.TypeOf(i)
+}
+
+func GenericJsonObj() reflect.Type {
+    return reflect.MapOf(GenericString(), GenericInterface())
+}
+
+func GenericJsonArray() reflect.Type {
+    return reflect.ArrayOf(-1, reflect.MapOf(GenericString(), GenericInterface().Elem()))
+}
+
+func GenericBuff() reflect.Type {
+    var i bytes.Buffer
+    return reflect.TypeOf(&i)
+}
+
+func GenericForm() reflect.Type {
+    var i multipart.Form
+    return reflect.TypeOf(&i)
+}
+
+func ValidateData(data interface{}, t func()reflect.Type) bool {
+    if data == nil {
+        return false
+    }
+
+    if reflect.TypeOf(data).Kind() == t().Kind() {
+        return true
+    }
+
+    return false
 }

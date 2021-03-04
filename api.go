@@ -1,12 +1,12 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
-	"net/http"
-	"strings"
-  "strconv"
-  "bytes"
 	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -79,8 +79,6 @@ func (router *API) Add(method string, path string, conf RouteConf, route interfa
 func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
     body := Request {}
 
-    var parse_err error
-
     end := ""
 
     if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
@@ -95,7 +93,8 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
             end = ""
         }
 
-    } else {
+    } else if strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") {
+
         raw_body := new(bytes.Buffer)
         raw_body.ReadFrom(r.Body)
         end = "\n\t-> Body: "+ raw_body.String()
@@ -103,7 +102,19 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
             end = ""
         }
 
-        parse_err = json.Unmarshal(raw_body.Bytes(), &body)
+        if json.Unmarshal(raw_body.Bytes(), &body) != nil {
+            Err("Bad request, json parsing error")
+            w.WriteHeader(400)
+            json.NewEncoder(w).Encode(Response {
+                Message: "Bad request, json parsing error",
+                Type:    "Error",
+            })
+            return
+        }
+
+    } else {
+        body.Data = new(bytes.Buffer)
+        body.Data.(*bytes.Buffer).ReadFrom(r.Body)
     }
 
 
@@ -113,17 +124,6 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
     }
 
     Log(r.Method, path, r.URL.RawQuery, end)
-
-    if strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") &&
-        parse_err != nil {
-            Err("Bad request, json parsing error")
-            w.WriteHeader(400)
-            json.NewEncoder(w).Encode(Response {
-                Message: "Bad request, json parsing error",
-                Type:    "Error",
-            })
-            return
-    }
 
     for path_pattern, methods := range router.Routes {
 
