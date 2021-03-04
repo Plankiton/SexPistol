@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+  "time"
 	"gorm.io/gorm"
 )
 
@@ -15,13 +16,28 @@ type Response struct {
     Message   string             `json:"message,omitempty"`
     Type      string             `json:"type,omitempty"`
     Data      interface{}        `json:"data,omitempty"`
+    Cookies   []*http.Cookie     `json:"-"`
 }
 
 type Request  struct {
     Data      interface{}          `json:"data,omitempty"`
-    Token     Token
+    Token     string
     PathVars  map[string]string
     Conf      RouteConf
+}
+
+func (self *Response) AddCookie(key string, value string, expires time.Duration) {
+    self.Cookies = append(self.Cookies, &http.Cookie {
+        Name: key,
+        Value: value,
+        Expires: time.Now().Add(expires),
+    })
+}
+
+func (self *Response) SetCookies(w http.ResponseWriter) {
+    for _, cookie := range self.Cookies {
+        http.SetCookie(w, cookie)
+    }
 }
 
 type Route map[string] interface{}
@@ -72,7 +88,7 @@ func (router *API) Add(method string, path string, conf RouteConf, route interfa
 
     router.Routes[path_pattern][method] = route
 
-    Log("Adding", path, "route to", router.RootPath, "router")
+    Log("Adding", method, path, "route to", router.RootPath, "router")
     return router
 }
 
@@ -142,7 +158,7 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
                         auth_token := r.Header.Get("Authorization")
 
                         token := Token { ID: auth_token }
-                        body.Token = token
+                        body.Token = auth_token
                         if !token.Verify() {
                             Err("Authentication fail, permission denied")
                             w.WriteHeader(405)
@@ -163,6 +179,8 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
                     r.ParseForm()
                     body.Conf["form"] = r.Form
                     body.Conf["query"] = r.URL.Query()
+                    body.Conf["raw_response_writer"] = w
+                    body.Conf["raw_request"] = r
 
                     if IsFunc(route_func) {
                         res, status := route_func.(func(Request)(Response,int))(body)
@@ -173,6 +191,8 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
                         json.NewEncoder(w).Encode(
                             res,
                         )
+
+                        res.SetCookies(w)
                         return
                     }
 
