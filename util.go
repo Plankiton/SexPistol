@@ -70,9 +70,9 @@ func GetPrototype(model interface{}) string {
 func GetModelType(model interface{}) string {
     t := reflect.TypeOf(model)
     type_raw_text := t.String()
-    type_raw_list := ReCompile(`\.`).Split(type_raw_text, -1)
+    type_raw_list := ReCompile(`[a-zA-Z0-9]{1,}\.`).Split(type_raw_text, -1)
 
-    return type_raw_list[len(type_raw_list)-1]
+    return strings.Join(type_raw_list, "")
 }
 
 func TypeParse(t string) string {

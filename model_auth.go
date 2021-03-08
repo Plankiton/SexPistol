@@ -9,7 +9,7 @@ type Token struct {
 }
 
 func (model *Token) Verify() bool {
-    if _database.Where("id = ?", model.ID).First(model).Error == nil {
+    if _database.First(model, "id = ?", model.ID).Error == nil {
         return true
     }
 

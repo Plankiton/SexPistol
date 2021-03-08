@@ -154,7 +154,7 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
 
                 if route_func != nil {
                     if _, e := route_conf["need-auth"];
-                    e && route_conf["need-auth"] != false {
+                    !e || route_conf["need-auth"] != false {
                         auth_token := r.Header.Get("Authorization")
 
                         token := Token { ID: auth_token }
