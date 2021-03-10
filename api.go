@@ -140,7 +140,7 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
         path += "/"
     }
 
-    Log(r.Method, path, r.URL.RawQuery, end)
+    Log(r.Host, r.Method, path, r.URL.RawQuery, end)
 
     for path_pattern, methods := range router.Routes {
 
