@@ -1,4 +1,4 @@
-package api
+package sex
 
 type Token struct {
     ModelNoID

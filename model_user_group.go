@@ -1,4 +1,4 @@
-package api
+package sex
 
 type UserGroup struct {
     Model

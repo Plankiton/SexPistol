@@ -1,4 +1,4 @@
-module github.com/Coff3e/Api
+module github.com/Plankiton/SexPistol
 
 go 1.15
 

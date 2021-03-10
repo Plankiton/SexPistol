@@ -1,4 +1,4 @@
-package api
+package sex
 
 import (
 	"bytes"
@@ -49,14 +49,15 @@ type RouteConfDict map[string] RouteConf
 type RouteFunc func(r Request) (Response, int)
 type RawRouteFunc func(r Request) ([]byte, int)
 
-type API struct {
-    RootPath string
-    RouteConfs RouteConfDict
-    Routes   RouteDict
-    Database *gorm.DB
+type Pistol struct {
+    RootPath        string
+    RouteConfs      RouteConfDict
+    Routes          RouteDict
+    Auth            bool
+    Database        *gorm.DB
 }
 
-func (router *API) Add(method string, path string, conf RouteConf, route interface {}) *API {
+func (router *Pistol) Add(method string, path string, conf RouteConf, route interface {}) *Pistol {
     method = strings.ToUpper(method)
     if path[len(path)-1] != '/' {
         path += "/"
@@ -92,7 +93,7 @@ func (router *API) Add(method string, path string, conf RouteConf, route interfa
     return router
 }
 
-func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
+func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
     body := Request {}
 
     end := ""
@@ -153,23 +154,25 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
             if methods != nil{
 
                 if route_func != nil {
-                    if _, e := route_conf["need-auth"];
-                    !e || route_conf["need-auth"] != false {
-                        auth_token := r.Header.Get("Authorization")
+                    if router.Auth {
+                        if _, e := route_conf["need-auth"];
+                        !e || route_conf["need-auth"] != false {
+                            auth_token := r.Header.Get("Authorization")
 
-                        token := Token { ID: auth_token }
-                        body.Token = auth_token
-                        if !token.Verify() {
-                            Err("Authentication fail, permission denied")
-                            w.WriteHeader(405)
-                            json.NewEncoder(w).Encode(Response {
-                                Message: "Authentication fail, permission denied",
-                                Type:    "Error",
-                            })
-                            return
+                            token := Token { ID: auth_token }
+                            body.Token = auth_token
+                            if !token.Verify() {
+                                Err("Authentication fail, permission denied")
+                                w.WriteHeader(405)
+                                json.NewEncoder(w).Encode(Response {
+                                    Message: "Authentication fail, permission denied",
+                                    Type:    "Error",
+                                })
+                                return
+                            }
+
+                            Log("Authentication sucessfull")
                         }
-
-                        Log("Authentication sucessfull")
                     }
 
                     body.Conf = route_conf
@@ -234,7 +237,7 @@ func (router *API) RootRoute(w http.ResponseWriter, r *http.Request) {
     })
 }
 
-func (router *API) Run(path string, port uint) {
+func (router *Pistol) Run(path string, port uint) {
     router.RootPath = path
     http.HandleFunc(path, router.RootRoute)
     Err(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
