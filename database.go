@@ -3,7 +3,6 @@ package sex
 import (
     "os"
     "log"
-    "time"
     "gorm.io/gorm"
     "gorm.io/gorm/logger"
     "gorm.io/driver/sqlite"
@@ -12,10 +11,10 @@ import (
 
 func Logger () logger.Interface {
     return logger.New(
-        log.New(os.Stderr, "\r\n", log.LstdFlags), // io writer
+        log.New(os.Stderr, "\r\n", log.LstdFlags),
         logger.Config{
-            SlowThreshold: time.Second,   // Slow SQL threshold
-            LogLevel:      logger.Error, // Log level
+            SlowThreshold: 0,
+            LogLevel:      logger.Error,
             Colorful:      true,
         },
     )
@@ -24,30 +23,16 @@ func Logger () logger.Interface {
 var _database * gorm.DB
 func Postgres(con_string string) (*gorm.DB, error) {
     dsn := GetEnv("DB_URI", con_string)
-    db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+    return gorm.Open(postgres.Open(dsn), &gorm.Config{
         DisableForeignKeyConstraintWhenMigrating: true,
         Logger: Logger(),
     })
-    if err != nil {
-        return db, err
-    }
-
-    _database = db
-    _database.Migrator().CurrentDatabase()
-    return _database, err
 }
 
 func Sqlite(con_string string) (*gorm.DB, error) {
     dsn := GetEnv("DB_URI", con_string)
-    db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{
+    return gorm.Open(sqlite.Open(dsn), &gorm.Config{
         DisableForeignKeyConstraintWhenMigrating: true,
         Logger: Logger(),
     })
-    if err != nil {
-        return db, err
-    }
-
-    _database = db
-    _database.Migrator().CurrentDatabase()
-    return _database, err
 }

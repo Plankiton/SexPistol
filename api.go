@@ -140,7 +140,11 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
         path += "/"
     }
 
-    Log(r.Host, r.Method, path, r.URL.RawQuery, end)
+    ip := r.Header.Get("x-forwarded-for")
+    if ip == "" {
+        ip = strings.Split(r.RemoteAddr, ":")[0]
+    }
+    Log(r.Method, path, r.URL.RawQuery, end)
 
     for path_pattern, methods := range router.Routes {
 
@@ -235,6 +239,23 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
         Message: "Route not found",
         Type:    "Error",
     })
+}
+
+func (router *Pistol) SignDB(con_str string, createDB func (string) (*gorm.DB, error), models ...interface{}) (*gorm.DB, error) {
+    db, err := createDB(con_str)
+    router.Database = db
+
+    if err != nil {
+        Die("Error on creation of tables on database")
+    }
+
+    if models != nil {
+        db.Migrator().CurrentDatabase()
+        db.AutoMigrate(models...)
+    }
+
+    _database = db
+    return router.Database, err
 }
 
 func (router *Pistol) Run(path string, port uint) {
