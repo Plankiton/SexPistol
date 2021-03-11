@@ -2,9 +2,25 @@
 
 
 
-![Sex Pistol Logo](Icon.png)
+<img src="Icon.png" align="center" alt="Sex Pistol Logo" style="zoom:80%;" />
 
-A micro framework for golang, made for who hates the golang way of create web applications, and transforming this:
+
+
+A Sex method of to make web applications with GoLang.
+
+# Get Started
+
+You can to install the Sex Pistol framework with a simple `go get github.com/Plankiton/SexPistol` or adding `github.com/Plankiton/SexPistol` to the `go.mod` of your project.
+
+
+
+## First Code
+
+
+
+The principal objective of Sex Pistol is change the default method of make Rest APIs into a new and better method:
+
+>  Code using default library from Go
 
 ```go
 package main
@@ -25,7 +41,7 @@ func main() {
 }
 ```
 
-On this:
+>  Sex Pistol code
 
 ```go
 package main
@@ -42,3 +58,4 @@ func main() {
 ```
 
 So sex no?
+
