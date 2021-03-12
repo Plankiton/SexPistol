@@ -58,7 +58,10 @@ func GetEnv(key string, def string) string {
 
 func ToLabel(ID interface{}, Type string) string {
     if (reflect.TypeOf(ID).Kind() == reflect.Int) {
-        return fmt.Sprintf("<%s:%d>", Type, ID)
+        return strings.Join( strings.Split(
+                fmt.Sprintf("<%s:%d>", Type, ID),
+            "*"),
+        "")
     }
     return fmt.Sprintf("<%s:%v>", Type, ID)
 }
