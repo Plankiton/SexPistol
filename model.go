@@ -6,9 +6,10 @@ import (
 )
 
 type IModel interface {
-    Create ()
-    Delete ()
-    Update (Columns Dict)
+    Create () bool
+    Delete () bool
+    Save   () bool
+    Update (Columns Dict) bool
 }
 
 type ModelNoID struct {

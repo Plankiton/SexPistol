@@ -6,7 +6,7 @@ type UserEvent struct {
     EventId  uint  `json:"-" gorm:"index"`
 }
 
-func (model *UserEvent) Create() {
+func (model *UserEvent) Create() bool {
     if (model.ModelType == "") {
         model.ModelType = GetModelType(model)
     }
@@ -15,32 +15,44 @@ func (model *UserEvent) Create() {
         ID := model.ID
         ModelType := model.ModelType
         Log("Created", ToLabel(ID, ModelType))
+        return true
     }
+
+    return false
 }
 
-func (model *UserEvent) Delete() {
+func (model *UserEvent) Delete() bool {
     ID := model.ID
     ModelType := model.ModelType
 
     if ModelCreate(model) == nil {
         Log("Deleted", ToLabel(ID, ModelType))
+        return true
     }
+
+    return false
 }
 
-func (model *UserEvent) Save() {
+func (model *UserEvent) Save() bool {
     ID := model.ID
     ModelType := model.ModelType
 
     if ModelSave(model) == nil {
         Log("Updated", ToLabel(ID, ModelType))
+        return true
     }
+
+    return false
 }
 
-func (model *UserEvent) Update(columns Dict) {
+func (model *UserEvent) Update(columns Dict) bool {
     ID := model.ID
     ModelType := model.ModelType
 
     if ModelUpdate(model, columns) == nil {
         Log("Updated", ToLabel(ID, ModelType))
+        return true
     }
+
+    return false
 }

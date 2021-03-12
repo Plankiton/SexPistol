@@ -34,7 +34,7 @@ func (model *User) SetPass(s string) (string, error) {
     return model.PassHash, nil
 }
 
-func (model *User) Create() {
+func (model *User) Create() bool {
     if (model.ModelType == "") {
         model.ModelType = GetModelType(model)
     }
@@ -43,32 +43,44 @@ func (model *User) Create() {
         ID := model.ID
         ModelType := model.ModelType
         Log("Created", ToLabel(ID, ModelType))
+        return true
     }
+
+    return false
 }
 
-func (model *User) Delete() {
+func (model *User) Delete() bool {
     ID := model.ID
     ModelType := model.ModelType
 
     if ModelCreate(model) == nil {
         Log("Deleted", ToLabel(ID, ModelType))
+        return true
     }
+
+    return false
 }
 
-func (model *User) Save() {
+func (model *User) Save() bool {
     ID := model.ID
     ModelType := model.ModelType
 
     if ModelSave(model) == nil {
         Log("Updated", ToLabel(ID, ModelType))
+        return true
     }
+
+    return false
 }
 
-func (model *User) Update(columns Dict) {
+func (model *User) Update(columns Dict) bool {
     ID := model.ID
     ModelType := model.ModelType
 
     if ModelUpdate(model, columns) == nil {
         Log("Updated", ToLabel(ID, ModelType))
+        return true
     }
+
+    return false
 }

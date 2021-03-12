@@ -14,7 +14,7 @@ type Event struct {
     EndAt      time.Time    `json:"end,omitempty" gorm:"index"`
 }
 
-func (model *Event) Create() {
+func (model *Event) Create() bool {
     if (model.ModelType == "") {
         model.ModelType = GetModelType(model)
     }
@@ -23,32 +23,44 @@ func (model *Event) Create() {
         ID := model.ID
         ModelType := model.ModelType
         Log("Created", ToLabel(ID, ModelType))
+        return true
     }
+
+    return false
 }
 
-func (model *Event) Delete() {
+func (model *Event) Delete() bool {
     ID := model.ID
     ModelType := model.ModelType
 
     if ModelCreate(model) == nil {
         Log("Deleted", ToLabel(ID, ModelType))
+        return true
     }
+
+    return false
 }
 
-func (model *Event) Save() {
+func (model *Event) Save() bool {
     ID := model.ID
     ModelType := model.ModelType
 
     if ModelSave(model) == nil {
         Log("Updated", ToLabel(ID, ModelType))
+        return true
     }
+
+    return false
 }
 
-func (model *Event) Update(columns Dict) {
+func (model *Event) Update(columns Dict) bool {
     ID := model.ID
     ModelType := model.ModelType
 
     if ModelUpdate(model, columns) == nil {
         Log("Updated", ToLabel(ID, ModelType))
+        return true
     }
+
+    return false
 }

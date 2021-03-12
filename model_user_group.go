@@ -6,7 +6,7 @@ type UserGroup struct {
     GroupId  uint  `json:"-" gorm:"index"`
 }
 
-func (model *UserGroup) Create() {
+func (model *UserGroup) Create() bool {
     if (model.ModelType == "") {
         model.ModelType = GetModelType(model)
     }
@@ -15,32 +15,44 @@ func (model *UserGroup) Create() {
         ID := model.ID
         ModelType := model.ModelType
         Log("Created", ToLabel(ID, ModelType))
+        return true
     }
+
+    return false
 }
 
-func (model *UserGroup) Delete() {
+func (model *UserGroup) Delete() bool {
     ID := model.ID
     ModelType := model.ModelType
 
     if ModelCreate(model) == nil {
         Log("Deleted", ToLabel(ID, ModelType))
+        return true
     }
+
+    return false
 }
 
-func (model *UserGroup) Save() {
+func (model *UserGroup) Save() bool {
     ID := model.ID
     ModelType := model.ModelType
 
     if ModelSave(model) == nil {
         Log("Updated", ToLabel(ID, ModelType))
+        return true
     }
+
+    return false
 }
 
-func (model *UserGroup) Update(columns Dict) {
+func (model *UserGroup) Update(columns Dict) bool {
     ID := model.ID
     ModelType := model.ModelType
 
     if ModelUpdate(model, columns) == nil {
         Log("Updated", ToLabel(ID, ModelType))
+        return true
     }
+
+    return false
 }
