@@ -38,7 +38,7 @@ func (model *Token) Delete() bool {
     ID := model.ID
     ModelType := model.ModelType
 
-    if ModelCreate(model) == nil {
+    if ModelDelete(model) == nil {
         Log("Deleted", ToLabel(ID, ModelType))
         return true
     }
