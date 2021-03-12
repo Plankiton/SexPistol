@@ -10,13 +10,13 @@ import (
 
   "time"
 	"gorm.io/gorm"
+  "github.com/rs/cors"
 )
 
 type Response struct {
     Message   string             `json:"message,omitempty"`
     Type      string             `json:"type,omitempty"`
     Data      interface{}        `json:"data,omitempty"`
-    Cookies   []*http.Cookie     `json:"-"`
 }
 
 type Request  struct {
@@ -24,20 +24,17 @@ type Request  struct {
     Token     string
     PathVars  map[string]string
     Conf      RouteConf
+    Reader    *http.Request
+    Writer    http.ResponseWriter
 }
 
-func (self *Response) AddCookie(key string, value string, expires time.Duration) {
-    self.Cookies = append(self.Cookies, &http.Cookie {
+func (self *Response) SetCookie(key string, value string, expires time.Duration, request Request) {
+    cookie := &http.Cookie {
         Name: key,
         Value: value,
         Expires: time.Now().Add(expires),
-    })
-}
-
-func (self *Response) SetCookies(w http.ResponseWriter) {
-    for _, cookie := range self.Cookies {
-        http.SetCookie(w, cookie)
     }
+    http.SetCookie(request.Writer, cookie)
 }
 
 type Route map[string] interface{}
@@ -55,6 +52,7 @@ type Pistol struct {
     Routes          RouteDict
     Auth            bool
     Database        *gorm.DB
+    Mux             *http.ServeMux
 }
 
 func (router *Pistol) Add(method string, path string, conf RouteConf, route interface {}) *Pistol {
@@ -95,6 +93,8 @@ func (router *Pistol) Add(method string, path string, conf RouteConf, route inte
 
 func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
     body := Request {}
+    body.Writer = w
+    body.Reader = r
 
     end := ""
 
@@ -140,12 +140,15 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
         path += "/"
     }
 
-    ip := r.Header.Get("x-forwarded-for")
-    if ip == "" {
-        ip = strings.Split(r.RemoteAddr, ":")[0]
+    auth_token := r.Header.Get("Authorization")
+    body.Token = auth_token
+    token := Token { ID: auth_token }
+    token_info := ""
+    if auth_token != "" {
+        token_info = ToLabel(token.ID, "AuthToken")
     }
-    Log(r.Method, path, r.URL.RawQuery, end)
 
+    Log(r.Method, path, r.URL.RawQuery, token_info, end)
     for path_pattern, methods := range router.Routes {
 
         path_regex := ReCompile(path_pattern)
@@ -161,13 +164,9 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
                     if router.Auth {
                         if _, e := route_conf["need-auth"];
                         !e || route_conf["need-auth"] != false {
-                            auth_token := r.Header.Get("Authorization")
-
-                            token := Token { ID: auth_token }
-                            body.Token = auth_token
                             if !token.Verify() {
                                 Err("Authentication fail, permission denied")
-                                w.WriteHeader(405)
+                                w.WriteHeader(403)
                                 json.NewEncoder(w).Encode(Response {
                                     Message: "Authentication fail, permission denied",
                                     Type:    "Error",
@@ -186,8 +185,6 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
                     r.ParseForm()
                     body.Conf["form"] = r.Form
                     body.Conf["query"] = r.URL.Query()
-                    body.Conf["raw_response_writer"] = w
-                    body.Conf["raw_request"] = r
 
                     if IsFunc(route_func) {
                         res, status := route_func.(func(Request)(Response,int))(body)
@@ -198,8 +195,6 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
                         json.NewEncoder(w).Encode(
                             res,
                         )
-
-                        res.SetCookies(w)
                         return
                     }
 
@@ -259,7 +254,11 @@ func (router *Pistol) SignDB(con_str string, createDB func (string) (*gorm.DB, e
 }
 
 func (router *Pistol) Run(path string, port uint) {
+    router.Mux = http.NewServeMux()
+
     router.RootPath = path
-    http.HandleFunc(path, router.RootRoute)
-    Err(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+    router.Mux.HandleFunc(path, router.RootRoute)
+
+    handler := cors.Default().Handler(router.Mux)
+    Err(http.ListenAndServe(fmt.Sprintf(":%d", port), handler))
 }
