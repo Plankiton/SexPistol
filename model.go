@@ -2,7 +2,6 @@ package sex
 
 import (
     "time"
-    "gorm.io/gorm"
 )
 
 type IModel interface {
@@ -12,11 +11,11 @@ type IModel interface {
     Update (Columns Dict) bool
 }
 
+
 type ModelNoID struct {
-    CreatedAt time.Time      `json:"-" gorm:"index"`
-    UpdatedAt time.Time      `json:"-" gorm:"index"`
-    DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
-    ModelType string         `json:"class,omitempty"`
+    CreatedAt time.Time      `json:"created_at" gorm:"index"`
+    UpdatedAt time.Time      `json:"updated_at" gorm:"index"`
+    ModelType string         `json:"-"`
 }
 
 type Model struct {
