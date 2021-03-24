@@ -33,6 +33,10 @@ func MapTo(m map[string]interface{}, v interface{}) {
     json.Unmarshal(encoded, v)
 }
 
+func Jsonify(v interface{}) ([]byte, error) {
+    return json.Marshal(v)
+}
+
 func ToHash(s string) string {
     h := sha1.New()
     io.WriteString(h, s)

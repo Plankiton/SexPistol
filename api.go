@@ -110,28 +110,25 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
             end = ""
         }
 
-    } else if strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") {
+    }
+    raw_body := new(bytes.Buffer)
+    raw_body.ReadFrom(r.Body)
+    end = "\n\t-> Body: "+ raw_body.String()
+    if raw_body.Len() == 0 {
+        end = ""
+    }
 
-        raw_body := new(bytes.Buffer)
-        raw_body.ReadFrom(r.Body)
-        end = "\n\t-> Body: "+ raw_body.String()
-        if raw_body.Len() == 0 {
-            end = ""
-        }
-
-        if json.Unmarshal(raw_body.Bytes(), &body.Data) != nil {
-            Err("Bad request, json parsing error")
-            w.WriteHeader(400)
-            json.NewEncoder(w).Encode(Response {
-                Message: "Bad request, json parsing error",
-                Type:    "Error",
-            })
-            return
-        }
-
+    if json.Unmarshal(raw_body.Bytes(), &body.Data) != nil {
+        Err("Bad request, json parsing error")
+        w.WriteHeader(400)
+        json.NewEncoder(w).Encode(Response {
+            Message: "Bad request, json parsing error",
+            Type:    "Error",
+        })
+        return
     } else {
         body.Data = new(bytes.Buffer)
-        body.Data.(*bytes.Buffer).ReadFrom(r.Body)
+        body.Data.(*bytes.Buffer).ReadFrom(raw_body)
     }
 
 
