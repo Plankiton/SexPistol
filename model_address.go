@@ -28,41 +28,6 @@ func (model *Address) FromPostalCode(cep string) *Address {
     return model
 }
 
-func (model *Address) Create() {
-    if (model.ModelType == "") {
-        model.ModelType = GetModelType(model)
-    }
-
-    if ModelCreate(model) == nil {
-        ID := model.ID
-        ModelType := model.ModelType
-        Log("Created", ToLabel(ID, ModelType))
-    }
-}
-
-func (model *Address) Delete() {
-    ID := model.ID
-    ModelType := model.ModelType
-
-    if ModelCreate(model) == nil {
-        Log("Deleted", ToLabel(ID, ModelType))
-    }
-}
-
-func (model *Address) Save() {
-    ID := model.ID
-    ModelType := model.ModelType
-
-    if ModelSave(model) == nil {
-        Log("Updated", ToLabel(ID, ModelType))
-    }
-}
-
-func (model *Address) Update(columns Dict) {
-    ID := model.ID
-    ModelType := model.ModelType
-
-    if ModelUpdate(model, columns) == nil {
-        Log("Updated", ToLabel(ID, ModelType))
-    }
+func (m Address) TableName() string {
+    return "addresses"
 }

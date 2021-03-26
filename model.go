@@ -6,39 +6,66 @@ import (
 )
 
 type IModel interface {
-    Create ()
-    Delete ()
-    Update (Columns Dict)
+    TableName() string
+    GetID() (interface{}, error)
+    SetID(interface{}) error
+    GetDB() (interface{}, error)
+    SetDB(interface{}) error
 }
 
-type ModelNoID struct {
+type MinimalModel struct {
     CreatedAt time.Time      `json:"-" gorm:"index"`
     UpdatedAt time.Time      `json:"-" gorm:"index"`
-    DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
-    ModelType string         `json:"class,omitempty"`
+
+    DB        *gorm.DB       `json:"-" gorm:"-"`
 }
 
 type Model struct {
-    ModelNoID
+    MinimalModel
     ID        uint      `json:"id,omitempty" gorm:"primaryKey,auto_increment,NOT NULL"`
 }
 
-func ModelCreate(model IModel) error {
-    e := _database.Create(model)
+func (model *Model) SetID(id uint) error {
+    model.ID = id
+
+    ModelSave(model)
+    return nil
+}
+
+func (model *Model) GetID() (uint, error) {
+    return model.ID, nil
+}
+
+func (model *Model) SetDB(db *gorm.DB) error {
+    model.DB = db
+    return nil
+}
+
+func (model *Model) GetDB() (*gorm.DB, error) {
+    return model.DB, nil
+}
+
+func (model *Model) Query(query ...interface{}) *gorm.DB {
+    db := model.GetDB()
+    return db.Table(model.TableName()).Select(query...)
+}
+
+func Create(model IModel) error {
+    e := model.GetDB().Create(model)
     return e.Error
 }
 
-func ModelDelete(model IModel) error {
-    e := _database.Delete(model)
+func Delete(model IModel) error {
+    e := model.GetDB().Delete(model)
     return e.Error
 }
 
-func ModelSave(model IModel) error {
-    e := _database.Save(model)
+func Save(model IModel) error {
+    e := model.GetDB().Save(model)
     return e.Error
 }
 
-func ModelUpdate(model IModel, columns Dict) error {
-    e := _database.First(model).Updates(columns.ToStrMap())
+func Update(model IModel, columns Dict) error {
+    e := model.GetDB().First(model).Updates(columns.ToStrMap())
     return e.Error
 }

@@ -7,12 +7,15 @@ import (
 type User struct {
     Model
 
-    Phone      string    `json:"phone,omitempty" gorm:"unique,default:null"`
-    Email      string    `json:"email,omitempty" gorm:"index,default:null"`
+    Email      string    `json:"email,omitempty" gorm:"unique,default:null"`
     Name       string    `json:"name,omitempty" gorm:"index"`
     Born       time.Time `json:"born_date,omitempty" gorm:"index"`
     Genre      string    `json:"genre,omitempty" gorm:"default:'M'"`
     PassHash   string    `json:"-"`
+}
+
+func (m User) TableName() string {
+    return "users"
 }
 
 func (model *User) CheckPass(s string) bool {
@@ -32,43 +35,4 @@ func (model *User) SetPass(s string) (string, error) {
 
     model.PassHash = hash
     return model.PassHash, nil
-}
-
-func (model *User) Create() {
-    if (model.ModelType == "") {
-        model.ModelType = GetModelType(model)
-    }
-
-    if ModelCreate(model) == nil {
-        ID := model.ID
-        ModelType := model.ModelType
-        Log("Created", ToLabel(ID, ModelType))
-    }
-}
-
-func (model *User) Delete() {
-    ID := model.ID
-    ModelType := model.ModelType
-
-    if ModelCreate(model) == nil {
-        Log("Deleted", ToLabel(ID, ModelType))
-    }
-}
-
-func (model *User) Save() {
-    ID := model.ID
-    ModelType := model.ModelType
-
-    if ModelSave(model) == nil {
-        Log("Updated", ToLabel(ID, ModelType))
-    }
-}
-
-func (model *User) Update(columns Dict) {
-    ID := model.ID
-    ModelType := model.ModelType
-
-    if ModelUpdate(model, columns) == nil {
-        Log("Updated", ToLabel(ID, ModelType))
-    }
 }

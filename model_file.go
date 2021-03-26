@@ -18,6 +18,10 @@ type File struct {
     Mime      string  `json:"-"`
 }
 
+func (m File) TableName() string {
+    return "files"
+}
+
 func (model *File) Render() string {
     if model.Path == "" {
         root := GetEnv("DB_FILE_ROOT", ".")
@@ -34,45 +38,6 @@ func (model *File) Render() string {
     buff := make([]byte, b64.RawStdEncoding.EncodedLen(f.Len()))
     b64.RawStdEncoding.Encode(buff, f.Bytes())
     return "data:" + model.Mime + ";base64," + string(buff)
-}
-
-func (model *File) Create() {
-    if (model.ModelType == "") {
-        model.ModelType = GetModelType(model)
-    }
-
-    if ModelCreate(model) == nil {
-        ID := model.ID
-        ModelType := model.ModelType
-        Log("Created", ToLabel(ID, ModelType))
-    }
-}
-
-func (model *File) Delete() {
-    ID := model.ID
-    ModelType := model.ModelType
-
-    if ModelCreate(model) == nil {
-        Log("Deleted", ToLabel(ID, ModelType))
-    }
-}
-
-func (model *File) Save() {
-    ID := model.ID
-    ModelType := model.ModelType
-
-    if ModelSave(model) == nil {
-        Log("Updated", ToLabel(ID, ModelType))
-    }
-}
-
-func (model *File) Update(columns Dict) {
-    ID := model.ID
-    ModelType := model.ModelType
-
-    if ModelUpdate(model, columns) == nil {
-        Log("Updated", ToLabel(ID, ModelType))
-    }
 }
 
 func (model * File) Load(form *mp.Form) {
