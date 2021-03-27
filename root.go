@@ -66,6 +66,9 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
                     if isRawFunc(route_func) {
 
                         res, status := route_func.(func(Request)([]byte, int))(body)
+                        if status == 0 {
+                            status = 200
+                        }
                         sc = status
 
                         w.WriteHeader(status)
@@ -75,6 +78,9 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
                     if isStrFunc(route_func) {
 
                         res, status := route_func.(func(Request)(string, int))(body)
+                        if status == 0 {
+                            status = 200
+                        }
                         sc = status
 
                         w.WriteHeader(status)
@@ -84,28 +90,41 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
                     if isResFunc(route_func) {
 
                         res, status := route_func.(func(Request)(*Response, int))(body)
+                        if status == 0 {
+                            if res.Status != 0 {
+                                status = res.Status
+                            } else {
+                                status = 200
+                            }
+                        }
                         sc = status
 
                         w.WriteHeader(status)
                         w.Write(res.Body.([]byte))
 
                     } else
-                    if isFunc(route_func) {
-
-                        res, status := route_func.(func(Request)(interface{}, int))(body)
-                        sc = status
-
-                        w.WriteHeader(status)
-                        w.Write(Jsonify(res))
-
-                    } else
                     if isPureResFunc(route_func) {
 
                         res := route_func.(func(Request)(*Response))(body)
+                        if res.Status == 0 {
+                            res.Status = 200
+                        }
                         sc = res.Status
 
                         w.WriteHeader(res.Status)
-                        w.Write(Jsonify(res.Body))
+                        w.Write(res.Body.([]byte))
+
+                    } else {
+
+                        res, status := route_func.(func(Request)(interface{}, int))(body)
+                        if status == 0 {
+                            status = 200
+                        }
+                        sc = status
+
+                        w.Header().Set("Content-Type", "application/json")
+                        w.WriteHeader(status)
+                        w.Write(Jsonify(res))
 
                     }
 

@@ -3,7 +3,7 @@ package Sex
 type Bullet struct {
     Message   string             `json:"message,omitempty"`
     Type      string             `json:"type,omitempty"`
-        Data      interface{}        `json:"data,omitempty"`
+    Data      interface{}        `json:"data,omitempty"`
 }
 
 type Route map[string] interface{}

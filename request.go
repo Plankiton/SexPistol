@@ -31,6 +31,10 @@ func (self *Response) SetBody(v interface{}) *Response {
     return self
 }
 
+func (self *Response) SetStatus(code int) {
+    self.Status = 200
+}
+
 func (self *Response) SetCookie(key string, value string, expires time.Duration) {
     cookie := &http.Cookie {
         Name: key,
