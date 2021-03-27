@@ -1,10 +1,12 @@
+
+
 # Sex Pistol
 
 ----
 
 A Sex web micro framework for GoLang.
 
-<center><img src="assets/sexpistol-hd.svg" alt="Sex Pistol Icon" align="center" style="zoom: 40%; max-height: 900px;" /><img src="assets/sexpistol-white-theme.svg" alt="Sex Pistol Icon" align="center" style="zoom: 40%; max-height: 900px;-moz-transform: scaleX(-1);-o-transform: scaleX(-1);-webkit-transform: scaleX(-1);transform: scaleX(-1);" /></center>
+<center><img src="assets/Icon.png" alt="Sex Pistol Icon" align="left" style="max-height: 700px;max-width: 50%"/>
 
 # Get Started
 
@@ -64,9 +66,11 @@ func main() {
 
 -----
 
-How you did look, that is a minimal Sex web application posssible:
+
 
 ## Responses
+
+Lets play with the Sex Function types:
 
 ```go
 package main
@@ -76,7 +80,11 @@ func main() {
     router.Add("/{name}", Hello)
     router.Run()
 }
+```
 
+String function way
+
+```go
 func Hello(r Sex.Request) (string, int) {
     return Sex.Fmt(`{
     	"Hello": "%s"
@@ -84,7 +92,9 @@ func Hello(r Sex.Request) (string, int) {
 }
 ```
 
-But, the Pistol to support various function types, between it have:
+Interface way
+
+> That type take lists, maps and structs into a json output
 
 ```go
 func (r Sex.Resquest) (interface {}, int) {
@@ -93,8 +103,6 @@ func (r Sex.Resquest) (interface {}, int) {
     }, 200
 }
 ```
-
-> The output of function above is automatically parsed to json format.
 
 And you can too make a custom response:
 
@@ -105,7 +113,6 @@ func (r Sex.Resquest) (Sex.Response, int) {
         "Hello": r.PathVars["name"],
     }))
     
-    res.Header().Set("Content-Type", "application/json")
     return res, 200
 }
 
@@ -118,8 +125,8 @@ func (r Sex.Resquest) (Sex.Response) {
     }))
     
     res.SetStatus(200) // Opcional, the default status code are "200"
-    
-    res.Header().Set("Content-Type", "application/json")
+    res.SetCookie("name", r.PathVars, 1000) // Setting cookies (key, value, expires)
+    res.Header().Set("Content-Type", "application/json") // Setting headers (key, value)
     return res
 }
 ```
