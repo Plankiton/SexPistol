@@ -1,9 +1,14 @@
-package sex
+package Sex
 
 import (
     "os"
     "log"
+    "fmt"
 )
+
+func Fmt(s string, v...interface {}) string {
+    return fmt.Sprintf(s, v...)
+}
 
 func Log (args ...interface {}) {
     fmt_args := []interface {}{"\033[32;1m[info] \033[00m"}
