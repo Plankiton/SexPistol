@@ -97,7 +97,7 @@ Interface way
 > That type take lists, maps and structs into a json output
 
 ```go
-func (r Sex.Resquest) (interface {}, int) {
+func (r Sex.Request) (interface {}, int) {
     return map[string]string {
         "Hello": r.PathVars["name"],
     }, 200
@@ -107,7 +107,7 @@ func (r Sex.Resquest) (interface {}, int) {
 And you can too make a custom response:
 
 ```go
-func (r Sex.Resquest) (Sex.Response, int) {
+func (r Sex.Request) (Sex.Response, int) {
     res := r.MkResponse()
     res.SetBody(Sex.Jsonify(map[string]string {
         "Hello": r.PathVars["name"],
@@ -118,7 +118,7 @@ func (r Sex.Resquest) (Sex.Response, int) {
 
 // When you are using the custom response the status_code are opcional
 
-func (r Sex.Resquest) (Sex.Response) {
+func (r Sex.Request) (Sex.Response) {
     res := r.MkResponse()
     res.SetBody(Sex.Jsonify(map[string]string {
         "Hello": r.PathVars["name"],
@@ -141,3 +141,25 @@ return Sex.Bullet {
 }, 200
 ```
 
+## Requests
+
+Well, how you did look, the request is handle on function by arguments and it have very util properties:
+
+```go
+func (r Sex.Request) Sex.Response {
+    res := r.MkResponse()          // Create Sex.Response struct
+    r.Header.Get("Authorization")  // Get a header
+    r.Cookies.Get("name")          // Get a cookie
+    r.PathVars["name"]             // Get path variable 
+    
+    r.ParseForm()
+    r.Form.Get("name")             // Get url encoded form field
+    
+    var data map[string]interface{}
+    r.JsonBody(&data)             // Parse json body to maps, structs or lists
+    raw_body := r.RawBody()       // Get byte list with request body
+    r.Body                        // io.ReadCloser Body for manual handle 
+}
+```
+
+**`Sex.Request` have all `*http.Request` properties and functions, because of that you can use any tutorial for to handle `Sex.Request`**
