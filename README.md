@@ -6,7 +6,7 @@
 
 A Sex web micro framework for GoLang.
 
-<center><img src="assets/Icon.png" alt="Sex Pistol Icon" align="left" style="max-height: 700px;max-width: 50%"/>
+<img src="assets/Icon.png" alt="Sex Pistol Icon" align="left" style="max-height: 700px;max-width: 30%"/>
 
 # Get Started
 
