@@ -30,7 +30,7 @@ import "github.com/Plankiton/SexPistol"
 func main() {
     router := new(Sex.Pistol)
     router.Add("/{name}", func (r Sex.Request) (string, int) {
-        return Sex.Fmt("Hello, %s", r.PathVars["name"]), 200
+        return Sex.Fmt("Hello, %s", r.PathVars["name"]), Sex.StatusOk
     })
     router.Run()
 }
@@ -88,7 +88,7 @@ String function way
 func Hello(r Sex.Request) (string, int) {
     return Sex.Fmt(`{
     	"Hello": "%s"
-    }`, r.PathVars["name"]), 200
+    }`, r.PathVars["name"]), Sex.StatusOk
 }
 ```
 
@@ -100,7 +100,7 @@ Interface way
 func (r Sex.Request) (interface {}, int) {
     return map[string]string {
         "Hello": r.PathVars["name"],
-    }, 200
+    }, Sex.StatusOk
 }
 ```
 
@@ -113,7 +113,7 @@ func (r Sex.Request) (Sex.Response, int) {
         "Hello": r.PathVars["name"],
     }))
     
-    return res, 200
+    return res, Sex.StatusOk
 }
 
 // When you are using the custom response the status_code are opcional
@@ -134,11 +134,11 @@ func (r Sex.Request) (Sex.Response) {
 We have a template for response in case of Rest APIs, it optional but are a way to make a beautiful API:
 
 ```go
-return Sex.Bullet {
+Sex.Bullet {
     Type: "Error|Sucess",
     Message: "Response description",
     Data: "Response data"
-}, 200
+}
 ```
 
 ## Requests
