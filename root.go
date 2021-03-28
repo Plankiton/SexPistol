@@ -15,33 +15,12 @@ import (
 func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
     body := Request {}
 
-    end := "\n\t-> Body: <"+r.Header.Get("Content-Type")+">"
-    if str.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
-        l, _ := strconv.Atoi(r.Header.Get("Content-Lenght"))
-        r.ParseMultipartForm(int64(l))
-    } else
-    if str.HasPrefix(r.Header.Get("Content-Type"), "application/x-www-form-urlencoded") {
-        r.ParseForm()
-    } else {
-        raw_body := new(bytes.Buffer)
-        raw_body.ReadFrom(r.Body)
-        end = "\n\t-> Body: "+ raw_body.String()
-        if raw_body.Len() == 0 {
-            end = ""
-        }
-
-        if FromJson(raw_body.Bytes(), &body.Body) != nil {
-            body.Body = new(bytes.Buffer)
-            body.Body.(*bytes.Buffer).ReadFrom(raw_body)
-        }
-    }
-
     path := r.URL.Path
     if path != "/" {
         path = fixPath(r.URL.Path)
     }
 
-    Log(r.Method, path, r.URL.RawQuery, end)
+    Log(r.Method, path, r.URL.RawQuery)
 
     for path_pattern, methods := range router.Routes {
 
@@ -62,6 +41,7 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
                     body.Writer = new(Response)
                     body.Writer.ResponseWriter = w
 
+                    sb := ""
                     sc := 200
                     if isRawFunc(route_func) {
 
@@ -70,6 +50,7 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
                             status = 200
                         }
                         sc = status
+                        sb = string(res)
 
                         w.WriteHeader(status)
                         w.Write(res)
@@ -82,6 +63,7 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
                             status = 200
                         }
                         sc = status
+                        sb = res.Body
 
                         w.WriteHeader(status)
                         w.Write([]byte(res))
@@ -98,9 +80,10 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
                             }
                         }
                         sc = status
+                        sb = string(res.Body)
 
                         w.WriteHeader(status)
-                        w.Write(res.Body.([]byte))
+                        w.Write(res.Body)
 
                     } else
                     if isPureResFunc(route_func) {
@@ -110,9 +93,10 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
                             res.Status = 200
                         }
                         sc = res.Status
+                        sb = string(res.Body)
 
                         w.WriteHeader(res.Status)
-                        w.Write(res.Body.([]byte))
+                        w.Write(res.Body)
 
                     } else {
 
@@ -121,14 +105,14 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
                             status = 200
                         }
                         sc = status
+                        sb = string(Jsonify(res))
 
                         w.Header().Set("Content-Type", "application/json")
                         w.WriteHeader(status)
                         w.Write(Jsonify(res))
-
                     }
 
-                    msg := Fmt("%d -> %s", sc, http.StatusText(sc))
+                    msg := Fmt("%d -> %s, %s", sc, http.StatusText(sc), sb)
                     if sc != 200 {
                         Err(msg)
                     }

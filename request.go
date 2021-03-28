@@ -5,43 +5,60 @@ import (
 
     "net/http"
     "errors"
+    "bytes"
     "time"
 )
 
 type Response struct {
     http.ResponseWriter
-    Body   interface {}
+    Body   []byte
     Status int
 }
 
 type Request  struct {
     *http.Request
-    Body   interface{}          `json:"data,omitempty"`
-    PathVars  map[string]string
-    Conf      RouteConf
-    Writer    *Response
+    PathVars    map[string]string
+    Conf        RouteConf
+    Writer      *Response
+}
+
+func (self *Request) JsonBody(v interface{}) error {
+    encoded := new(bytes.Buffer)
+    encoded.ReadFrom(self.Body)
+    return FromJson(encoded.Bytes(), v)
+}
+
+func (self *Request) RawBody(b *[]byte) error {
+    body := new(bytes.Buffer)
+    _, err := body.ReadFrom(self.Body)
+    *b = body.Bytes()
+
+    return err
 }
 
 func (self *Request) MkResponse() *Response {
     return self.Writer
 }
 
-func (self *Response) SetBody(v interface{}) *Response {
+func (self *Response) SetBody(v []byte) *Response {
     self.Body = v
     return self
 }
 
-func (self *Response) SetStatus(code int) {
+func (self *Response) SetStatus(code int) *Response {
     self.Status = 200
+    return self
 }
 
-func (self *Response) SetCookie(key string, value string, expires time.Duration) {
+func (self *Response) SetCookie(key string, value string, expires time.Duration) *Response {
     cookie := &http.Cookie {
         Name: key,
         Value: value,
         Expires: time.Now().Add(expires),
     }
     http.SetCookie(self, cookie)
+
+    return self
 }
 
 func GetPathPattern(t string) string {
