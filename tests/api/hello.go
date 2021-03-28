@@ -4,7 +4,7 @@ import "github.com/Plankiton/SexPistol"
 func main() {
     router := new (Sex.Pistol)
     router.
-    Add("/hello/{name:.{0,}}", func (r Sex.Request) (string, int) {
+    Add(`/hello/{name}`, func (r Sex.Request) (string, int) {
         return Sex.Fmt("Hello %s", r.PathVars["name"]), 200
     }).
     Add("/api", func (r Sex.Request) (interface{}, int) {

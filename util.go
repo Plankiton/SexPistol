@@ -82,29 +82,45 @@ func SuperPut (v...interface{}) {
 
 
 func isRawFunc(f interface{}) bool {
-    var gf RawRouteFunc
+    var gf rawRouteFunc
+    return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
+}
+
+func isRawFuncNoStatus(f interface{}) bool {
+    var gf rawRouteFuncNoStatus
     return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
 }
 
 func isStrFunc(f interface{}) bool {
-    var gf StrRouteFunc
+    var gf strRouteFunc
+    return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
+}
+
+func isStrFuncNoStatus(f interface{}) bool {
+    var gf strRouteFuncNoStatus
     return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
 }
 
 func isResFunc(f interface{}) bool {
-    var gf ResRouteFunc
+    var gf resRouteFunc
     return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
 }
 
-func isPureResFunc(f interface{}) bool {
-    var gf PureResRouteFunc
+func isResFuncNoStatus(f interface{}) bool {
+    var gf resRouteFuncNoStatus
     return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
 }
 
-func isFunc(f interface{}) bool {
-    var gf RouteFunc
+func isInterfaceFunc(f interface{}) bool {
+    var gf interfaceRouteFunc
     return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
 }
+
+func isInterfaceFuncNoStatus(f interface{}) bool {
+    var gf interfaceRouteFuncNoStatus
+    return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
+}
+
 
 func GenericInterface () reflect.Type {
     var i interface{}

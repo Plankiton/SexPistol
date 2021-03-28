@@ -7,8 +7,8 @@ import (
 
 type Pistol struct {
     RootPath        string
-    RouteConfs      RouteConfDict
-    Routes          RouteDict
+    RouteConfs      routeConfDict
+    Routes          routeDict
     Auth            bool
     Mux             *http.ServeMux
 }
@@ -23,20 +23,20 @@ func (router *Pistol) Add(path string, route interface {}, methods ...string) *P
     path_pattern := GetPathPattern(path)
 
     if len(router.RouteConfs) == 0 {
-        router.RouteConfs = make(RouteConfDict)
+        router.RouteConfs = make(routeConfDict)
     }
     if len(router.Routes) == 0 {
-        router.Routes = make(RouteDict)
+        router.Routes = make(routeDict)
     }
 
     if _, exist := router.Routes[path_pattern]; !exist {
-        router.Routes[path_pattern] = make(Route)
+        router.Routes[path_pattern] = make(route_t)
     }
     if _, exist := router.RouteConfs[path_pattern]; !exist {
-        router.RouteConfs[path_pattern] = make(RouteConf)
+        router.RouteConfs[path_pattern] = make(routeConf)
     }
 
-    conf := RouteConf{}
+    conf := routeConf{}
     conf["path-template"] = path
     router.RouteConfs[path_pattern] = conf
 

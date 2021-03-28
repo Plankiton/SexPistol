@@ -1,12 +1,8 @@
 package Sex
 import (
-    str "strings"
     re "regexp"
 
     "net/http"
-
-    "strconv"
-    "bytes"
 
     "github.com/Showmax/go-fqdn"
     "github.com/rs/cors"
@@ -24,7 +20,7 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
 
     for path_pattern, methods := range router.Routes {
 
-        path_regex := re.MustCompile(path_pattern)
+        path_regex := re.MustCompile(path_pattern+`{1}`)
 
         route_conf := router.RouteConfs[path_pattern]
         route_func := methods[r.Method]
@@ -56,6 +52,17 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
                         w.Write(res)
 
                     } else
+                    if isRawFuncNoStatus(route_func) {
+
+                        res := route_func.(func(Request)([]byte))(body)
+                        status := 200
+                        sc = status
+                        sb = string(res)
+
+                        w.WriteHeader(status)
+                        w.Write(res)
+
+                    } else
                     if isStrFunc(route_func) {
 
                         res, status := route_func.(func(Request)(string, int))(body)
@@ -63,7 +70,19 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
                             status = 200
                         }
                         sc = status
-                        sb = res.Body
+                        sb = res
+
+                        w.WriteHeader(status)
+                        w.Write([]byte(res))
+
+                        return
+                    } else
+                    if isStrFuncNoStatus(route_func) {
+
+                        res := route_func.(func(Request)(string))(body)
+                        status := 200
+                        sc = status
+                        sb = res
 
                         w.WriteHeader(status)
                         w.Write([]byte(res))
@@ -86,7 +105,7 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
                         w.Write(res.Body)
 
                     } else
-                    if isPureResFunc(route_func) {
+                    if isResFuncNoStatus(route_func) {
 
                         res := route_func.(func(Request)(*Response))(body)
                         if res.Status == 0 {
@@ -98,7 +117,8 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
                         w.WriteHeader(res.Status)
                         w.Write(res.Body)
 
-                    } else {
+                    } else
+                    if isInterfaceFunc(route_func) {
 
                         res, status := route_func.(func(Request)(interface{}, int))(body)
                         if status == 0 {
@@ -110,6 +130,19 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
                         w.Header().Set("Content-Type", "application/json")
                         w.WriteHeader(status)
                         w.Write(Jsonify(res))
+
+                    } else
+                    if isInterfaceFuncNoStatus(route_func) {
+
+                        res := route_func.(func(Request)(interface{}))(body)
+                        status := 200
+                        sc = status
+                        sb = string(Jsonify(res))
+
+                        w.Header().Set("Content-Type", "application/json")
+                        w.WriteHeader(status)
+                        w.Write(Jsonify(res))
+
                     }
 
                     msg := Fmt("%d -> %s, %s", sc, http.StatusText(sc), sb)
@@ -118,15 +151,8 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
                     }
 
                     return
-                }
 
-                Err("Route not found")
-                w.WriteHeader(404)
-                w.Write(Jsonify(Bullet {
-                    Message: "Route not found",
-                    Type:    "Error",
-                }))
-                return
+                }
             }
 
             Err("Method not allowed")
@@ -147,7 +173,7 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
     }))
 }
 
-func (router *Pistol) Run(a...interface{}) error {
+func (router *Pistol) Run(a ...interface{}) error {
     port := 8000
     path := "/"
 

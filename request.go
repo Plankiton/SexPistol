@@ -18,7 +18,7 @@ type Response struct {
 type Request  struct {
     *http.Request
     PathVars    map[string]string
-    Conf        RouteConf
+    Conf        routeConf
     Writer      *Response
 }
 
@@ -72,10 +72,11 @@ func GetPathPattern(t string) string {
             continue
         }
 
+        path_tmplt[i] += "/"
         values := var_patt.FindStringSubmatch(path_tmplt[i])
         if len(values)>=2 {
             if values[2] == "" {
-                path_pattern += "[a-zA-Z0-9_]{1,}"
+                path_pattern += `[a-zA-Z0-9_\ ]{1,}`
             } else {
                 path_pattern += values[2]
             }
