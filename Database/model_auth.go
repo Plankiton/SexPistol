@@ -1,7 +1,7 @@
 package SexDatabase
 
 type Token struct {
-    ModelNoID
+    MinimalModel
     ID        string `json:"Token,omitempty" gorm:"PrimaryKey, NOT NULL"`
 
     UserId    uint   `json:"-" gorm:"index, NOT NULL"`

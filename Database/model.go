@@ -11,6 +11,8 @@ type ModelSkel interface {
     SetID(interface{}) error
     GetDB() (interface{}, error)
     SetDB(interface{}) error
+
+    New() error
 }
 
 type MinimalModel struct {
@@ -23,6 +25,10 @@ type MinimalModel struct {
 type Model struct {
     MinimalModel
     ID        uint      `json:"id,omitempty" gorm:"primaryKey,auto_increment,NOT NULL"`
+}
+
+func (model *Model) New() error {
+    return nil
 }
 
 func (model *Model) TableName() string {
@@ -55,8 +61,13 @@ func (model *Model) Query(query ...interface{}) *gorm.DB {
 }
 
 func Create(model ModelSkel) error {
-    e := model.GetDB().Create(model)
-    return e.Error
+    e := model.New()
+    if e == nil {
+        e := model.GetDB().Create(model)
+        return e.Error
+    }
+
+    return e
 }
 
 func Delete(model ModelSkel) error {
@@ -69,7 +80,7 @@ func Save(model ModelSkel) error {
     return e.Error
 }
 
-func Update(model ModelSkel, columns Dict) error {
+func Update(model ModelSkel, columns map[string]interface{}) error {
     e := model.GetDB().First(model).Updates(columns.ToStrMap())
     return e.Error
 }

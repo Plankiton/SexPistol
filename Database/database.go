@@ -25,11 +25,11 @@ func (db *Database) SetLogLevel(s string) {
     db.Config.logger = Logger(s)
 }
 
-func (db *Database) AddModels(m ...IModel) {
+func (db *Database) AddModels(m ...ModelSkel) {
     db.AutoMigrate(m...)
 }
 
-func Create(con_string string, db_type func(string)(gorm.Dialector)) (*Database, error) {
+func Open(con_string string, db_type func(string)(gorm.Dialector)) (*Database, error) {
     logger := Logger()
 
     dsn := GetEnv("DB_URI", con_string)
