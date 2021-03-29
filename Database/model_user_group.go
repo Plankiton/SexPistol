@@ -1,4 +1,4 @@
-package sex
+package SexDatabase
 
 type UserGroup struct {
     Model

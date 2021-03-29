@@ -1,4 +1,4 @@
-package database
+package SexDatabase
 import "gorm.io/gorm/logger"
 
 func Logger (level...string) logger.Interface {
