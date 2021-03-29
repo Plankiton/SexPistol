@@ -1,16 +1,22 @@
 package SexDatabase
-import "gorm.io/gorm/logger"
+import (
+    "gorm.io/gorm/logger"
+
+    "log"
+    "os"
+)
 
 func Logger (level...string) logger.Interface {
     log_level := logger.Error
     if len(level) > 0 {
-        log_level, ok := map[string]interface{}{
+        levels :=  map[string]logger.LogLevel{
             "error": logger.Error,
             "warn": logger.Warn,
             "info": logger.Info,
-        }[level]
-        if !ok {
-            logger.Error
+        }
+
+        if level, ok := levels[level[0]]; ok {
+            log_level = level
         }
     }
     return logger.New(

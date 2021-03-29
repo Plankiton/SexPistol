@@ -3,6 +3,7 @@ import (
     "crypto/sha1"
     "io"
 
+    "fmt"
     "golang.org/x/crypto/bcrypt"
 )
 
