@@ -25,6 +25,10 @@ func (db *Database) SetLogLevel(s string) {
     db.Config.logger = Logger(s)
 }
 
+func (db *Database) AddModels(m ...IModel) {
+    db.AutoMigrate(m...)
+}
+
 func Create(con_string string, db_type func(string)(gorm.Dialector)) (*Database, error) {
     logger := Logger()
 

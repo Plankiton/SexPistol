@@ -5,7 +5,7 @@ import (
     "gorm.io/gorm"
 )
 
-type IModel interface {
+type ModelSkel interface {
     TableName() string
     GetID() (interface{}, error)
     SetID(interface{}) error
@@ -23,6 +23,10 @@ type MinimalModel struct {
 type Model struct {
     MinimalModel
     ID        uint      `json:"id,omitempty" gorm:"primaryKey,auto_increment,NOT NULL"`
+}
+
+func (model *Model) TableName() string {
+    return "models"
 }
 
 func (model *Model) SetID(id uint) error {
@@ -50,22 +54,22 @@ func (model *Model) Query(query ...interface{}) *gorm.DB {
     return db.Table(model.TableName()).Select(query...)
 }
 
-func Create(model IModel) error {
+func Create(model ModelSkel) error {
     e := model.GetDB().Create(model)
     return e.Error
 }
 
-func Delete(model IModel) error {
+func Delete(model ModelSkel) error {
     e := model.GetDB().Delete(model)
     return e.Error
 }
 
-func Save(model IModel) error {
+func Save(model ModelSkel) error {
     e := model.GetDB().Save(model)
     return e.Error
 }
 
-func Update(model IModel, columns Dict) error {
+func Update(model ModelSkel, columns Dict) error {
     e := model.GetDB().First(model).Updates(columns.ToStrMap())
     return e.Error
 }
