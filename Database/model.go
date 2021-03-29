@@ -24,25 +24,21 @@ type Model struct {
     DB        *gorm.DB  `json:"-" gorm:"-"`
 }
 
-func (model *Model) New() error {
+func (model Model) New() error {
     return nil
 }
-func (model *Model) Del() error {
+func (model Model) Del() error {
     return nil
 }
-func (model *Model) Upd() error {
+func (model Model) Upd() error {
     return nil
 }
 
-func (model *Model) TableName() string {
-    return "models"
-}
-
-func (model *Model) SetID(id interface{}) error {
+func (model Model) SetID(id interface{}) error {
     model.ID = id.(uint)
     return nil
 }
 
-func (model *Model) GetID() (interface{}, error) {
+func (model Model) GetID() (interface{}, error) {
     return model.ID, nil
 }
