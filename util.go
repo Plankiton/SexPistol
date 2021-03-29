@@ -111,13 +111,13 @@ func isResFuncNoStatus(f interface{}) bool {
     return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
 }
 
-func isInterfaceFunc(f interface{}) bool {
-    var gf interfaceRouteFunc
+func isJsonFunc(f interface{}) bool {
+    var gf jsonRouteFunc
     return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
 }
 
-func isInterfaceFuncNoStatus(f interface{}) bool {
-    var gf interfaceRouteFuncNoStatus
+func isJsonFuncNoStatus(f interface{}) bool {
+    var gf jsonRouteFuncNoStatus
     return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
 }
 

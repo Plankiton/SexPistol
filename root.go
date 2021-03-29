@@ -118,9 +118,9 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
                         w.Write(res.Body)
 
                     } else
-                    if isInterfaceFunc(route_func) {
+                    if isJsonFunc(route_func) {
 
-                        res, status := route_func.(func(Request)(interface{}, int))(body)
+                        res, status := route_func.(func(Request)(Json, int))(body)
                         if status == 0 {
                             status = 200
                         }
@@ -132,9 +132,9 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
                         w.Write(Jsonify(res))
 
                     } else
-                    if isInterfaceFuncNoStatus(route_func) {
+                    if isJsonFuncNoStatus(route_func) {
 
-                        res := route_func.(func(Request)(interface{}))(body)
+                        res := route_func.(func(Request)(Json))(body)
                         status := 200
                         sc = status
                         sb = string(Jsonify(res))

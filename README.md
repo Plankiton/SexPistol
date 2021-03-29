@@ -97,7 +97,7 @@ Interface way
 > That type take lists, maps and structs into a json output
 
 ```go
-func (r Sex.Request) (interface {}, int) {
+func (r Sex.Request) (Sex.Json, int) {
     return map[string]string {
         "Hello": r.PathVars["name"],
     }, Sex.StatusOk

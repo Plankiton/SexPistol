@@ -6,6 +6,8 @@ type Bullet struct {
     Data      interface{}        `json:"data,omitempty"`
 }
 
+type Json interface{}
+
 type route_t map[string] interface{}
 type routeDict map[string] route_t
 
@@ -15,12 +17,12 @@ type routeConfDict map[string] routeConf
 type rawRouteFunc       func(Request) ([]byte, int)
 type strRouteFunc       func(Request) (string, int)
 type resRouteFunc       func(Request) (*Response, int)
-type interfaceRouteFunc func(r Request) (interface{}, int)
+type jsonRouteFunc func(r Request) (Json, int)
 
 type rawRouteFuncNoStatus       func(Request) ([]byte)
 type strRouteFuncNoStatus       func(Request) (string)
 type resRouteFuncNoStatus       func(Request) (*Response)
-type interfaceRouteFuncNoStatus func(Request) (interface{})
+type jsonRouteFuncNoStatus func(Request) (Json)
 
 const (
     StatusContinue           = 100 // RFC 7231, 6.2.1
