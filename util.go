@@ -15,6 +15,12 @@ import (
 )
 
 func fixPath(path string) string {
+    path = str.Trim(path, " ")
+
+    if path == "/" {
+        return path
+    }
+
     end_path := len(path)-1
     if path[end_path] == '/' {
         path = path[:end_path]

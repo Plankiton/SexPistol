@@ -12,9 +12,7 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
     body := Request {}
 
     path := r.URL.Path
-    if path != "/" {
-        path = fixPath(r.URL.Path)
-    }
+    path = fixPath(r.URL.Path)
 
     Log(r.Method, path, r.URL.RawQuery)
 
