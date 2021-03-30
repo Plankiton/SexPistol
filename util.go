@@ -29,13 +29,13 @@ func fixPath(path string) string {
     return path
 }
 
-func Copy(m interface{}, v interface{}) error {
-    encoded, err := json.Marshal(m)
+func Copy(source interface{}, destine interface{}) error {
+    encoded, err := json.Marshal(source)
     if err != nil {
         return err
     }
 
-    return json.Unmarshal(encoded, v)
+    return json.Unmarshal(encoded, destine)
 }
 
 func FromJson(encoded []byte, v interface{}) error {

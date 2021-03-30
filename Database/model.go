@@ -2,7 +2,6 @@ package SexDatabase
 
 import (
     "time"
-    "gorm.io/gorm"
 )
 
 type ModelSkel interface {
@@ -16,22 +15,37 @@ type ModelSkel interface {
     Upd() error
 }
 
-type Model struct {
-    ID        uint      `json:"id,omitempty" gorm:"primaryKey,auto_increment,NOT NULL"`
+type MinimalModel struct {
+}
+
+type MetaModel struct {
+    MinimalModel
     CreatedAt time.Time `json:"-" gorm:"index"`
     UpdatedAt time.Time `json:"-" gorm:"index"`
-
-    DB        *gorm.DB  `json:"-" gorm:"-"`
 }
 
-func (model Model) New() error {
+type Model struct {
+    MetaModel
+
+    ID        uint `json:"id,omitempty" gorm:"primaryKey,auto_increment,NOT NULL"`
+}
+
+func (model MinimalModel) New() error {
     return nil
 }
-func (model Model) Del() error {
+func (model MinimalModel) Del() error {
     return nil
 }
-func (model Model) Upd() error {
+func (model MinimalModel) Upd() error {
     return nil
+}
+
+func (model MinimalModel) SetID(id interface{}) error {
+    return nil
+}
+
+func (model MinimalModel) GetID() (interface{}, error) {
+    return nil, nil
 }
 
 func (model Model) SetID(id interface{}) error {

@@ -7,5 +7,5 @@ type UserEvent struct {
 }
 
 func (m UserEvent) TableName() string {
-    return "user_events"
+    return "link_user_events"
 }

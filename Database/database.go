@@ -8,6 +8,14 @@ import (
     "os"
 )
 
+type DatabaseSkel interface {
+    SetLogLevel()
+    Create(ModelSkel) error
+    Delete(ModelSkel) error
+    Save(ModelSkel) error
+    Update(ModelSkel, map[string]interface{}) error
+}
+
 type Database struct {
     gorm.DB
 }

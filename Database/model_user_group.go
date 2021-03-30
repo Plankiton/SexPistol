@@ -7,5 +7,5 @@ type UserGroup struct {
 }
 
 func (m UserGroup) TableName() string {
-    return "user_groups"
+    return "link_user_groups"
 }
