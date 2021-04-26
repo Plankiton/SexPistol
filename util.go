@@ -38,6 +38,39 @@ func Copy(source interface{}, destine interface{}) error {
     return json.Unmarshal(encoded, destine)
 }
 
+func Merge(source interface{}, destine interface{}) (map[string]interface{}, error) {
+    final := map[string]interface{}{}
+
+    dst := map[string]interface{}{}
+    src := map[string]interface{}{}
+
+    ok := false
+    if src, ok = source.(map[string]interface{}); !ok {
+        err := Copy(source, &src)
+        if err != nil {
+            return final, err
+        }
+    }
+
+    if dst, ok = destine.(map[string]interface{}); !ok {
+        err := Copy(destine, &dst)
+        if err != nil {
+            return final, err
+        }
+    }
+
+    for k, v := range src {
+        final[k] = v
+    }
+
+    for k, v := range dst {
+        final[k] = v
+    }
+
+    return final, nil
+}
+
+
 func FromJson(encoded []byte, v interface{}) error {
     return json.Unmarshal(encoded, v)
 }

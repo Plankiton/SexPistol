@@ -10,7 +10,7 @@ type User struct {
     Email      string    `json:"email,omitempty" gorm:"unique,default:null"`
     Name       string    `json:"name,omitempty" gorm:"index"`
     Born       time.Time `json:"born_date,omitempty" gorm:"index"`
-    Genre      string    `json:"genre,omitempty" gorm:"default:'M'"`
+    Genre      string    `json:"genre,omitempty" gorm:"default:'male'"`
     PassHash   string    `json:"-"`
 }
 
