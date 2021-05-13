@@ -93,7 +93,15 @@ func Hello(r Sex.Request) (string, int) {
 }
 ```
 
-Interface way
+> If you dont want to set status code, you can make on that way (that works for all response types):
+```go
+func Hello(r Sex.Request) string {
+    //...
+    return ""
+}
+```
+
+Json way
 
 > That type take lists, maps and structs into a json output
 
