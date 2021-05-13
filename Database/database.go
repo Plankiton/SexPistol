@@ -10,14 +10,20 @@ import (
 
 type DatabaseSkel interface {
     SetLogLevel()
-    Create(ModelSkel) error
-    Delete(ModelSkel) error
-    Save(ModelSkel) error
-    Update(ModelSkel, map[string]interface{}) error
+    Add(ModelSkel) error
+    Del(ModelSkel) error
+    Sav(ModelSkel) error
+    Set(ModelSkel, map[string]interface{}) error
 }
 
 type Database struct {
     gorm.DB
+}
+
+func ToDB(db *gorm.DB) Database {
+    return Database {
+        DB: db,
+    }
 }
 
 func Postgres(dsn string) gorm.Dialector {
@@ -38,28 +44,28 @@ func (db *Database) AddModels(m ...ModelSkel) {
     }
 }
 
-func (db *Database) Create(model ModelSkel) error {
+func (db *Database) Add(model ModelSkel) error {
     e := model.New()
     if e == nil {
-        e := db.DB.Create(model).Error
+        e := db.Create(model).Error
         return e
     }
 
     return e
 }
 
-func (db *Database) Delete(model ModelSkel) error {
-    e := db.DB.Delete(model).Error
+func (db *Database) Del(model ModelSkel) error {
+    e := db.Delete(model).Error
     return e
 }
 
-func (db *Database) Save(model ModelSkel) error {
-    e := db.DB.Save(model).Error
+func (db *Database) Sav(model ModelSkel) error {
+    e := db.Save(model).Error
     return e
 }
 
-func (db *Database) Update(model ModelSkel, columns map[string]interface{}) error {
-    e := db.DB.First(model).Updates(columns).Error
+func (db *Database) Set(model ModelSkel, columns map[string]interface{}) error {
+    e := db.First(model).Updates(columns).Error
     return e
 }
 
