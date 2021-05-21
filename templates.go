@@ -8,21 +8,18 @@ type Bullet struct {
 
 type Json interface{}
 
-type route_t map[string] interface{}
-type routeDict map[string] route_t
-
-type routeConf map[string] interface{}
-type routeConfDict map[string] routeConf
+type Prop map[string] interface{}
+type Dict map[string] Prop
 
 type rawRouteFunc       func(Request) ([]byte, int)
 type strRouteFunc       func(Request) (string, int)
 type resRouteFunc       func(Request) (*Response, int)
-type jsonRouteFunc func(r Request) (Json, int)
+type jsonRouteFunc      func(Request) (Json, int)
 
 type rawRouteFuncNoStatus       func(Request) ([]byte)
 type strRouteFuncNoStatus       func(Request) (string)
 type resRouteFuncNoStatus       func(Request) (*Response)
-type jsonRouteFuncNoStatus func(Request) (Json)
+type jsonRouteFuncNoStatus      func(Request) (Json)
 
 const (
     StatusContinue           = 100 // RFC 7231, 6.2.1

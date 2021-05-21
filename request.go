@@ -18,7 +18,7 @@ type Response struct {
 type Request  struct {
     *http.Request
     PathVars    map[string]string
-    Conf        routeConf
+    Conf        Prop
     Writer      *Response
 }
 
