@@ -1,7 +1,8 @@
-package SexDatabase
+package SexDB
+import "github.com/plankiton/SexPistol/Database"
 
 type Token struct {
-    Model
+    SexDB.Model
     ID        string `json:"Token,omitempty" gorm:"PrimaryKey, NOT NULL"`
 
     UserId    uint   `json:"-" gorm:"index, NOT NULL"`

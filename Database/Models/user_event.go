@@ -1,7 +1,8 @@
-package SexDatabase
+package SexDB
+import "github.com/plankiton/SexPistol/Database"
 
 type UserEvent struct {
-    Model
+    SexDB.Model
     UserId   uint  `json:"-" gorm:"index"`
     EventId  uint  `json:"-" gorm:"index"`
 }

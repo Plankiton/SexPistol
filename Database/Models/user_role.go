@@ -1,7 +1,8 @@
-package SexDatabase
+package SexDB
+import "github.com/plankiton/SexPistol/Database"
 
 type UserRole struct {
-    Model
+    SexDB.Model
     UserId  uint  `json:"-" gorm:"index"`
     RoleId  uint  `json:"-" gorm:"index"`
 }

@@ -1,9 +1,12 @@
-package SexDatabase
+package SexDB
 
-import "time"
+import (
+    "time"
+    "github.com/plankiton/SexPistol/Database"
+)
 
 type Event struct {
-    Model
+    SexDB.Model
     Name       string       `json:"name,omitempty" gorm:"index"`
     Type       string       `json:"type,omitempty" gorm:"index"`
 

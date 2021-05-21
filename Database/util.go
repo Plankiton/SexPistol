@@ -1,4 +1,4 @@
-package SexDatabase
+package SexDB
 import (
     "crypto/sha1"
     "io"

@@ -1,13 +1,14 @@
-package SexDatabase
+package SexDB
 
 import (
+    "github.com/plankiton/SexPistol/Database"
     "encoding/json"
     "net/http"
     "fmt"
 )
 
 type Address struct {
-    Model
+    SexDB.Model
     Street       string `json:"street,omitempty"`
     State        string `json:"state,omitempty"`
     Number       string `json:"number,omitempty" gorm:"NOT NULL"`

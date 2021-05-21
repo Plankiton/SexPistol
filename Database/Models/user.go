@@ -1,11 +1,12 @@
-package SexDatabase
+package SexDB
 
 import (
     "time"
+    "github.com/plankiton/SexPistol/Database"
 )
 
 type User struct {
-    Model
+    SexDB.Model
 
     Email      string    `json:"email,omitempty" gorm:"unique,default:null"`
     Name       string    `json:"name,omitempty" gorm:"index"`

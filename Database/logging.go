@@ -1,4 +1,4 @@
-package SexDatabase
+package SexDB
 import (
     "gorm.io/gorm/logger"
 
