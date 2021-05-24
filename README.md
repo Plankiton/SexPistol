@@ -1,3 +1,4 @@
+<img src="assets/Icon.png" alt="Sex Pistol Icon" align="left" style="max-height: 700px;max-width: 30%"/>
 
 
 # Sex Pistol
@@ -5,8 +6,6 @@
 ----
 
 A Sex web micro framework for GoLang.
-
-<img src="assets/Icon.png" alt="Sex Pistol Icon" align="left" style="max-height: 700px;max-width: 30%"/>
 
 # Get Started
 
