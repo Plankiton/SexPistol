@@ -22,7 +22,7 @@ type Database struct {
 
 func ToDB(db *gorm.DB) Database {
     return Database {
-        DB: db,
+        DB: *db,
     }
 }
 

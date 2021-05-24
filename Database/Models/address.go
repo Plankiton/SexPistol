@@ -1,4 +1,4 @@
-package SexDB
+package SexModel
 
 import (
     "github.com/plankiton/SexPistol/Database"
