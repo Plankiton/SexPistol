@@ -171,22 +171,3 @@ func (r Sex.Request) Sex.Response {
 ```
 
 **`Sex.Request` have all `*http.Request` properties and functions, because of that you can use any tutorial for to handle `Sex.Request`**
-
-## Context routers
-
-You can too create more then one router on the same application, and is just to set the path context or port:
-
-```go
-router1 = new(Sex.Pistol).
-Add("/{name}", Hello, "GET")
-
-router2 = new(Sex.Pistol)
-router2.Add("/{name}", Bye, "GET")
-
-go router1.Run("/hello")
-go router2.Run("/bye")
-
-// Run(path, port) || Run(port, path) || Run(path) || Run(port) 
-```
-
-> Run is smart, if then receive an `int ` it understands like port, and a `string` like path, the order don't metters.
