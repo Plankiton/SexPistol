@@ -1,6 +1,6 @@
 package main
 import (
-    "github.com/Plankiton/SexPistol/Html"
+    "github.com/Plankiton/SexPistol/Casing"
     "os"
 )
 
