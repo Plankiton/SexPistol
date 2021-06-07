@@ -1,5 +1,8 @@
 package main
-import "github.com/Plankiton/SexPistol/Html"
+import (
+    "github.com/Plankiton/SexPistol/Html"
+    "os"
+)
 
 func main() {
     j := map[string]interface{} {
@@ -12,5 +15,11 @@ func main() {
 {{.name}} - {{.old}}
 </div>
     `, j)
+    print(string(res), "\n")
+
+    file, _ := os.Open("render.html")
+    defer file.Close()
+
+    res, _ = SexHtml.Render(file, j)
     print(string(res), "\n")
 }
