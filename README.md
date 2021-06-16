@@ -1,4 +1,4 @@
-<img src="assets/Icon.png" alt="Sex Pistol Icon" align="left" style="max-height: 700px;max-width: 30%"/>
+<a href="https://plankiton.github.io/SexPistol"><img src="assets/Icon.png" alt="Sex Pistol Icon" align="left" style="max-height: 700px;max-width: 30%"/></a>
 
 
 # Sex Pistol
