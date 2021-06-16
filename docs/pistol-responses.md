@@ -91,4 +91,4 @@ Sex.Bullet {
 }
 ```
 
-# [Pistol Requests](./pistol-requests.html)
+# 
