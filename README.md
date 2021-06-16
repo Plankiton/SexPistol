@@ -61,4 +61,4 @@ func main() {
 }
 ```
 
-# [Documentation](./docs/readme.md)
+# [Md Documentation](./docs/readme.md) | [Html Documentation](https://plankiton.github.io/SexPistol)
