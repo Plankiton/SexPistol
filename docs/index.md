@@ -24,4 +24,4 @@ That is an wraper for `text/template` of Golang, to make HTML output on Pistol m
 
 That is an route template creator, for make automizations on common parts of project, like CRUD routes for models or similar situations.
 
-# [Pistol Responses](./pistol-responses.html)
+# [Pistol Responses](https://github.com/plankiton/SexPistol/blob/root/docs/pistol-responses.html)
