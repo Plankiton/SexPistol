@@ -8,7 +8,7 @@ import (
     "github.com/rs/cors"
 )
 
-func (router *Pistol) ServHTTP(w http.ResponseWriter, r *http.Request) {
+func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
     body := Request {}
 
     path := r.URL.Path
@@ -194,8 +194,8 @@ func (router *Pistol) Run(a ...interface{}) error {
     if err != nil {
         host = "localhost"
     }
-    Log(Fmt("Running Sex Pistol server at %s:%d%s", host, port, path))
 
+    Log(Fmt("Running Sex Pistol server at %s:%d%s", host, port, path))
     if GetEnv("SEX_DEBUG", "false") != "false" {
         for path, methods := range router.Routes {
             methods_str := ""
@@ -206,6 +206,9 @@ func (router *Pistol) Run(a ...interface{}) error {
             Log(Fmt("%s <- %s", router.RouteConfs[path]["path-template"], methods_str))
         }
     }
+
+    router.RootPath = path
+    router.Mux.HandleFunc(path, router.RootRoute)
 
     handler := cors.Default().Handler(router.Mux)
     return http.ListenAndServe(Fmt(":%d", port), handler)
