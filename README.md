@@ -1,4 +1,4 @@
-<img src="assets/Icon.png" alt="Sex Pistol Icon" align="left" style="max-height: 700px;max-width: 30%"/>
+<a href="https://plankiton.github.io/SexPistol"><img src="assets/Icon.png" alt="Sex Pistol Icon" align="left" style="max-height: 700px;max-width: 30%"/></a>
 
 
 # Sex Pistol
@@ -61,4 +61,4 @@ func main() {
 }
 ```
 
-# [Documentation](./docs/readme.md)
+# [Md Documentation](./docs/readme.md) | [Html Documentation](https://plankiton.github.io/SexPistol)
