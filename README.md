@@ -27,7 +27,7 @@ Its so easy like that:
 package main
 import "github.com/Plankiton/SexPistol"
 func main() {
-    new(Sex.Pistol).
+    Sex.NewPistol().
     Add("/{name}", func (r Sex.Request) string {
         return Sex.Fmt("Hello, %s", r.PathVars["name"])
     }).

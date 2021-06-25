@@ -6,7 +6,7 @@ Pistol is the http server library, basicaly we can make Rest APIs, or Site serve
 package main
 import "github.com/Plankiton/SexPistol"
 func main() {
-    new(Sex.Pistol).
+    Sex.NewPistol().
     Add("/{name}", func (r Sex.Request) string {
         return Sex.Fmt("Hello, %s", r.PathVars["name"])
     }).
