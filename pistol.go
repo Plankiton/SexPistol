@@ -3,6 +3,8 @@ package Sex
 import (
     "net/http"
     "strings"
+    "log"
+    "os"
 )
 
 type Pistol struct {
@@ -11,6 +13,15 @@ type Pistol struct {
     Routes          Dict
     Auth            bool
     Mux             *http.ServeMux
+}
+
+func NewPistol() *Pistol {
+    router := new(Pistol)
+    if logger == nil {
+        logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
+    }
+
+    return router
 }
 
 func (router *Pistol) Add(path string, route interface {}, methods ...string) *Pistol {
