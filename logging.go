@@ -23,7 +23,9 @@ func Log (args ...interface {}) {
 }
 
 func Err (args ...interface {}) {
-    logger := log.New(os.Stderr, "\r\n", log.LstdFlags)
+    if logger == nil {
+        logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
+    }
     fmt_args := []interface {}{"\033[31;1m[erro] \033[00m"}
     fmt_args = append(fmt_args, args...)
 
@@ -31,7 +33,9 @@ func Err (args ...interface {}) {
 }
 
 func War (args ...interface {}) {
-    logger := log.New(os.Stderr, "\r\n", log.LstdFlags)
+    if logger == nil {
+        logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
+    }
     fmt_args := []interface {}{"\033[33;1m[warn] \033[00m"}
     fmt_args = append(fmt_args, args...)
 
@@ -39,7 +43,9 @@ func War (args ...interface {}) {
 }
 
 func Die (args ...interface {}) {
-    logger := log.New(os.Stderr, "\r\n", log.LstdFlags)
+    if logger == nil {
+        logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
+    }
     fmt_args := []interface {}{"\033[31;1m[erro] \033[00m"}
     fmt_args = append(fmt_args, args...)
 
@@ -48,6 +54,10 @@ func Die (args ...interface {}) {
 }
 
 func Logf (args ...interface {}) {
+    if logger == nil {
+        logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
+    }
+
     fmt_args := []interface {}{"\033[32;1m[info] \033[00m"}
     fmt_args = append(fmt_args, Fmt(args[0].(string), args[1:]...))
 
@@ -55,7 +65,10 @@ func Logf (args ...interface {}) {
 }
 
 func Errf (args ...interface {}) {
-    logger := log.New(os.Stderr, "\r\n", log.LstdFlags)
+    if logger == nil {
+        logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
+    }
+
     fmt_args := []interface {}{"\033[31;1m[erro] \033[00m"}
     fmt_args = append(fmt_args, Fmt(args[0].(string), args[1:]...))
 
@@ -63,7 +76,10 @@ func Errf (args ...interface {}) {
 }
 
 func Warf (args ...interface {}) {
-    logger := log.New(os.Stderr, "\r\n", log.LstdFlags)
+    if logger == nil {
+        logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
+    }
+
     fmt_args := []interface {}{"\033[33;1m[warn] \033[00m"}
     fmt_args = append(fmt_args, Fmt(args[0].(string), args[1:]...))
 
@@ -71,7 +87,10 @@ func Warf (args ...interface {}) {
 }
 
 func Dief (args ...interface {}) {
-    logger := log.New(os.Stderr, "\r\n", log.LstdFlags)
+    if logger == nil {
+        logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
+    }
+
     fmt_args := []interface {}{"\033[31;1m[erro] \033[00m"}
     fmt_args = append(fmt_args, Fmt(args[0].(string), args[1:]...))
 
