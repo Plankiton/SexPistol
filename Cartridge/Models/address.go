@@ -11,7 +11,7 @@ type Address struct {
     SexDB.Model
     Street       string `json:"street,omitempty"`
     State        string `json:"state,omitempty"`
-    Number       string `json:"number,omitempty" gorm:"NOT NULL"`
+    Number       string `json:"number,omitempty"`
     Code         string `json:"cep,omitempty"`
     City         string `json:"city,omitempty"`
     Neigh        string `json:"neighborhood,omitempty"`

@@ -7,14 +7,14 @@ import (
 
 type Event struct {
     SexDB.Model
-    Name       string       `json:"name,omitempty" gorm:"index"`
-    Type       string       `json:"type,omitempty" gorm:"index"`
+    Name       string       `json:"name,omitempty"`
+    Type       string       `json:"type,omitempty"`
 
-    AddrId     uint         `json:"-" gorm:"index"`
-    CoverId    uint         `json:"-" gorm:"index"`
+    AddrId     uint         `json:"-"`
+    Addr       Address      `json:"address,omitempty" gorm:"-"`
 
-    BeginAt    time.Time    `json:"begin,omitempty" gorm:"index"`
-    EndAt      time.Time    `json:"end,omitempty" gorm:"index"`
+    BeginAt    time.Time    `json:"begin,omitempty"`
+    EndAt      time.Time    `json:"end,omitempty"`
 }
 
 func (m Event) TableName() string {

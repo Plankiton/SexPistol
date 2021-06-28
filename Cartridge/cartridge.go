@@ -8,7 +8,7 @@ import (
     "os"
 )
 
-type DatabaseSkel interface {
+type CartridgeSkel interface {
     SetLogLevel()
     Add(ModelSkel) error
     Del(ModelSkel) error
@@ -16,12 +16,12 @@ type DatabaseSkel interface {
     Set(ModelSkel, map[string]interface{}) error
 }
 
-type Database struct {
+type Cartridge struct {
     gorm.DB
 }
 
-func ToDB(db *gorm.DB) Database {
-    return Database {
+func ToDB(db *gorm.DB) Cartridge {
+    return Cartridge {
         DB: *db,
     }
 }
@@ -34,17 +34,17 @@ func Sqlite(dsn string) gorm.Dialector {
     return sqlite.Open(dsn)
 }
 
-func (db *Database) SetLogLevel(s string) {
+func (db *Cartridge) SetLogLevel(s string) {
     db.Config.Logger = Logger(s)
 }
 
-func (db *Database) AddModels(m ...ModelSkel) {
+func (db *Cartridge) AddModels(m ...ModelSkel) {
     for _, model := range m {
         db.AutoMigrate(model)
     }
 }
 
-func (db *Database) Add(model ModelSkel) error {
+func (db *Cartridge) Add(model ModelSkel) error {
     e := model.New()
     if e == nil {
         e := db.Create(model).Error
@@ -54,22 +54,22 @@ func (db *Database) Add(model ModelSkel) error {
     return e
 }
 
-func (db *Database) Del(model ModelSkel) error {
+func (db *Cartridge) Del(model ModelSkel) error {
     e := db.Delete(model).Error
     return e
 }
 
-func (db *Database) Sav(model ModelSkel) error {
+func (db *Cartridge) Sav(model ModelSkel) error {
     e := db.Save(model).Error
     return e
 }
 
-func (db *Database) Set(model ModelSkel, columns map[string]interface{}) error {
+func (db *Cartridge) Set(model ModelSkel, columns map[string]interface{}) error {
     e := db.First(model).Updates(columns).Error
     return e
 }
 
-func Open(con_string string, db_type func(string)(gorm.Dialector)) (*Database, error) {
+func Open(con_string string, db_type func(string)(gorm.Dialector)) (*Cartridge, error) {
     logger := Logger()
 
     dsn := os.Getenv("DB_URI")
@@ -82,7 +82,7 @@ func Open(con_string string, db_type func(string)(gorm.Dialector)) (*Database, e
         Logger: logger,
     })
 
-    db := &Database {
+    db := &Cartridge {
         DB: *gorm_db,
     }
     return db, err
