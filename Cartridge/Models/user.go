@@ -2,7 +2,7 @@ package SexModel
 
 import (
     "time"
-    "github.com/plankiton/SexPistol/Database"
+    "github.com/Plankiton/SexPistol/Cartridge"
 )
 
 type User struct {
@@ -21,7 +21,7 @@ func (m User) TableName() string {
 
 func (model *User) CheckPass(s string) bool {
     byteHash := []byte(model.PassHash)
-    err := CheckPass(byteHash, s)
+    err := SexDB.CheckPass(byteHash, s)
     if err != nil {
         return false
     }
@@ -29,7 +29,7 @@ func (model *User) CheckPass(s string) bool {
 }
 
 func (model *User) SetPass(s string) (string, error) {
-    hash, err := ToPassHash(s)
+    hash, err := SexDB.ToPassHash(s)
     if err != nil {
         return "", nil
     }

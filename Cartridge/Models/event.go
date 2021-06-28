@@ -2,7 +2,7 @@ package SexModel
 
 import (
     "time"
-    "github.com/plankiton/SexPistol/Database"
+    "github.com/Plankiton/SexPistol/Cartridge"
 )
 
 type Event struct {

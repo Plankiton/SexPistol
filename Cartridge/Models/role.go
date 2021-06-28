@@ -1,5 +1,5 @@
 package SexModel
-import "github.com/plankiton/SexPistol/Database"
+import "github.com/Plankiton/SexPistol/Cartridge"
 
 type Role struct {
     SexDB.Model

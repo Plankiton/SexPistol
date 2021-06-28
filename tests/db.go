@@ -1,8 +1,8 @@
 package main
 import (
     "github.com/Plankiton/SexPistol"
-    "github.com/Plankiton/SexPistol/Database"
-    "github.com/Plankiton/SexPistol/Database/Models"
+    "github.com/Plankiton/SexPistol/Cartridge"
+    "github.com/Plankiton/SexPistol/Cartridge/Models"
 )
 
 type User struct {
@@ -16,7 +16,7 @@ func (u *User) New() error {
 }
 
 func main() {
-    db, _ := SexDB.Open("j.db", SexDatabase.Sqlite)
+    db, _ := SexDB.Open("j.db", SexDB.Sqlite)
     db.AddModels(&User{})
 
 

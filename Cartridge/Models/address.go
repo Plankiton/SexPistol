@@ -1,7 +1,7 @@
 package SexModel
 
 import (
-    "github.com/plankiton/SexPistol/Database"
+    "github.com/Plankiton/SexPistol/Cartridge"
     "encoding/json"
     "net/http"
     "fmt"
