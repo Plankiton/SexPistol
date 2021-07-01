@@ -16,6 +16,9 @@ func Logger() *log.Logger {
 }
 
 func Log (args ...interface {}) {
+    if logger == nil {
+        logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
+    }
     fmt_args := []interface {}{"\033[32;1m[info] \033[00m"}
     fmt_args = append(fmt_args, args...)
 
