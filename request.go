@@ -86,6 +86,9 @@ func GetPathPattern(t string) string {
     }
     path_pattern = fixPath(path_pattern)
     path_pattern += "$"
+    if path_pattern == "^$" {
+        path_pattern = "^/$"
+    }
 
     return path_pattern
 }
