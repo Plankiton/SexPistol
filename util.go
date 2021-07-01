@@ -17,7 +17,7 @@ import (
 func fixPath(path string) string {
     path = str.Trim(path, " ")
 
-    if path == "/" {
+    if path == "/" || path == "" {
         return path
     }
 

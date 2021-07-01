@@ -30,7 +30,11 @@ func (router *Pistol) Add(path string, route interface {}, methods ...string) *P
     }
 
     path = fixPath(path)
-    path = router.RootPath + path
+    root_path := fixPath(router.RootPath)
+    if (path != root_path) {
+        path = root_path + path
+    }
+
     path_pattern := GetPathPattern(path)
 
     if len(router.RouteConfs) == 0 {
