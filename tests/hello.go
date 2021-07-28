@@ -1,5 +1,8 @@
 package main
-import "github.com/Plankiton/SexPistol"
+import (
+    "net/http"
+    "github.com/Plankiton/SexPistol"
+)
 
 func main() {
     router := Sex.NewPistol()
@@ -13,7 +16,10 @@ func main() {
         return Sex.Bullet {
             Message: "Joao eh gay",
         }, 200
+    }).
+    AddRaw("/joao/logo", func (w http.ResponseWriter, r *http.Request) {
+        w.Write([]byte("Joao eh gay"))
     })
 
-    Sex.Err(router.Run())
+    Sex.Err(router.Run("/joao"))
 }

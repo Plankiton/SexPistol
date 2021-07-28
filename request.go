@@ -66,7 +66,7 @@ func GetPathPattern(t string) string {
 
     path_tmplt := str.Split(t, "/")
 
-    path_pattern := "^/"
+    path_pattern := "/"
     for i := 0; i < len(path_tmplt); i++ {
         if path_tmplt[i] == "" {
             continue

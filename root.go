@@ -3,12 +3,9 @@ import (
     re "regexp"
 
     "net/http"
-
-    "github.com/Showmax/go-fqdn"
-    "github.com/rs/cors"
 )
 
-func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
+func (router *Pistol) ROOT(w http.ResponseWriter, r *http.Request) {
     body := Request {}
 
     path := r.URL.Path
@@ -18,7 +15,7 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
 
     for path_pattern, methods := range router.Routes {
 
-        path_regex := re.MustCompile(path_pattern+`{1}`)
+        path_regex := re.MustCompile("^"+fixPath(router.RootPath)+path_pattern+`{1}`)
 
         route_conf := router.RouteConfs[path_pattern]
         route_func := methods[r.Method]
@@ -169,47 +166,4 @@ func (router *Pistol) RootRoute(w http.ResponseWriter, r *http.Request) {
         Message: "Route not found",
         Type:    "Error",
     }))
-}
-
-func (router *Pistol) Run(a ...interface{}) error {
-    port := 8000
-    path := "/"
-
-    if a != nil {
-        for _, v := range a {
-            if ValidateData(v, GenericString) {
-                path = v.(string)
-            }
-
-            if ValidateData(v, GenericInt) {
-                port = v.(int)
-            }
-        }
-    }
-
-    router.RootPath = path
-    router.Mux = http.NewServeMux()
-
-    host, err := fqdn.FqdnHostname()
-    if err != nil {
-        host = "localhost"
-    }
-
-    Log(Fmt("Running Sex Pistol server at %s:%d%s", host, port, path))
-    if GetEnv("SEX_DEBUG", "false") != "false" {
-        for path, methods := range router.Routes {
-            methods_str := ""
-            for method, _ := range methods {
-                methods_str += Fmt("%s ", method)
-            }
-
-            Log(Fmt("%s <- %s", router.RouteConfs[path]["path-template"], methods_str))
-        }
-    }
-
-    router.RootPath = path
-    router.Mux.HandleFunc(path, router.RootRoute)
-
-    handler := cors.Default().Handler(router.Mux)
-    return http.ListenAndServe(Fmt(":%d", port), handler)
 }
