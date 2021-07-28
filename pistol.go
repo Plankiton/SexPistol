@@ -68,15 +68,22 @@ func (pistol *Pistol) Add(path string, route interface {}, methods ...string) *P
     return pistol
 }
 
-func (pistol *Pistol) AddRaw(path string, f func(http.ResponseWriter, *http.Request)) (*Pistol) {
+func (pistol *Pistol) AddRaw(path string, f func(http.ResponseWriter, *http.Request), ...methods) (*Pistol) {
     if pistol.ServeMux == nil {
         pistol.ServeMux = http.NewServeMux()
     }
 
     path = fixPath(path)
     pistol.HandleFunc(path, func(w http.ResponseWriter, r *http.Request){
-        Log(r.Method, path, r.URL.RawQuery)
-        f(w, r)
+        for _, m := range methods {
+            if strings.ToUpper(m) != r.Method {
+                continue
+            }
+
+            Log(r.Method, path, r.URL.RawQuery)
+            f(w, r)
+            break
+        }
     })
 
     pistol.RawRoutes = append(pistol.RawRoutes, path)
