@@ -21,6 +21,7 @@ type Pistol struct {
 func NewPistol() *Pistol {
     router := new(Pistol)
     router.ServeMux = http.NewServeMux()
+    router.AddRaw("/", router.ROOT)
     if logger == nil {
         logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
     }
@@ -120,7 +121,6 @@ func (router *Pistol) Run(a ...interface{}) error {
         }
     }
 
-    router.AddRaw("/", router.ROOT)
     handler := cors.Default().Handler(router)
     return http.ListenAndServe(Fmt(":%d", port), handler)
 }

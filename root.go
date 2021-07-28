@@ -5,6 +5,14 @@ import (
     "net/http"
 )
 
+func (router *Pistol) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+    if router == nil || router.ServeMux == nil {
+        router = NewPistol()
+    }
+
+    router.ServeMux.ServeHTTP(w, r)
+}
+
 func (router *Pistol) ROOT(w http.ResponseWriter, r *http.Request) {
     body := Request {}
 
