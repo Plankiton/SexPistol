@@ -5,15 +5,15 @@ import (
     "net/http"
 )
 
-func (router *Pistol) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-    if router == nil || router.ServeMux == nil {
-        router = NewPistol()
+func (pistol *Pistol) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+    if pistol == nil || pistol.ServeMux == nil {
+        pistol = NewPistol()
     }
 
-    router.ServeMux.ServeHTTP(w, r)
+    pistol.ServeMux.ServeHTTP(w, r)
 }
 
-func (router *Pistol) ROOT(w http.ResponseWriter, r *http.Request) {
+func (pistol *Pistol) ROOT(w http.ResponseWriter, r *http.Request) {
     body := Request {}
 
     path := r.URL.Path
@@ -21,11 +21,11 @@ func (router *Pistol) ROOT(w http.ResponseWriter, r *http.Request) {
 
     Log(r.Method, path, r.URL.RawQuery)
 
-    for path_pattern, methods := range router.Routes {
+    for path_pattern, methods := range pistol.Routes {
 
-        path_regex := re.MustCompile("^"+fixPath(router.RootPath)+path_pattern+`{1}`)
+        path_regex := re.MustCompile("^"+fixPath(pistol.RootPath)+path_pattern+`{1}`)
 
-        route_conf := router.RouteConfs[path_pattern]
+        route_conf := pistol.RouteConfs[path_pattern]
         route_func := methods[r.Method]
 
         if path_regex.MatchString(path) {
