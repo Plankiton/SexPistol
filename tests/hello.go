@@ -21,7 +21,7 @@ func main() {
         w.Write([]byte("Joao eh gay"))
     })
 
-    Sex.Err(http.ListenAndServe(":8000", router))
+    // Sex.Err(http.ListenAndServe(":5000", router))
 
-    // Sex.Err(router.Run("/joao"))
+    Sex.Err(router.Run(5000))
 }

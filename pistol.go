@@ -30,8 +30,8 @@ func NewPistol() *Pistol {
 }
 
 func (pistol *Pistol) Add(path string, route interface {}, methods ...string) *Pistol {
-    if methods == nil {
-        methods = []string{"GET"}
+    if f, ok := route.(httpRawFunc); ok {
+        return pistol.AddRaw(path, f, methods...)
     }
 
     path = fixPath(path)
@@ -49,40 +49,50 @@ func (pistol *Pistol) Add(path string, route interface {}, methods ...string) *P
         pistol.Routes = make(Dict)
     }
 
-    if _, exist := pistol.Routes[path_pattern]; !exist {
-        pistol.Routes[path_pattern] = make(Prop)
-    }
     if _, exist := pistol.RouteConfs[path_pattern]; !exist {
         pistol.RouteConfs[path_pattern] = make(Prop)
     }
-
     conf := Prop{}
     conf["path-template"] = path
     pistol.RouteConfs[path_pattern] = conf
 
-    for _, method := range methods {
-        method = strings.ToUpper(method)
-        pistol.Routes[path_pattern][method] = route
+    if methods != nil {
+        if _, exist := pistol.Routes[path_pattern]; !exist {
+            pistol.Routes[path_pattern] = make(Prop)
+        }
+        for _, method := range methods {
+            method = strings.ToUpper(method)
+            pistol.Routes[path_pattern].(Prop)[method] = route
+        }
+    } else {
+        pistol.Routes[path_pattern] = route
     }
 
     return pistol
 }
 
-func (pistol *Pistol) AddRaw(path string, f func(http.ResponseWriter, *http.Request), ...methods) (*Pistol) {
+func (pistol *Pistol) AddRaw(path string, f func(http.ResponseWriter, *http.Request), methods...string) (*Pistol) {
     if pistol.ServeMux == nil {
         pistol.ServeMux = http.NewServeMux()
     }
 
     path = fixPath(path)
     pistol.HandleFunc(path, func(w http.ResponseWriter, r *http.Request){
-        for _, m := range methods {
-            if strings.ToUpper(m) != r.Method {
-                continue
-            }
+        run_request := true
 
+        if methods != nil {
+            run_request = false
+            for _, m := range methods {
+                if strings.ToUpper(m) != r.Method {
+                    run_request = true
+                    break
+                }
+            }
+        }
+
+        if run_request {
             Log(r.Method, path, r.URL.RawQuery)
             f(w, r)
-            break
         }
     })
 
@@ -116,11 +126,15 @@ func (pistol *Pistol) Run(a ...interface{}) error {
     if GetEnv("SEX_DEBUG", "false") != "false" {
         for path, methods := range pistol.Routes {
             methods_str := ""
-            for method := range methods {
-                methods_str += Fmt("%s ", method)
+            if methods, ok := methods.(Prop); ok {
+                for method := range methods {
+                    methods_str += Fmt("%s ", method)
+                }
+            } else {
+                methods_str = "ALL METHODS"
             }
 
-            Log(Fmt("%s <- %s", pistol.RouteConfs[path]["path-template"], methods_str))
+            Log(Fmt("%s <- %s", pistol.RouteConfs[path].(Prop)["path-template"], methods_str))
         }
 
         for _, path := range pistol.RawRoutes {

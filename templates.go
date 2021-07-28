@@ -1,4 +1,5 @@
 package Sex
+import "net/http"
 
 type Bullet struct {
     Message   string             `json:"message,omitempty"`
@@ -9,8 +10,9 @@ type Bullet struct {
 type Json interface{}
 
 type Prop map[string] interface{}
-type Dict map[string] Prop
+type Dict map[string] interface{}
 
+type httpRawFunc        func(http.ResponseWriter, *http.Request)
 type rawRouteFunc       func(Request) ([]byte, int)
 type strRouteFunc       func(Request) (string, int)
 type resRouteFunc       func(Request) (*Response, int)

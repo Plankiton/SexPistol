@@ -21,20 +21,31 @@ func (pistol *Pistol) ROOT(w http.ResponseWriter, r *http.Request) {
 
     Log(r.Method, path, r.URL.RawQuery)
 
+    root_path := fixPath(pistol.RootPath)
+    if root_path == "/" {
+        root_path = ""
+    }
+
     for path_pattern, methods := range pistol.Routes {
 
-        path_regex := re.MustCompile("^"+fixPath(pistol.RootPath)+path_pattern+`{1}`)
+        path_regex := re.MustCompile("^"+root_path+path_pattern+`{1}`)
 
         route_conf := pistol.RouteConfs[path_pattern]
-        route_func := methods[r.Method]
+
+        route_func := methods
+        if methods, ok := methods.(Prop); ok {
+            route_func = methods[r.Method]
+        }
+
+        SuperPut(path_regex, r.Method, route_func)
 
         if path_regex.MatchString(path) {
 
             if methods != nil {
 
                 if route_func != nil {
-                    body.Conf = route_conf
-                    body.PathVars, _ = GetPathVars(route_conf["path-template"].(string), path)
+                    body.Conf = route_conf.(Prop)
+                    body.PathVars, _ = GetPathVars(route_conf.(Prop)["path-template"].(string), path)
 
                     body.Request = r
                     body.Writer = new(Response)
