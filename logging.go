@@ -6,15 +6,19 @@ import (
     "fmt"
 )
 
+// Geting formated string
 func Fmt(s string, v...interface {}) string {
     return fmt.Sprintf(s, v...)
 }
 
 var logger *log.Logger
+
+// Get the logger from SexPistol
 func Logger() *log.Logger {
     return logger
 }
 
+// Logging information logs with Sex.Logger()
 func Log (args ...interface {}) {
     if logger == nil {
         logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
@@ -25,6 +29,7 @@ func Log (args ...interface {}) {
     logger.Println(fmt_args...)
 }
 
+// Logging error logs with Sex.Logger()
 func Err (args ...interface {}) {
     if logger == nil {
         logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
@@ -35,6 +40,7 @@ func Err (args ...interface {}) {
     logger.Println(fmt_args...)
 }
 
+// Logging warning logs with Sex.Logger()
 func War (args ...interface {}) {
     if logger == nil {
         logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
@@ -45,6 +51,7 @@ func War (args ...interface {}) {
     logger.Println(fmt_args...)
 }
 
+// Logging error logs with Sex.Logger() and killing the application
 func Die (args ...interface {}) {
     if logger == nil {
         logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
@@ -56,6 +63,10 @@ func Die (args ...interface {}) {
     os.Exit(1)
 }
 
+// Logging information formated logs with Sex.Logger()
+// Example:
+//    Logf("%s %+v", "joao", []string{"joao", "maria"})
+//    Logf("%.2f", 409.845)
 func Logf (args ...interface {}) {
     if logger == nil {
         logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
@@ -67,6 +78,10 @@ func Logf (args ...interface {}) {
     logger.Println(fmt_args...)
 }
 
+// Logging error formated logs with Sex.Logger()
+// Example:
+//    Errf("%s %+v", "joao", []string{"joao", "maria"})
+//    Errf("%.2f", 409.845)
 func Errf (args ...interface {}) {
     if logger == nil {
         logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
@@ -78,6 +93,10 @@ func Errf (args ...interface {}) {
     logger.Println(fmt_args...)
 }
 
+// Logging warning formated logs with Sex.Logger()
+// Example:
+//    Warf("%s %+v", "joao", []string{"joao", "maria"})
+//    Warf("%.2f", 409.845)
 func Warf (args ...interface {}) {
     if logger == nil {
         logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
@@ -89,6 +108,10 @@ func Warf (args ...interface {}) {
     logger.Println(fmt_args...)
 }
 
+// Logging error logs with Sex.Logger() and killing the application
+// Example:
+//    Dief("%s %+v", "joao", []string{"joao", "maria"})
+//    Dief("%.2f", 409.845)
 func Dief (args ...interface {}) {
     if logger == nil {
         logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
