@@ -39,8 +39,6 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
             route_func = methods[r.Method]
         }
 
-        SuperPut(path_regex, r.Method, route_func)
-
         if path_regex.MatchString(path) {
 
             if methods != nil {
