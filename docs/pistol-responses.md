@@ -72,8 +72,14 @@ func (r Sex.Request) (Sex.Response, int) {
     res.SetBody(Sex.Jsonify(map[string]string {
         "Hello": r.PathVars["name"],
     }))
-    
+
     return res, Sex.StatusOk
+}
+
+import ("net/http"; "strings")
+func (w http.ResponseWriter, r *http.Request) {
+    w.WriteHeader(200)
+    w.Write([]byte("Hello "+ strings.Stplit(r.Path, "/")[-1])
 }
 ```
 
