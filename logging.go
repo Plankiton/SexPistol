@@ -11,7 +11,7 @@ func Fmt(s string, v...interface {}) string {
     return fmt.Sprintf(s, v...)
 }
 
-var logger *log.Logger
+var logger *log.Logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
 
 // Get the logger from SexPistol
 func Logger() *log.Logger {
@@ -20,9 +20,6 @@ func Logger() *log.Logger {
 
 // Logging information logs with Sex.Logger()
 func Log (args ...interface {}) {
-    if logger == nil {
-        logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
-    }
     fmt_args := []interface {}{"\033[32;1m[info] \033[00m"}
     fmt_args = append(fmt_args, args...)
 
@@ -31,9 +28,6 @@ func Log (args ...interface {}) {
 
 // Logging error logs with Sex.Logger()
 func Err (args ...interface {}) {
-    if logger == nil {
-        logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
-    }
     fmt_args := []interface {}{"\033[31;1m[erro] \033[00m"}
     fmt_args = append(fmt_args, args...)
 
@@ -42,9 +36,6 @@ func Err (args ...interface {}) {
 
 // Logging warning logs with Sex.Logger()
 func War (args ...interface {}) {
-    if logger == nil {
-        logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
-    }
     fmt_args := []interface {}{"\033[33;1m[warn] \033[00m"}
     fmt_args = append(fmt_args, args...)
 
@@ -53,9 +44,6 @@ func War (args ...interface {}) {
 
 // Logging error logs with Sex.Logger() and killing the application
 func Die (args ...interface {}) {
-    if logger == nil {
-        logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
-    }
     fmt_args := []interface {}{"\033[31;1m[erro] \033[00m"}
     fmt_args = append(fmt_args, args...)
 
@@ -68,10 +56,6 @@ func Die (args ...interface {}) {
 //    Logf("%s %+v", "joao", []string{"joao", "maria"})
 //    Logf("%.2f", 409.845)
 func Logf (args ...interface {}) {
-    if logger == nil {
-        logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
-    }
-
     fmt_args := []interface {}{"\033[32;1m[info] \033[00m"}
     fmt_args = append(fmt_args, Fmt(args[0].(string), args[1:]...))
 
@@ -83,10 +67,6 @@ func Logf (args ...interface {}) {
 //    Errf("%s %+v", "joao", []string{"joao", "maria"})
 //    Errf("%.2f", 409.845)
 func Errf (args ...interface {}) {
-    if logger == nil {
-        logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
-    }
-
     fmt_args := []interface {}{"\033[31;1m[erro] \033[00m"}
     fmt_args = append(fmt_args, Fmt(args[0].(string), args[1:]...))
 
@@ -98,10 +78,6 @@ func Errf (args ...interface {}) {
 //    Warf("%s %+v", "joao", []string{"joao", "maria"})
 //    Warf("%.2f", 409.845)
 func Warf (args ...interface {}) {
-    if logger == nil {
-        logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
-    }
-
     fmt_args := []interface {}{"\033[33;1m[warn] \033[00m"}
     fmt_args = append(fmt_args, Fmt(args[0].(string), args[1:]...))
 
@@ -113,10 +89,6 @@ func Warf (args ...interface {}) {
 //    Dief("%s %+v", "joao", []string{"joao", "maria"})
 //    Dief("%.2f", 409.845)
 func Dief (args ...interface {}) {
-    if logger == nil {
-        logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
-    }
-
     fmt_args := []interface {}{"\033[31;1m[erro] \033[00m"}
     fmt_args = append(fmt_args, Fmt(args[0].(string), args[1:]...))
 
