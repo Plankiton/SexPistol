@@ -5,6 +5,7 @@ import (
     "github.com/Plankiton/SexPistol/Cartridge"
 )
 
+// Sex User Template
 type User struct {
     SexDB.Model
 
@@ -19,6 +20,7 @@ func (m User) TableName() string {
     return "users"
 }
 
+// Function to validate User password
 func (model *User) CheckPass(s string) bool {
     byteHash := []byte(model.PassHash)
     err := SexDB.CheckPass(byteHash, s)
@@ -28,6 +30,7 @@ func (model *User) CheckPass(s string) bool {
     return true
 }
 
+// Function to encode User password
 func (model *User) SetPass(s string) (string, error) {
     hash, err := SexDB.ToPassHash(s)
     if err != nil {

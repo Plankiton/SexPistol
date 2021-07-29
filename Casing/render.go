@@ -6,6 +6,7 @@ import (
     "os"
 )
 
+// Function to simplify text/html templating
 func Render(input interface{}, data interface{}) ([]byte, error) {
     var err error
 

@@ -7,6 +7,7 @@ import (
     "fmt"
 )
 
+// Sex Address Template
 type Address struct {
     SexDB.Model
     Street       string `json:"street,omitempty"`
@@ -18,6 +19,7 @@ type Address struct {
     Compl        string `json:"complement,omitempty" gorm:"default:NULL"`
 }
 
+// Function to search location info by CEP
 func (model *Address) FromPostalCode(cep string) *Address {
     model.Code = cep
 

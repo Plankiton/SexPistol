@@ -1,6 +1,7 @@
 package SexModel
 import "github.com/Plankiton/SexPistol/Cartridge"
 
+// Sex Role Template
 type Role struct {
     SexDB.Model
     Name    string  `json:"name,omitempty" gorm:"unique"`

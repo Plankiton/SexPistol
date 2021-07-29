@@ -6,6 +6,8 @@ import (
     "os"
 )
 
+// Gorm Database Logger creater
+// Logger lovel can be "error", "warn" or "info"
 func Logger (level...string) logger.Interface {
     log_level := logger.Error
     if len(level) > 0 {

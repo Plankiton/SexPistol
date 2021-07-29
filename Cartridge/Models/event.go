@@ -5,6 +5,7 @@ import (
     "github.com/Plankiton/SexPistol/Cartridge"
 )
 
+// Sex Event Template
 type Event struct {
     SexDB.Model
     Name       string       `json:"name,omitempty"`
