@@ -29,6 +29,15 @@ func fixPath(path string) string {
     return path
 }
 
+
+// Sex utility function to make copy of map or struct to another map or struct
+// Required: Destine need to be a pointer
+// Example:
+//    var m struct { Name string `json:"name"` }
+//    j := map[string]interface{}{
+//       "name": "Joao",
+//    }
+//    Sex.Copy(j, &m)
 func Copy(source interface{}, destine interface{}) error {
     encoded, err := json.Marshal(source)
     if err != nil {
@@ -38,7 +47,24 @@ func Copy(source interface{}, destine interface{}) error {
     return json.Unmarshal(encoded, destine)
 }
 
-func Merge(source interface{}, destine interface{}) (map[string]interface{}, error) {
+// Sex utility function to make merge of map or struct and another map or struct
+// Required: Destine need to be a pointer
+// Example:
+//    var m := struct { Name string `json:"name"` } {
+//        Name: "Joao",
+//    }
+//    j := map[string]interface{}{
+//       "idade": "Joao",
+//       "name": nil,
+//    }
+//    Sex.Copy(m, &j)
+//
+// Merge rules:
+//    If the field on source dont exists on destine it will be created (just if destine are map)
+//    If the field on source exists on destine but are dont seted it will be seted
+//    If the field on source exists on destine but are seted it will not be seted
+//    If override are seted as true, the field on destine will be overrided by source
+func Merge(source interface{}, destine interface{}, override ...bool) (map[string]interface{}, error) {
     final := map[string]interface{}{}
 
     dst := map[string]interface{}{}
@@ -64,36 +90,35 @@ func Merge(source interface{}, destine interface{}) (map[string]interface{}, err
     }
 
     for k, v := range dst {
+        if _, exists := final[k]; exists && (override != nil && override[0]) {
+            continue
+        }
+
         final[k] = v
     }
 
     return final, nil
 }
 
-
+// Function thats parse a byte list on a json and write on a variable
+// Required: v needs to be a pointer
 func FromJson(encoded []byte, v interface{}) error {
     return json.Unmarshal(encoded, v)
 }
 
+// Function thats parse a byte list on a json and write on a variable
 func Jsonify(v interface{}) []byte {
     res, _ := json.Marshal(v)
     return res
 }
 
+// Function thats get a environment var or default value if var does not exist
 func GetEnv(key string, def string) string {
     val, ok := os.LookupEnv(key)
     if !ok {
         return def
     }
     return val
-}
-
-func ToLabel(ID interface{}, Type string) string {
-    if (reflect.TypeOf(ID).Kind() == reflect.Int) {
-        return Fmt("<%s:%d>", Type, ID)
-    }
-
-    return Fmt("<%s:%v>", str.Replace(Type, "*", "", -1), ID)
 }
 
 func TypeParse(t string) string {
@@ -113,12 +138,12 @@ func TypeParse(t string) string {
     return type_out
 }
 
+// Debuging stdout display
 func SuperPut (v...interface{}) {
     fmt.Println("\n--------------------------------")
     fmt.Println(v...)
     fmt.Print("--------------------------------\n")
 }
-
 
 func isRawFunc(f interface{}) bool {
     var gf rawRouteFunc
