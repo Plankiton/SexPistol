@@ -9,12 +9,19 @@ import (
     "time"
 )
 
+// Response to make complete response with Cookies, Headers, and all http.ResponseWrite another features
 type Response struct {
     http.ResponseWriter
     Body   []byte
     Status int
 }
 
+// Request properties sent by client (*http.Request) with inproviments like path variables and Pistol Route configurations
+// Example:
+//    router.Add("/hello/{name}", func (r Sex.Request) string {
+//        name := r.PathVars["name"]
+//        return "Hello "+ name
+//    }
 type Request  struct {
     *http.Request
     PathVars    map[string]string
@@ -22,12 +29,20 @@ type Request  struct {
     Writer      *Response
 }
 
+// Request function to write Json body on a variable
+// Example:
+//      var data map[string]interface{} // Can be Structs too
+//      r.JsonBody(&data)
 func (self *Request) JsonBody(v interface{}) error {
     encoded := new(bytes.Buffer)
     encoded.ReadFrom(self.Body)
     return FromJson(encoded.Bytes(), v)
 }
 
+// Request function to write []byte body on a variable
+// Example:
+//      var data []byte
+//      r.RawBody(&data)
 func (self *Request) RawBody(b *[]byte) error {
     body := new(bytes.Buffer)
     _, err := body.ReadFrom(self.Body)
@@ -36,20 +51,24 @@ func (self *Request) RawBody(b *[]byte) error {
     return err
 }
 
+// Request function to get Response Writer
 func (self *Request) MkResponse() *Response {
     return self.Writer
 }
 
+// Function to set Response body
 func (self *Response) SetBody(v []byte) *Response {
     self.Body = v
     return self
 }
 
+// Function to set Response status code
 func (self *Response) SetStatus(code int) *Response {
     self.Status = 200
     return self
 }
 
+// Function to set Response cookies
 func (self *Response) SetCookie(key string, value string, expires time.Duration) *Response {
     cookie := &http.Cookie {
         Name: key,
@@ -61,6 +80,9 @@ func (self *Response) SetCookie(key string, value string, expires time.Duration)
     return self
 }
 
+// Function to get regex pattern of a Sex path template
+// Example:
+//    Sex.GetPathPattern("/hello/{name}")
 func GetPathPattern(t string) string {
     var_patt := re.MustCompile(`\{(\w{1,}):{0,1}(.{0,})\}`)
 
@@ -93,6 +115,9 @@ func GetPathPattern(t string) string {
     return path_pattern
 }
 
+// Function to get variables of a path using a Sex path template
+// Example:
+//    Sex.GetPathVars("/hello/{name}", "/hello/joao")
 func GetPathVars(t string, p string) (map[string]string, error) {
     var_patt := re.MustCompile(`\{(\w{1,}):{0,1}(.{0,})\}`)
 
