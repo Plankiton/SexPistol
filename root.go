@@ -5,6 +5,7 @@ import (
     "net/http"
 )
 
+// Function to make Sex.Pistol a http.Handler
 func (pistol *Pistol) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     if pistol == nil || pistol.ServeMux == nil {
         pistol = NewPistol()
@@ -13,7 +14,8 @@ func (pistol *Pistol) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     pistol.ServeMux.ServeHTTP(w, r)
 }
 
-func (pistol *Pistol) ROOT(w http.ResponseWriter, r *http.Request) {
+// root endpoint to run all Sex endpoints
+func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
     body := Request {}
 
     path := r.URL.Path

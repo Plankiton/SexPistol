@@ -1,12 +1,14 @@
 package Sex
 import "net/http"
 
+// Suggested template for Sex.Json endpoint functions
 type Bullet struct {
     Message   string             `json:"message,omitempty"`
     Type      string             `json:"type,omitempty"`
     Data      interface{}        `json:"data,omitempty"`
 }
 
+// Sex type for json format endpoint outputs
 type Json interface{}
 
 type Prop map[string] interface{}

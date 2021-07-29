@@ -29,7 +29,7 @@ type Pistol struct {
 func NewPistol() *Pistol {
     pistol := new(Pistol)
     pistol.ServeMux = http.NewServeMux()
-    pistol.AddRaw("/", pistol.ROOT)
+    pistol.AddRaw("/", pistol.root)
 
     return pistol
 }
@@ -135,6 +135,8 @@ func (pistol *Pistol) AddRaw(path string, f func(http.ResponseWriter, *http.Requ
 //    pistol.Run("/joao")     // will run server on path "/joao"
 //    pistol.Run("/joao", 80) // will run server on path "/joao" and port 80
 //    pistol.Run(80, "/joao") // will run server on path "/joao" and port 80
+//
+// If you run a Sex Pistol server with $SEX_DEBUG setted as "true" thats function will to log list all Sex endpoints of router
 func (pistol *Pistol) Run(a ...interface{}) error {
     port := 8000
     path := "/"
