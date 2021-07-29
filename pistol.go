@@ -5,10 +5,15 @@ import (
     "github.com/rs/cors"
     "net/http"
     "strings"
-    "log"
-    "os"
 )
 
+// Pistol is the Sex HTTP handler, who are used to setup http server
+// Example:
+//    router := Sex.NewPistol().
+//       Add("/", func(Sex.Request) string {
+//          return "Hello World"
+//       }).
+//       Run()
 type Pistol struct {
     *http.ServeMux
     RootPath        string
@@ -18,17 +23,36 @@ type Pistol struct {
     Auth            bool
 }
 
+// Function thats create a Sex.Pistol and create the init configurations
+// Example:
+//    router := Sex.NewPistol()
 func NewPistol() *Pistol {
     pistol := new(Pistol)
     pistol.ServeMux = http.NewServeMux()
     pistol.AddRaw("/", pistol.ROOT)
-    if logger == nil {
-        logger = log.New(os.Stderr, "\r\n", log.LstdFlags)
-    }
 
     return pistol
 }
 
+// Function to Add endpoints to the Sex.Pistol Server
+// path are the endpoint location
+// route is a void interface thats need to be on next format list:
+//     - func (http.ResponseWriter, *http.Request)
+//     - func (Sex.Request) Sex.Response
+//                                         (res, status)
+//     - func (Sex.Request) string   // Or (string,   int)
+//     - func (Sex.Request) []byte   // Or ([]byte,   int)
+//     - func (Sex.Request) Sex.Json // Or (Sex.Json, int)
+// methods are a list of accepted HTTP methods to endpoint
+// Example:
+//       router.Add("/", func(Sex.Request) string {
+//          return "Hello World"
+//       }, "POST")
+//       router.Add("/ok", func(Sex.Request) Sex.Json, int {
+//          return map[stirng]bool{
+//             "ok": true,
+//          }, 404
+//       })
 func (pistol *Pistol) Add(path string, route interface {}, methods ...string) *Pistol {
     if f, ok := route.(httpRawFunc); ok {
         return pistol.AddRaw(path, f, methods...)
@@ -71,6 +95,11 @@ func (pistol *Pistol) Add(path string, route interface {}, methods ...string) *P
     return pistol
 }
 
+// Function to Add golang raw http endpoints to the Sex.Pistol Server
+// Example:
+//       router.AddRaw("/", func(w http.ResponseWriter, r *http.Request) {
+//          w.Write([]byte("Hello World"))
+//       })
 func (pistol *Pistol) AddRaw(path string, f func(http.ResponseWriter, *http.Request), methods...string) (*Pistol) {
     if pistol.ServeMux == nil {
         pistol.ServeMux = http.NewServeMux()
@@ -100,6 +129,12 @@ func (pistol *Pistol) AddRaw(path string, f func(http.ResponseWriter, *http.Requ
     return pistol
 }
 
+// Function to execute de Sex.Pistol server
+// Example:
+//    pistol.Run(5000)        // Will run server on port 5000
+//    pistol.Run("/joao")     // will run server on path "/joao"
+//    pistol.Run("/joao", 80) // will run server on path "/joao" and port 80
+//    pistol.Run(80, "/joao") // will run server on path "/joao" and port 80
 func (pistol *Pistol) Run(a ...interface{}) error {
     port := 8000
     path := "/"
