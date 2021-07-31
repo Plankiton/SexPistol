@@ -2,7 +2,6 @@ package Sex
 
 import (
     "github.com/Showmax/go-fqdn"
-    "github.com/rs/cors"
     "net/http"
     "strings"
 )
@@ -179,6 +178,5 @@ func (pistol *Pistol) Run(a ...interface{}) error {
         }
     }
 
-    handler := cors.Default().Handler(pistol)
-    return http.ListenAndServe(Fmt(":%d", port), handler)
+    return http.ListenAndServe(Fmt(":%d", port), pistol)
 }
