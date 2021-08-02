@@ -28,7 +28,7 @@ type Pistol struct {
 func NewPistol() *Pistol {
     pistol := new(Pistol)
     pistol.ServeMux = http.NewServeMux()
-    pistol.AddRaw("/", pistol.root)
+    pistol.AddRaw("/", pistol.root, false)
 
     return pistol
 }
@@ -52,9 +52,16 @@ func NewPistol() *Pistol {
 //             "ok": true,
 //          }, 404
 //       })
-func (pistol *Pistol) Add(path string, route interface {}, methods ...string) *Pistol {
+func (pistol *Pistol) Add(path string, route interface {}, imethods ...interface{}) *Pistol {
     if f, ok := route.(httpRawFunc); ok {
-        return pistol.AddRaw(path, f, methods...)
+        return pistol.AddRaw(path, f, imethods...)
+    }
+
+    methods := []string{}
+    for _, method := range imethods {
+        if method, ok := method.(string); ok {
+            methods = append(methods, method)
+        }
     }
 
     path = fixPath(path)
@@ -99,9 +106,21 @@ func (pistol *Pistol) Add(path string, route interface {}, methods ...string) *P
 //       router.AddRaw("/", func(w http.ResponseWriter, r *http.Request) {
 //          w.Write([]byte("Hello World"))
 //       })
-func (pistol *Pistol) AddRaw(path string, f func(http.ResponseWriter, *http.Request), methods...string) (*Pistol) {
+func (pistol *Pistol) AddRaw(path string, f func(http.ResponseWriter, *http.Request), args...interface{}) (*Pistol) {
     if pistol.ServeMux == nil {
         pistol.ServeMux = http.NewServeMux()
+    }
+
+    var logging bool = true
+    var methods []string
+    for _, v := range args {
+        if method, ok := v.(string); ok {
+            methods = make([]string, 1)
+            methods = append(methods, method)
+        }
+        if logarg, ok := v.(bool); ok {
+            logging = logarg
+        }
     }
 
     path = fixPath(path)
@@ -119,7 +138,9 @@ func (pistol *Pistol) AddRaw(path string, f func(http.ResponseWriter, *http.Requ
         }
 
         if run_request {
-            Log(r.Method, path, r.URL.RawQuery)
+            if logging {
+                Log(r.Method, path, r.URL.RawQuery)
+            }
             f(w, r)
         }
     })
@@ -178,5 +199,13 @@ func (pistol *Pistol) Run(a ...interface{}) error {
         }
     }
 
-    return http.ListenAndServe(Fmt(":%d", port), pistol)
+    var handler http.Handler = pistol
+    if a != nil {
+        for _, v := range a {
+            if config, ok := v.(func (p *Pistol) http.Handler); ok {
+                handler = config(pistol)
+            }
+        }
+    }
+    return http.ListenAndServe(Fmt(":%d", port), handler)
 }
