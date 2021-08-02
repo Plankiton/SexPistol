@@ -86,7 +86,7 @@ func (pistol *Pistol) Add(path string, route interface {}, imethods ...interface
     conf["path-template"] = path
     pistol.RouteConfs[path_pattern] = conf
 
-    if methods != nil {
+    if len(methods) > 0 {
         if _, exist := pistol.Routes[path_pattern]; !exist {
             pistol.Routes[path_pattern] = make(Prop)
         }
@@ -202,8 +202,8 @@ func (pistol *Pistol) Run(a ...interface{}) error {
     var handler http.Handler = pistol
     if a != nil {
         for _, v := range a {
-            if config, ok := v.(func (p *Pistol) http.Handler); ok {
-                handler = config(pistol)
+            if config, ok := v.(func (h http.Handler) http.Handler); ok {
+                    handler = config(handler)
             }
         }
     }
