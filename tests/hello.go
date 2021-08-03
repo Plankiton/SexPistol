@@ -19,6 +19,7 @@ func main() {
     }).
     Add("/joao/logo", func (w http.ResponseWriter, r *http.Request) {
         w.Write([]byte("Joao eh gay"))
+        w.WriteHeader(300)
     })
 
     Sex.Err(router.Run())

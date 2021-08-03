@@ -50,10 +50,11 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
                     body.Writer = new(Response)
                     body.Writer.ResponseWriter = w
 
-                    sc := 200
+                    status_code := 200
                     if route_func, ok := iroute_func.(func(http.ResponseWriter, *http.Request)); ok {
 
-                        route_func(w, r)
+                        route_func(body.Writer, r)
+                        status_code = body.Writer.Status
 
                     } else
                     if route_func, ok := iroute_func.(func(Request)([]byte, int)); ok {
@@ -62,7 +63,7 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
                         if status == 0 {
                             status = 200
                         }
-                        sc = status
+                        status_code = status
 
                         w.WriteHeader(status)
                         w.Write(res)
@@ -72,7 +73,7 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
 
                         res := route_func(body)
                         status := 200
-                        sc = status
+                        status_code = status
 
                         w.WriteHeader(status)
                         w.Write(res)
@@ -84,7 +85,7 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
                         if status == 0 {
                             status = 200
                         }
-                        sc = status
+                        status_code = status
 
                         w.WriteHeader(status)
                         w.Write([]byte(res))
@@ -95,7 +96,7 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
 
                         res := route_func(body)
                         status := 200
-                        sc = status
+                        status_code = status
 
                         w.WriteHeader(status)
                         w.Write([]byte(res))
@@ -111,7 +112,7 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
                                 status = 200
                             }
                         }
-                        sc = status
+                        status_code = status
 
                         w.WriteHeader(status)
                         w.Write(res.Body)
@@ -123,7 +124,7 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
                         if res.Status == 0 {
                             res.Status = 200
                         }
-                        sc = res.Status
+                        status_code = res.Status
 
                         w.WriteHeader(res.Status)
                         w.Write(res.Body)
@@ -135,7 +136,7 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
                         if status == 0 {
                             status = 200
                         }
-                        sc = status
+                        status_code = status
 
                         w.Header().Set("Content-Type", "application/json")
                         w.WriteHeader(status)
@@ -146,7 +147,7 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
 
                         res := route_func(body)
                         status := 200
-                        sc = status
+                        status_code = status
 
                         w.Header().Set("Content-Type", "application/json")
                         w.WriteHeader(status)
@@ -154,11 +155,11 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
 
                     }
 
-                    response_log_message += Fmt(" -> %d: %s", sc, http.StatusText(sc))
-                    if sc >= 400 {
+                    response_log_message += Fmt("-> %d: %s", status_code, http.StatusText(status_code))
+                    if status_code >= 400 {
                         Err(response_log_message)
                     } else
-                    if sc >= 300 {
+                    if status_code >= 300 {
                         War(response_log_message)
                     } else {
                         Log(response_log_message)
@@ -169,14 +170,15 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
                 }
             }
 
-            response_log_message += Fmt(" -> %d: %s", 405, http.StatusText(405))
+            status_code := 405
+            response_log_message += Fmt("-> %d: %s", status_code, http.StatusText(status_code))
             Err(response_log_message)
-            w.WriteHeader(405)
+            w.WriteHeader(status_code)
             return
         }
     }
 
-    response_log_message += Fmt(" -> %d: %s", 404, http.StatusText(404))
+    status_code := 404
+    response_log_message += Fmt("-> %d: %s", status_code, http.StatusText(status_code))
     Err(response_log_message)
-    w.WriteHeader(404)
 }
