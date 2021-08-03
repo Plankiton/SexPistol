@@ -50,13 +50,7 @@ func RawLog(typ string, useCaller bool, args...interface{}) {
         caller = Fmt("%s:%d ", file, line)
     }
 
-    end := ""
-    if hasNewLine, ok := args[len(args)-1].(bool); ok && hasNewLine {
-        args = args[:len(args)-1]
-        end = "\n"
-    }
-
-    fmt_args := []interface {}{caller, Fmt("%s%s", typ, end)}
+    fmt_args := []interface {}{caller, Fmt("%s", typ)}
     fmt_args = append(fmt_args, fmt.Sprint(args...))
 
     logger.Print(fmt_args...)

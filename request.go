@@ -59,7 +59,6 @@ func (self *Request) MkResponse() *Response {
 // Function to set Response status code
 func (r *Response) WriteHeader(status int) {
     r.SetStatus(status)
-    r.ResponseWriter.WriteHeader(status)
 }
 
 // Function to set Response body
