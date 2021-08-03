@@ -52,18 +52,7 @@ func NewPistol() *Pistol {
 //             "ok": true,
 //          }, 404
 //       })
-func (pistol *Pistol) Add(path string, route interface {}, imethods ...interface{}) *Pistol {
-    if f, ok := route.(httpRawFunc); ok {
-        return pistol.AddRaw(path, f, imethods...)
-    }
-
-    methods := []string{}
-    for _, method := range imethods {
-        if method, ok := method.(string); ok {
-            methods = append(methods, method)
-        }
-    }
-
+func (pistol *Pistol) Add(path string, route interface {}, methods ...string) *Pistol {
     path = fixPath(path)
     root_path := fixPath(pistol.RootPath)
     if (path != root_path) {
@@ -86,7 +75,7 @@ func (pistol *Pistol) Add(path string, route interface {}, imethods ...interface
     conf["path-template"] = path
     pistol.RouteConfs[path_pattern] = conf
 
-    if len(methods) > 0 {
+    if methods != nil {
         if _, exist := pistol.Routes[path_pattern]; !exist {
             pistol.Routes[path_pattern] = make(Prop)
         }

@@ -17,11 +17,9 @@ func main() {
             Message: "Joao eh gay",
         }, 200
     }).
-    AddRaw("/joao/logo", func (w http.ResponseWriter, r *http.Request) {
+    Add("/joao/logo", func (w http.ResponseWriter, r *http.Request) {
         w.Write([]byte("Joao eh gay"))
     })
 
-    // Sex.Err(http.ListenAndServe(":5000", router))
-
-    Sex.Err(router.Run(5000))
+    Sex.Err(router.Run())
 }
