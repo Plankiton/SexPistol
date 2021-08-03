@@ -1,10 +1,11 @@
 package Sex
 
 import (
-    "os"
-    "log"
-    "fmt"
-    "runtime"
+	"fmt"
+	"log"
+	"os"
+	"runtime"
+	"strings"
 )
 
 // Geting formated string
@@ -21,7 +22,28 @@ func Logger() *log.Logger {
 
 // Logging a raw log
 func RawLog(typ string, args...interface{}) {
-    _, file, line, _ := runtime.Caller(1)
+    _, file, line, _ := runtime.Caller(2)
+    if len(file) > 10 {
+        fmt_file := ""
+
+        write := true
+        bar_count := 0
+        bar_total := strings.Count(file, "/")
+        for _, c := range file {
+            if write || c == '/' || bar_count == bar_total {
+                fmt_file += string(c)
+            }
+
+            write = false
+            if c == '/' {
+                write = true
+                bar_count += 1
+            }
+        }
+
+        file = fmt_file
+    }
+
     caller := Fmt("%s:%d", file, line)
 
     fmt_args := []interface {}{caller, Fmt("%s", typ)}
