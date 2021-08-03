@@ -168,7 +168,8 @@ func (pistol *Pistol) Run(a ...interface{}) error {
         host = "localhost"
     }
 
-    Log(Fmt("Running Sex Pistol server at %s:%d%s", host, port, path))
+    msg := Fmt("Running Sex Pistol server at %s:%d%s", host, port, path)
+    RawLog("\033[32;1m[info] \033[00m", false, msg)
     if GetEnv("SEX_DEBUG", "false") != "false" {
         for path, methods := range pistol.Routes {
             methods_str := ""
@@ -180,11 +181,13 @@ func (pistol *Pistol) Run(a ...interface{}) error {
                 methods_str = "ALL METHODS"
             }
 
-            Log(Fmt("%s <- %s", pistol.RouteConfs[path].(Prop)["path-template"], methods_str))
+            msg := Fmt("%s <- %s", pistol.RouteConfs[path].(Prop)["path-template"], methods_str)
+            RawLog("\033[32;1m[info] \033[00m", false, msg)
         }
 
         for _, path := range pistol.RawRoutes {
-            Log(Fmt("%s <- %s", path, "ALL METHODS"))
+            msg := Fmt("%s <- %s", path, "ALL METHODS")
+            RawLog("\033[32;1m[info] \033[00m", false, msg)
         }
     }
 
@@ -192,7 +195,7 @@ func (pistol *Pistol) Run(a ...interface{}) error {
     if a != nil {
         for _, v := range a {
             if config, ok := v.(func (h http.Handler) http.Handler); ok {
-                    handler = config(handler)
+                handler = config(handler)
             }
         }
     }

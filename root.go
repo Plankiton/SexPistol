@@ -90,7 +90,6 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
                         w.WriteHeader(status)
                         w.Write([]byte(res))
 
-                        return
                     } else
                     if route_func, ok := iroute_func.(func(Request)(string)); ok {
 
@@ -157,12 +156,12 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
 
                     response_log_message += Fmt("-> %d: %s", status_code, http.StatusText(status_code))
                     if status_code >= 400 {
-                        Err(response_log_message)
+                        RawLog("\033[31;1m[erro] \033[00m", false, response_log_message)
                     } else
                     if status_code >= 300 {
-                        War(response_log_message)
+                        RawLog("\033[33;1m[warn] \033[00m", false, response_log_message)
                     } else {
-                        Log(response_log_message)
+                        RawLog("\033[32;1m[info] \033[00m", false, response_log_message)
                     }
 
                     return
@@ -172,7 +171,7 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
 
             status_code := 405
             response_log_message += Fmt("-> %d: %s", status_code, http.StatusText(status_code))
-            Err(response_log_message)
+            RawLog("\033[31;1m[erro] \033[00m", false, response_log_message)
             w.WriteHeader(status_code)
             return
         }
@@ -180,5 +179,5 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
 
     status_code := 404
     response_log_message += Fmt("-> %d: %s", status_code, http.StatusText(status_code))
-    Err(response_log_message)
+    RawLog("\033[31;1m[erro] \033[00m", false, response_log_message)
 }
