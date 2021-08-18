@@ -56,7 +56,7 @@ func (pistol *Pistol) Add(path string, route interface {}, methods ...string) *P
     path = fixPath(path)
     root_path := fixPath(pistol.RootPath)
     if (path != root_path) {
-        path = root_path + path
+        path = fixPath(root_path + path)
     }
 
     path_pattern := GetPathPattern(path)

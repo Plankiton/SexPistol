@@ -1,8 +1,10 @@
 package Sex
-import (
-    re "regexp"
 
-    "net/http"
+import (
+	"os"
+	re "regexp"
+
+	"net/http"
 )
 
 // Function to make Sex.Pistol a http.Handler
@@ -37,8 +39,11 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
         if methods, ok := methods.(Prop); ok {
             iroute_func = methods[r.Method]
         }
-
-        if path_regex.MatchString(path) {
+        isMatching := path_regex.MatchString(path)
+        if os.Getenv("SEX_DEBUG") == "true" {
+            Log(`"`,path_pattern, `" is "`, path, `" ? ` , isMatching)
+        }
+        if isMatching {
 
             if methods != nil {
 

@@ -12,6 +12,11 @@ func main() {
         Sex.Logf("Hello %s", name)
         return Sex.Fmt("Hello %s", name), 200
     }).
+    Add(`/hello/{name}/joao`, func (r Sex.Request) (string, int) {
+        name := r.PathVars["name"]
+        Sex.Logf("Hello %s", name)
+        return Sex.Fmt("Hello %s", name), 200
+    }).
     Add("/api", func (r Sex.Request) (Sex.Json, int) {
         return Sex.Bullet {
             Message: "Joao eh gay",

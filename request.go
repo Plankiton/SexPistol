@@ -100,7 +100,6 @@ func GetPathPattern(t string) string {
             continue
         }
 
-        path_tmplt[i] += "/"
         values := var_patt.FindStringSubmatch(path_tmplt[i])
         if len(values)>=2 {
             if values[2] == "" {
@@ -111,6 +110,8 @@ func GetPathPattern(t string) string {
         } else {
             path_pattern += path_tmplt[i]
         }
+
+        path_pattern += "/"
     }
     path_pattern = fixPath(path_pattern)
     path_pattern += "$"
@@ -127,8 +128,8 @@ func GetPathPattern(t string) string {
 func GetPathVars(t string, p string) (map[string]string, error) {
     var_patt := re.MustCompile(`\{(\w{1,}):{0,1}(.{0,})\}`)
 
-    path_tmplt := str.Split(t, "/")
-    path := str.Split(p, "/")
+    path_tmplt := str.Split(fixPath(t), "/")
+    path := str.Split(fixPath(p), "/")
 
     if len(path) != len(path_tmplt) {
         return map[string]string {}, errors.New("Path don't match with the path template")
@@ -138,7 +139,6 @@ func GetPathVars(t string, p string) (map[string]string, error) {
     for i := 0; i < len(path); i++ {
 
         values := var_patt.FindStringSubmatch(path_tmplt[i])
-
         tmpl_patt := re.MustCompile("")
 
         if len(values)==3 {

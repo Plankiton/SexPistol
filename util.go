@@ -15,20 +15,8 @@ import (
 )
 
 func fixPath(path string) string {
-    path = str.Trim(path, " ")
-
-    if path == "/" || path == "" {
-        return path
-    }
-
-    end_path := len(path)-1
-    if path[end_path] == '/' {
-        path = path[:end_path]
-    }
-
-    return path
+    return "/"+str.Trim(str.Trim(path, " "), "/")
 }
-
 
 // Sex utility function to make copy of map or struct to another map or struct
 // Required: Destine need to be a pointer
