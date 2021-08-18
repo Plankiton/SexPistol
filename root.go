@@ -41,7 +41,7 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
         }
         isMatching := path_regex.MatchString(path)
         if os.Getenv("SEX_DEBUG") == "true" {
-            Log(`"`,path_pattern, `" is "`, path, `" ? ` , isMatching)
+            RawLog("\033[32;1m[info] \033[00m", false, Fmt(`"%s" is "%s" ? %v`,path_pattern, path, isMatching))
         }
         if isMatching {
 
