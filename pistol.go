@@ -152,12 +152,12 @@ func (pistol *Pistol) Run(a ...interface{}) error {
 
     if a != nil {
         for _, v := range a {
-            if ValidateData(v, GenericString) {
-                path = v.(string)
+            if v, ok := v.(string); ok {
+                path = v
             }
 
-            if ValidateData(v, GenericInt) {
-                port = v.(int)
+            if v, ok := v.(int); ok {
+                port = v
             }
         }
     }
@@ -191,13 +191,5 @@ func (pistol *Pistol) Run(a ...interface{}) error {
         }
     }
 
-    var handler http.Handler = pistol
-    if a != nil {
-        for _, v := range a {
-            if config, ok := v.(func (h http.Handler) http.Handler); ok {
-                handler = config(handler)
-            }
-        }
-    }
-    return http.ListenAndServe(Fmt(":%d", port), handler)
+    return http.ListenAndServe(Fmt(":%d", port), pistol)
 }
