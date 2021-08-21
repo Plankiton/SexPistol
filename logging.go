@@ -5,7 +5,6 @@ import (
     "log"
     "os"
     "runtime"
-    "strings"
 )
 
 const (
@@ -38,29 +37,13 @@ func UseLogger(l *Logger) {
 
 // Logging a raw log
 func RawLog(typ string, useCaller bool, args...interface{}) {
-
     caller := ""
     if useCaller {
         _, file, line, _ := runtime.Caller(2)
-        if len(file) > 10 {
-            fmt_file := ""
 
-            write := true
-            bar_count := 0
-            bar_total := strings.Count(file, "/")
-            for _, c := range file {
-                if write || c == '/' || bar_count == bar_total {
-                    fmt_file += string(c)
-                }
-
-                write = false
-                if c == '/' {
-                    write = true
-                    bar_count += 1
-                }
-            }
-
-            file = fmt_file
+        workingdir, _ := os.Getwd()
+        if len(workingdir) < len(file) {
+            file = file[len(workingdir)+1:]
         }
 
         caller = Fmt("%s:%d ", file, line)
