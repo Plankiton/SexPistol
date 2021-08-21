@@ -15,20 +15,46 @@ import (
 //       Run()
 type Pistol struct {
     *http.ServeMux
-    RootPath        string
-    RouteConfs      Dict
-    Routes          Dict
-    RawRoutes       []string
-    Auth            bool
+    rootPath        string
+
+    routeConfs      Dict
+    routes          Dict
+
+    plugins         []Plugin
+
+    err             error
 }
+
+type Plugin interface {
+    Name () string
+    Init (*Pistol) (*Pistol, error)
+    Root (http.ResponseWriter, *http.Request) (http.ResponseWriter, *http.Request)
+}
+
+// Get Pistol running path
+func (pistol *Pistol) GetPath()         string { return pistol.rootPath }
+// Get Pistol route list
+func (pistol *Pistol) GetRoutes()       Dict   { return pistol.routes }
+
+// Get Pistol last error
+func (pistol *Pistol) Error() error { return pistol.err }
+// Set Pistol last error
+func (pistol *Pistol) SetErr(err error) { pistol.err = err }
 
 // Function thats create a Sex.Pistol and create the init configurations
 // Example:
 //    router := Sex.NewPistol()
 func NewPistol() *Pistol {
     pistol := new(Pistol)
+    for _, plugin := range pistol.plugins {
+        p, err := plugin.Init(pistol)
+        if err == nil {
+            pistol = p
+        }
+    }
+
     pistol.ServeMux = http.NewServeMux()
-    pistol.AddRaw("/", pistol.root, false)
+    pistol.HandleFunc("/", pistol.root)
 
     return pistol
 }
@@ -54,87 +80,45 @@ func NewPistol() *Pistol {
 //       })
 func (pistol *Pistol) Add(path string, route interface {}, methods ...string) *Pistol {
     path = fixPath(path)
-    root_path := fixPath(pistol.RootPath)
+    root_path := fixPath(pistol.rootPath)
     if (path != root_path) {
         path = fixPath(root_path + path)
     }
 
     path_pattern := GetPathPattern(path)
 
-    if len(pistol.RouteConfs) == 0 {
-        pistol.RouteConfs = make(Dict)
+    if len(pistol.routeConfs) == 0 {
+        pistol.routeConfs = make(Dict)
     }
-    if len(pistol.Routes) == 0 {
-        pistol.Routes = make(Dict)
+    if len(pistol.routes) == 0 {
+        pistol.routes = make(Dict)
     }
 
-    if _, exist := pistol.RouteConfs[path_pattern]; !exist {
-        pistol.RouteConfs[path_pattern] = make(Prop)
+    if _, exist := pistol.routeConfs[path_pattern]; !exist {
+        pistol.routeConfs[path_pattern] = make(Prop)
     }
     conf := Prop{}
     conf["path-template"] = path
-    pistol.RouteConfs[path_pattern] = conf
+    pistol.routeConfs[path_pattern] = conf
 
     if methods != nil {
-        if _, exist := pistol.Routes[path_pattern]; !exist {
-            pistol.Routes[path_pattern] = make(Prop)
+        if _, exist := pistol.routes[path_pattern]; !exist {
+            pistol.routes[path_pattern] = make(Prop)
         }
         for _, method := range methods {
             method = strings.ToUpper(method)
-            pistol.Routes[path_pattern].(Prop)[method] = route
+            pistol.routes[path_pattern].(Prop)[method] = route
         }
     } else {
-        pistol.Routes[path_pattern] = route
+        pistol.routes[path_pattern] = route
     }
 
     return pistol
 }
 
-// Function to Add golang raw http endpoints to the Sex.Pistol Server
-// Example:
-//       router.AddRaw("/", func(w http.ResponseWriter, r *http.Request) {
-//          w.Write([]byte("Hello World"))
-//       })
-func (pistol *Pistol) AddRaw(path string, f func(http.ResponseWriter, *http.Request), args...interface{}) (*Pistol) {
-    if pistol.ServeMux == nil {
-        pistol.ServeMux = http.NewServeMux()
-    }
-
-    var logging bool = true
-    var methods []string
-    for _, v := range args {
-        if method, ok := v.(string); ok {
-            methods = make([]string, 1)
-            methods = append(methods, method)
-        }
-        if logarg, ok := v.(bool); ok {
-            logging = logarg
-        }
-    }
-
-    path = fixPath(path)
-    pistol.HandleFunc(path, func(w http.ResponseWriter, r *http.Request){
-        run_request := true
-
-        if methods != nil {
-            run_request = false
-            for _, m := range methods {
-                if strings.ToUpper(m) != r.Method {
-                    run_request = true
-                    break
-                }
-            }
-        }
-
-        if run_request {
-            if logging {
-                Log(r.Method, path, r.URL.RawQuery)
-            }
-            f(w, r)
-        }
-    })
-
-    pistol.RawRoutes = append(pistol.RawRoutes, path)
+// Add plugin to Sex Pistol
+func (pistol *Pistol) AddPlugin(plugin Plugin) *Pistol {
+    pistol.plugins = append(pistol.plugins, plugin)
     return pistol
 }
 
@@ -162,7 +146,7 @@ func (pistol *Pistol) Run(a ...interface{}) error {
         }
     }
 
-    pistol.RootPath = path
+    pistol.rootPath = path
     host, err := fqdn.FqdnHostname()
     if err != nil {
         host = "localhost"
@@ -171,7 +155,7 @@ func (pistol *Pistol) Run(a ...interface{}) error {
     msg := Fmt("Running Sex Pistol server at %s:%d%s", host, port, path)
     RawLog(LogLevelInfo, false, msg)
     if GetEnv("SEX_DEBUG", "false") != "false" {
-        for path, methods := range pistol.Routes {
+        for path, methods := range pistol.routes {
             methods_str := ""
             if methods, ok := methods.(Prop); ok {
                 for method := range methods {
@@ -181,14 +165,10 @@ func (pistol *Pistol) Run(a ...interface{}) error {
                 methods_str = "ALL METHODS"
             }
 
-            msg := Fmt("%s <- %s", pistol.RouteConfs[path].(Prop)["path-template"], methods_str)
+            msg := Fmt("%s <- %s", pistol.routeConfs[path].(Prop)["path-template"], methods_str)
             RawLog(LogLevelInfo, false, msg)
         }
 
-        for _, path := range pistol.RawRoutes {
-            msg := Fmt("%s <- %s", path, "ALL METHODS")
-            RawLog(LogLevelInfo, false, msg)
-        }
     }
 
     return http.ListenAndServe(Fmt(":%d", port), pistol)

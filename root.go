@@ -13,6 +13,10 @@ func (pistol *Pistol) ServeHTTP(w http.ResponseWriter, r *http.Request) {
         pistol = NewPistol()
     }
 
+    for _, plugin := range pistol.plugins {
+        w, r = plugin.Root(w, r)
+    }
+
     pistol.ServeMux.ServeHTTP(w, r)
 }
 
@@ -23,17 +27,17 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
     path := r.URL.Path
     path = fixPath(r.URL.Path)
 
-    root_path := fixPath(pistol.RootPath)
+    root_path := fixPath(pistol.rootPath)
     if root_path == "/" {
         root_path = ""
     }
 
     response_log_message := Fmt("%s %s %s", r.Method, path, r.URL.RawQuery)
-    for path_pattern, methods := range pistol.Routes {
+    for path_pattern, methods := range pistol.routes {
 
         path_regex := re.MustCompile("^"+root_path+path_pattern+`{1}`)
 
-        route_conf := pistol.RouteConfs[path_pattern]
+        route_conf := pistol.routeConfs[path_pattern]
 
         iroute_func := methods
         if methods, ok := methods.(Prop); ok {
