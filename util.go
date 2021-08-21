@@ -3,12 +3,7 @@ package Sex
 import (
     str "strings"
 
-    "mime/multipart"
     "encoding/json"
-    "net/url"
-
-    "reflect"
-    "bytes"
     "os"
 )
 
@@ -105,95 +100,4 @@ func GetEnv(key string, def string) string {
         return def
     }
     return val
-}
-
-func isRawFunc(f interface{}) bool {
-    var gf rawRouteFunc
-    return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
-}
-
-func isRawFuncNoStatus(f interface{}) bool {
-    var gf rawRouteFuncNoStatus
-    return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
-}
-
-func isStrFunc(f interface{}) bool {
-    var gf strRouteFunc
-    return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
-}
-
-func isStrFuncNoStatus(f interface{}) bool {
-    var gf strRouteFuncNoStatus
-    return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
-}
-
-func isResFunc(f interface{}) bool {
-    var gf resRouteFunc
-    return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
-}
-
-func isResFuncNoStatus(f interface{}) bool {
-    var gf resRouteFuncNoStatus
-    return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
-}
-
-func isJsonFunc(f interface{}) bool {
-    var gf jsonRouteFunc
-    return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
-}
-
-func isJsonFuncNoStatus(f interface{}) bool {
-    var gf jsonRouteFuncNoStatus
-    return reflect.TypeOf(f).AssignableTo(reflect.TypeOf(gf))
-}
-
-
-func GenericInterface () reflect.Type {
-    var i interface{}
-    return reflect.TypeOf(i)
-}
-
-func GenericInt () reflect.Type {
-    var i int
-    return reflect.TypeOf(i)
-}
-
-func GenericString () reflect.Type {
-    var i string
-    return reflect.TypeOf(i)
-}
-
-func GenericJsonObj() reflect.Type {
-    return reflect.MapOf(GenericString(), GenericInterface())
-}
-
-func GenericJsonArray() reflect.Type {
-    return reflect.ArrayOf(-1, reflect.MapOf(GenericString(), GenericInterface().Elem()))
-}
-
-func GenericBuff() reflect.Type {
-    var i bytes.Buffer
-    return reflect.TypeOf(&i)
-}
-
-func GenericForm() reflect.Type {
-    var i url.Values
-    return reflect.TypeOf(&i)
-}
-
-func GenericMultipartForm() reflect.Type {
-    var i multipart.Form
-    return reflect.TypeOf(&i)
-}
-
-func ValidateData(data interface{}, t func()reflect.Type) bool {
-    if data == nil {
-        return false
-    }
-
-    if reflect.TypeOf(data).Kind() == t().Kind() {
-        return true
-    }
-
-    return false
 }
