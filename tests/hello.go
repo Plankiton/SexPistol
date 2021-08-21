@@ -27,5 +27,12 @@ func main() {
         w.WriteHeader(300)
     })
 
-    Sex.Err(router.Run())
+    plugin := func (h http.Handler) http.Handler {
+        handler := http.NewServeMux()
+        handler.Handle("/", handler)
+        handler.HandleFunc("/plugin/", func (http.ResponseWriter, *http.Request){})
+        return handler
+    }
+
+    Sex.Err(router.Run(plugin))
 }
