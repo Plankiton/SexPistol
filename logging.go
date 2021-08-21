@@ -19,11 +19,21 @@ func Fmt(s string, v...interface {}) string {
     return fmt.Sprintf(s, v...)
 }
 
-var logger *log.Logger = log.New(os.Stderr, "\r\n", log.LstdFlags | log.Lmicroseconds)
+var logger *Logger = NewLogger()
+type Logger struct {
+    log.Logger
+}
 
-// Get the logger from SexPistol
-func Logger() *log.Logger {
-    return logger
+// Get SexPistol logger
+func NewLogger() *Logger {
+    l := new(Logger)
+    l.Logger = *log.New(os.Stderr, "\r\n", log.LstdFlags | log.Lmicroseconds | log.Lshortfile)
+    return l
+}
+
+// Set SexPistol logger
+func UseLogger(l *Logger) {
+    logger = l
 }
 
 // Logging a raw log
