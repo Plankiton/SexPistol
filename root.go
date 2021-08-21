@@ -41,7 +41,7 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
         }
         isMatching := path_regex.MatchString(path)
         if os.Getenv("SEX_DEBUG") == "true" {
-            RawLog("\033[32;1m[info] \033[00m", false, Fmt(`"%s" is "%s" ? %v`,path_pattern, path, isMatching))
+            RawLog(LogLevelInfo, false, Fmt(`"%s" is "%s" ? %v`,path_pattern, path, isMatching))
         }
         if isMatching {
 
@@ -142,12 +142,12 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
 
                     response_log_message += Fmt("%d: %s", status_code, http.StatusText(status_code))
                     if status_code >= 400 {
-                        RawLog("\033[31;1m[erro] \033[00m", false, response_log_message)
+                        RawLog(LogLevelError, false, response_log_message)
                     } else
                     if status_code >= 300 {
-                        RawLog("\033[33;1m[warn] \033[00m", false, response_log_message)
+                        RawLog(LogLevelWarn, false, response_log_message)
                     } else {
-                        RawLog("\033[32;1m[info] \033[00m", false, response_log_message)
+                        RawLog(LogLevelInfo, false, response_log_message)
                     }
 
                     return
@@ -157,7 +157,7 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
 
             status_code := 405
             response_log_message += Fmt("%d: %s", status_code, http.StatusText(status_code))
-            RawLog("\033[31;1m[erro] \033[00m", false, response_log_message)
+            RawLog(LogLevelError, false, response_log_message)
             w.WriteHeader(status_code)
             return
         }
@@ -165,5 +165,5 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
 
     status_code := 404
     response_log_message += Fmt("%d: %s", status_code, http.StatusText(status_code))
-    RawLog("\033[31;1m[erro] \033[00m", false, response_log_message)
+    RawLog(LogLevelError, false, response_log_message)
 }

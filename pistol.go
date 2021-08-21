@@ -169,7 +169,7 @@ func (pistol *Pistol) Run(a ...interface{}) error {
     }
 
     msg := Fmt("Running Sex Pistol server at %s:%d%s", host, port, path)
-    RawLog("\033[32;1m[info] \033[00m", false, msg)
+    RawLog(LogLevelInfo, false, msg)
     if GetEnv("SEX_DEBUG", "false") != "false" {
         for path, methods := range pistol.Routes {
             methods_str := ""
@@ -182,12 +182,12 @@ func (pistol *Pistol) Run(a ...interface{}) error {
             }
 
             msg := Fmt("%s <- %s", pistol.RouteConfs[path].(Prop)["path-template"], methods_str)
-            RawLog("\033[32;1m[info] \033[00m", false, msg)
+            RawLog(LogLevelInfo, false, msg)
         }
 
         for _, path := range pistol.RawRoutes {
             msg := Fmt("%s <- %s", path, "ALL METHODS")
-            RawLog("\033[32;1m[info] \033[00m", false, msg)
+            RawLog(LogLevelInfo, false, msg)
         }
     }
 
