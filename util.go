@@ -2,7 +2,6 @@ package Sex
 
 import (
     str "strings"
-    re "regexp"
 
     "mime/multipart"
     "encoding/json"
@@ -10,7 +9,6 @@ import (
 
     "reflect"
     "bytes"
-    "fmt"
     "os"
 )
 
@@ -107,30 +105,6 @@ func GetEnv(key string, def string) string {
         return def
     }
     return val
-}
-
-func TypeParse(t string) string {
-    t_re := re.MustCompile(`([A-Z][a-z_0-9]{1,})?`)
-    list_match := t_re.FindAllStringSubmatch(t, -1)
-
-    type_out := ""
-    for i, v := range list_match {
-        type_out += str.ToLower(v[0])
-
-        if i < len(list_match)-1 {
-            type_out += "_"
-        }
-    }
-    type_out += "s"
-
-    return type_out
-}
-
-// Debuging stdout display
-func SuperPut (v...interface{}) {
-    fmt.Println("\n--------------------------------")
-    fmt.Println(v...)
-    fmt.Print("--------------------------------\n")
 }
 
 func isRawFunc(f interface{}) bool {
