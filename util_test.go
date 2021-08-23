@@ -1,8 +1,9 @@
 package Sex
 
 import (
-    "testing"
-    "fmt"
+	"fmt"
+	"reflect"
+	"testing"
 )
 
 type testCase struct {
@@ -78,25 +79,16 @@ type okErr struct {
     Oth interface{}
 }
 
-func CopyTestMapStructFunc (v interface{}, v2 interface{}, isMatching bool) (*okErr, error) {
+func CopyTestFunc (v interface{}, r interface{}, isMatching bool) (interface{}, error) {
     value, ok := v.([]interface{})
     if !ok {
-        return nil, fmt.Errorf("value need to be a list")
-    }
-    vmap, ok := value[0].(map[string]interface{})
-    if !ok {
-        return nil, fmt.Errorf("value need to be a map")
-    }
-    vstr, ok := value[1].(okErr)
-    if !ok {
-        return nil, fmt.Errorf("value need to be a struct")
-    }
-    match, ok := v2.(okErr)
-    if !ok {
-        return nil, fmt.Errorf("value need to be a struct")
+        return nil, fmt.Errorf("Copy(..., ...): v need to be a []interface{}")
     }
 
-    if err := Copy(vmap, &vstr); err != nil {
+    v1 := value[0]
+    v2 := value[1]
+
+    if err := Copy(v1, v2); err != nil {
         Err(err)
         return nil, err
     }
@@ -106,27 +98,29 @@ func CopyTestMapStructFunc (v interface{}, v2 interface{}, isMatching bool) (*ok
         match_string = "is"
     }
 
-    if (vstr == match) != isMatching {
-        err := fmt.Errorf(`Copy(%v, %v): %v %s matching with "%v"`, vmap, vstr, vstr, match_string, match)
-        Err(vstr == match, isMatching, err)
+    v2_v := reflect.ValueOf(v2)
+    r_v := reflect.ValueOf(r)
+    if (reflect.DeepEqual(v2_v, r_v)) != isMatching {
+        err := fmt.Errorf(`Copy(%v, %v): %v %s matching with "%v"`, v1, v2, v2, match_string, r)
+        Err(reflect.DeepEqual(v1, v2), isMatching, err)
         return nil, err
     }
 
-    return &vstr, nil
+    return v2, nil
 }
 
-func TestCopyMapStruct(t *testing.T) {
+func TestCopy(t *testing.T) {
     tests := []testCase {
         {
             Value: []interface{}{
-                map[string]interface{}{
+                Dict {
                     "ok": true,
                     "err": false,
                     "Oth": "thing",
                 },
-                okErr {},
+                &okErr {},
             },
-            MatchValue: okErr {
+            MatchValue: &okErr {
                 Ok: true,
                 Err: false,
                 Oth: "thing",
@@ -135,24 +129,24 @@ func TestCopyMapStruct(t *testing.T) {
         },
         {
             Value: []interface{}{
-                map[string]interface{}{
+                Dict {
                     "ok": true,
                     "err": false,
                     "Oth": "thing",
                 },
-                okErr {},
+                &okErr {},
             },
             MatchValue: okErr {},
             Match: false,
         },
         {
             Value: []interface{}{
-                map[string]interface{}{
+                Dict {
                     "ok": true,
                     "err": false,
                     "Oth": "thing",
                 },
-                okErr {},
+                &okErr {},
             },
             MatchValue: okErr {
                 Ok: true,
@@ -161,12 +155,12 @@ func TestCopyMapStruct(t *testing.T) {
         },
         {
             Value: []interface{}{
-                map[string]interface{}{
+                Dict {
                     "ok": true,
                     "err": false,
                     "Oth": "thing",
                 },
-                okErr {},
+                &okErr {},
             },
             MatchValue: okErr {
                 Ok: true,
@@ -176,11 +170,11 @@ func TestCopyMapStruct(t *testing.T) {
         },
         {
             Value: []interface{}{
-                map[string]interface{}{
+                Dict {
                     "ok": true,
                     "err": false,
                 },
-                okErr {},
+                &okErr {},
             },
             MatchValue: okErr {
                 Ok: true,
@@ -191,13 +185,13 @@ func TestCopyMapStruct(t *testing.T) {
     }
 
     for _, test := range tests {
-        v, err := CopyTestMapStructFunc(test.Value, test.MatchValue, test.Match.(bool))
+        v, err := CopyTestFunc(test.Value, test.MatchValue, test.Match.(bool))
         if err != nil {
             t.Error(err)
         }
 
         if v != nil {
-            test.Res = *v
+            test.Res = v
         }
 
         if err := doTestCase(test); err != nil {
