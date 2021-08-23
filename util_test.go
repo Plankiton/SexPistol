@@ -20,7 +20,7 @@ func doTestCase(t testCase) error {
         isMatching = true
     }
 
-    if (t.Res == t.MatchValue) != isMatching {
+    if reflect.DeepEqual(t.Res, t.MatchValue) != isMatching {
         return fmt.Errorf(`Result "%v" does not match with "%v"`, t.Res, t.MatchValue)
     }
 
@@ -98,11 +98,24 @@ func CopyTestFunc (v interface{}, r interface{}, isMatching bool) (interface{}, 
         match_string = "is"
     }
 
-    v2_v := reflect.ValueOf(v2)
-    r_v := reflect.ValueOf(r)
+    var v2_v interface{}
+    var r_v interface{}
+    if v2, ok := v2.(*Dict); ok {
+        v2_v = *v2
+    }
+    if r, ok := r.(*Dict); ok {
+        r_v = *r
+    }
+    if v2, ok := v2.(*okErr); ok {
+        v2_v = *v2
+    }
+    if r, ok := r.(*okErr); ok {
+        r_v = *r
+    }
+
     if (reflect.DeepEqual(v2_v, r_v)) != isMatching {
-        err := fmt.Errorf(`Copy(%v, %v): %v %s matching with "%v"`, v1, v2, v2, match_string, r)
-        Err(reflect.DeepEqual(v1, v2), isMatching, err)
+        err := fmt.Errorf(`Copy(%v, %v): %v %s matching with "%v"`, v1, v2, v2_v, match_string, r_v)
+        Err(reflect.DeepEqual(v2, r_v), isMatching, err)
         return nil, err
     }
 
@@ -136,7 +149,7 @@ func TestCopy(t *testing.T) {
                 },
                 &okErr {},
             },
-            MatchValue: okErr {},
+            MatchValue: &okErr {},
             Match: false,
         },
         {
@@ -148,7 +161,7 @@ func TestCopy(t *testing.T) {
                 },
                 &okErr {},
             },
-            MatchValue: okErr {
+            MatchValue: &okErr {
                 Ok: true,
             },
             Match: false,
@@ -162,7 +175,7 @@ func TestCopy(t *testing.T) {
                 },
                 &okErr {},
             },
-            MatchValue: okErr {
+            MatchValue: &okErr {
                 Ok: true,
                 Err: false,
             },
@@ -176,7 +189,7 @@ func TestCopy(t *testing.T) {
                 },
                 &okErr {},
             },
-            MatchValue: okErr {
+            MatchValue: &okErr {
                 Ok: true,
                 Err: false,
             },
@@ -188,12 +201,10 @@ func TestCopy(t *testing.T) {
         v, err := CopyTestFunc(test.Value, test.MatchValue, test.Match.(bool))
         if err != nil {
             t.Error(err)
+            continue
         }
 
-        if v != nil {
-            test.Res = v
-        }
-
+        test.Res = v
         if err := doTestCase(test); err != nil {
             t.Error(err)
         }

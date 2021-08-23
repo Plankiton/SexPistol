@@ -18,7 +18,7 @@ func Fmt(s string, v...interface {}) string {
     return fmt.Sprintf(s, v...)
 }
 
-var logger *Logger = NewLogger()
+var logger *Logger = &Logger{Logger: *log.New(os.Stderr, "\r\n", log.LstdFlags | log.Lmicroseconds )}
 type Logger struct {
     log.Logger
 }
