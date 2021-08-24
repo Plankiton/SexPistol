@@ -100,20 +100,46 @@ func CopyTestFunc (v interface{}, r interface{}, isMatching bool) (interface{}, 
 
     var v2_v interface{}
     var r_v interface{}
+
+    mapIsEqual := false
     if v2, ok := v2.(*Dict); ok {
         v2_v = *v2
+        if v1, ok := v1.(Dict); ok {
+            if v2, ok := v2_v.(Dict); ok {
+                for k, v := range v1 {
+                    if v2, ok := v2[k]; ok {
+                        if v2 == v {
+                            continue
+                        }
+                    }
+                    mapIsEqual = false
+                    break
+                }
+            }
+        }
     }
     if r, ok := r.(*Dict); ok {
         r_v = *r
     }
     if v2, ok := v2.(*okErr); ok {
         v2_v = *v2
+        if v1, ok := v1.(Dict); ok {
+            if v2, ok := v2_v.(okErr); ok {
+                mapIsEqual = false
+                if (v2.Ok  == v1["ok"]  &&
+                    v2.Err == v1["err"] &&
+                    v2.Oth == v1["Oth"]) {
+                    mapIsEqual = true
+                }
+            }
+        }
     }
     if r, ok := r.(*okErr); ok {
         r_v = *r
     }
 
-    if (reflect.DeepEqual(v2_v, r_v)) != isMatching {
+    strIsEqual := reflect.DeepEqual(v2_v, r_v)
+    if strIsEqual != isMatching && mapIsEqual != isMatching {
         err := fmt.Errorf(`Copy(%v, %v): %v %s matching with "%v"`, v1, v2, v2_v, match_string, r_v)
         Err(reflect.DeepEqual(v2, r_v), isMatching, err)
         return nil, err
@@ -131,7 +157,7 @@ func TestCopy(t *testing.T) {
                     "err": false,
                     "Oth": "thing",
                 },
-                &okErr {},
+                new(okErr),
             },
             MatchValue: &okErr {
                 Ok: true,
@@ -147,51 +173,44 @@ func TestCopy(t *testing.T) {
                     "err": false,
                     "Oth": "thing",
                 },
-                &okErr {},
+                new(Dict),
             },
-            MatchValue: &okErr {},
-            Match: false,
+            MatchValue: &Dict {
+                "ok": true,
+                "err": false,
+                "Oth": "thing",
+            },
+            Match: true,
         },
         {
             Value: []interface{}{
-                Dict {
-                    "ok": true,
-                    "err": false,
-                    "Oth": "thing",
+                okErr {
+                    Ok: true,
+                    Err: false,
+                    Oth: "thing",
                 },
-                &okErr {},
+                new(Dict),
             },
-            MatchValue: &okErr {
-                Ok: true,
+            MatchValue: &Dict {
+                "Ok": true,
+                "Err": false,
+                "Oth": "thing",
             },
-            Match: false,
+            Match: true,
         },
         {
             Value: []interface{}{
-                Dict {
-                    "ok": true,
-                    "err": false,
-                    "Oth": "thing",
+                okErr {
+                    Ok: true,
+                    Err: false,
+                    Oth: "thing",
                 },
-                &okErr {},
-            },
-            MatchValue: &okErr {
-                Ok: true,
-                Err: false,
-            },
-            Match: false,
-        },
-        {
-            Value: []interface{}{
-                Dict {
-                    "ok": true,
-                    "err": false,
-                },
-                &okErr {},
+                new(okErr),
             },
             MatchValue: &okErr {
                 Ok: true,
                 Err: false,
+                Oth: "thing",
             },
             Match: true,
         },
