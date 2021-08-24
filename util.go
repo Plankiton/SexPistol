@@ -15,7 +15,7 @@ func fixPath(path string) string {
 // Required: Destine need to be a pointer
 // Example:
 //    var m struct { Name string `json:"name"` }
-//    j := map[string]interface{}{
+//    j := Dict{
 //       "name": "Joao",
 //    }
 //    Sex.Copy(j, &m)
@@ -34,7 +34,7 @@ func Copy(source interface{}, destine interface{}) error {
 //    var m := struct { Name string `json:"name"` } {
 //        Name: "Joao",
 //    }
-//    j := map[string]interface{}{
+//    j := Dict{
 //       "idade": "Joao",
 //       "name": nil,
 //    }
@@ -45,21 +45,21 @@ func Copy(source interface{}, destine interface{}) error {
 //    If the field on source exists on destine but are dont seted it will be seted
 //    If the field on source exists on destine but are seted it will not be seted
 //    If override are seted as true, the field on destine will be overrided by source
-func Merge(source interface{}, destine interface{}, override ...bool) (map[string]interface{}, error) {
-    final := map[string]interface{}{}
+func Merge(source interface{}, destine interface{}, override ...bool) (Dict, error) {
+    final := Dict{}
 
-    dst := map[string]interface{}{}
-    src := map[string]interface{}{}
+    dst := Dict{}
+    src := Dict{}
 
     ok := false
-    if src, ok = source.(map[string]interface{}); !ok {
+    if src, ok = source.(Dict); !ok {
         err := Copy(source, &src)
         if err != nil {
             return final, err
         }
     }
 
-    if dst, ok = destine.(map[string]interface{}); !ok {
+    if dst, ok = destine.(Dict); !ok {
         err := Copy(destine, &dst)
         if err != nil {
             return final, err
