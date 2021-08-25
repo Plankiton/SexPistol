@@ -9,13 +9,6 @@ import (
     "time"
 )
 
-// Response to make complete response with Cookies, Headers, and all http.ResponseWrite another features
-type Response struct {
-    http.ResponseWriter
-    Body   []byte
-    Status int
-}
-
 // Request properties sent by client (*http.Request) with inproviments like path variables and Pistol Route configurations
 // Example:
 //    router.Add("/hello/{name}", func (r Sex.Request) string {
@@ -23,10 +16,14 @@ type Response struct {
 //        return "Hello "+ name
 //    }
 type Request  struct {
-    *http.Request
+    http.Request
     PathVars    map[string]string
     Conf        Prop
-    Writer      *Response
+}
+
+// Request constructor function
+func NewRequest() *Request {
+    return new(Request)
 }
 
 // Request function to write Json body on a variable
@@ -49,11 +46,6 @@ func (self *Request) RawBody(b *[]byte) error {
     *b = body.Bytes()
 
     return err
-}
-
-// Request function to get Response Writer
-func (self *Request) MkResponse() *Response {
-    return self.Writer
 }
 
 // Function to set Response status code
