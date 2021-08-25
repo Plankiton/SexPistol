@@ -134,6 +134,7 @@ func CopyTestFunc (v interface{}, r interface{}, isMatching bool) (interface{}, 
             }
         }
     }
+
     if r, ok := r.(*okErr); ok {
         r_v = *r
     }
@@ -141,7 +142,7 @@ func CopyTestFunc (v interface{}, r interface{}, isMatching bool) (interface{}, 
     strIsEqual := reflect.DeepEqual(v2_v, r_v)
     if strIsEqual != isMatching && mapIsEqual != isMatching {
         err := fmt.Errorf(`Copy(%v, %v): %v %s matching with "%v"`, v1, v2, v2_v, match_string, r_v)
-        Err(reflect.DeepEqual(v2, r_v), isMatching, err)
+        Err(strIsEqual, ", ", mapIsEqual, " != ", isMatching, err)
         return nil, err
     }
 
@@ -218,6 +219,159 @@ func TestCopy(t *testing.T) {
 
     for _, test := range tests {
         v, err := CopyTestFunc(test.Value, test.MatchValue, test.Match.(bool))
+        if err != nil {
+            t.Error(err)
+            continue
+        }
+
+        test.Res = v
+        if err := doTestCase(test); err != nil {
+            t.Error(err)
+        }
+    }
+}
+
+func MergeTestFunc (v interface{}, r interface{}, isMatching bool) (interface{}, error) {
+    value, ok := v.([]interface{})
+    if !ok {
+        return nil, fmt.Errorf("Merge(..., ...): v need to be a []interface{}")
+    }
+
+    v1 := value[0]
+    v2 := value[1]
+
+    merged, err := Merge(v1, v2)
+    if  err != nil {
+        Err(err)
+        return nil, err
+    }
+    v2 = merged
+
+    match_string := "is not"
+    if !isMatching {
+        match_string = "is"
+    }
+
+    var v2_v interface{}
+    var r_v interface{}
+
+    mapIsEqual := false
+    if v2, ok := v2.(*Dict); ok {
+        v2_v = *v2
+        if v1, ok := v1.(Dict); ok {
+            if v2, ok := v2_v.(Dict); ok {
+                for k, v := range v1 {
+                    if v2, ok := v2[k]; ok {
+                        if v2 == v {
+                            continue
+                        }
+                    }
+                    mapIsEqual = false
+                    break
+                }
+            }
+        }
+    }
+    if r, ok := r.(*Dict); ok {
+        r_v = *r
+    }
+    if v2, ok := v2.(*okErr); ok {
+        v2_v = *v2
+        if v1, ok := v1.(Dict); ok {
+            if v2, ok := v2_v.(okErr); ok {
+                mapIsEqual = false
+                if (v2.Ok  == v1["ok"]  &&
+                    v2.Err == v1["err"] &&
+                    v2.Oth == v1["Oth"]) {
+                    mapIsEqual = true
+                }
+            }
+        }
+    }
+    if r, ok := r.(*okErr); ok {
+        r_v = *r
+    }
+
+    strIsEqual := reflect.DeepEqual(v2_v, r_v)
+    if strIsEqual != isMatching && mapIsEqual != isMatching {
+        err := fmt.Errorf(`Merge(%v, %v): %v %s matching with "%v"`, v1, v2, v2, match_string, r)
+        Err(strIsEqual, ", ", mapIsEqual, " != ", isMatching, err)
+        return nil, err
+    }
+
+    return v2, nil
+}
+
+func TestMerge(t *testing.T) {
+    tests := []testCase {
+        {
+            Value: []interface{}{
+                Dict {
+                    "ok": true,
+                    "err": false,
+                    "Oth": "thing",
+                },
+                new(okErr),
+            },
+            MatchValue: &Dict {
+                "Ok": true,
+                "Err": false,
+                "Oth": "thing",
+            },
+            Match: true,
+        },
+        {
+            Value: []interface{}{
+                Dict {
+                    "ok": true,
+                    "err": false,
+                    "Oth": "thing",
+                },
+                new(Dict),
+            },
+            MatchValue: &Dict {
+                "Ok": true,
+                "Err": false,
+                "Oth": "thing",
+            },
+            Match: true,
+        },
+        {
+            Value: []interface{}{
+                okErr {
+                    Ok: true,
+                    Err: false,
+                    Oth: "thing",
+                },
+                new(Dict),
+            },
+            MatchValue: &Dict {
+                "Ok": true,
+                "Err": false,
+                "Oth": "thing",
+            },
+            Match: true,
+        },
+        {
+            Value: []interface{}{
+                okErr {
+                    Ok: true,
+                    Err: false,
+                    Oth: "thing",
+                },
+                new(okErr),
+            },
+            MatchValue: &Dict {
+                "Ok": true,
+                "Err": false,
+                "Oth": "thing",
+            },
+            Match: true,
+        },
+    }
+
+    for _, test := range tests {
+        v, err := MergeTestFunc(test.Value, test.MatchValue, test.Match.(bool))
         if err != nil {
             t.Error(err)
             continue
