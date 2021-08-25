@@ -23,14 +23,15 @@ import "github.com/Plankiton/SexPistol"
 - [func Jsonify(v interface{}) []byte](<#func-jsonify>)
 - [func Log(args ...interface{})](<#func-log>)
 - [func Logf(args ...interface{})](<#func-logf>)
-- [func Merge(source interface{}, destine interface{}, override ...bool) (map[string]interface{}, error)](<#func-merge>)
 - [func RawLog(typ string, useCaller bool, args ...interface{})](<#func-rawlog>)
+- [func RunRouteFunc(route_func interface{}, w http.ResponseWriter, r Request)](<#func-runroutefunc>)
 - [func StatusText(code int) string](<#func-statustext>)
 - [func UseLogger(l *Logger)](<#func-uselogger>)
 - [func War(args ...interface{})](<#func-war>)
 - [func Warf(args ...interface{})](<#func-warf>)
 - [type Bullet](<#type-bullet>)
 - [type Dict](<#type-dict>)
+  - [func Merge(source interface{}, destine interface{}, override ...bool) (Dict, error)](<#func-merge>)
 - [type Json](<#type-json>)
 - [type Logger](<#type-logger>)
   - [func NewLogger() *Logger](<#func-newlogger>)
@@ -47,10 +48,12 @@ import "github.com/Plankiton/SexPistol"
 - [type Plugin](<#type-plugin>)
 - [type Prop](<#type-prop>)
 - [type Request](<#type-request>)
+  - [func NewRequest() *Request](<#func-newrequest>)
   - [func (self *Request) JsonBody(v interface{}) error](<#func-request-jsonbody>)
-  - [func (self *Request) MkResponse() *Response](<#func-request-mkresponse>)
   - [func (self *Request) RawBody(b *[]byte) error](<#func-request-rawbody>)
 - [type Response](<#type-response>)
+  - [func NewResponse() *Response](<#func-newresponse>)
+  - [func (self *Response) Header() http.Header](<#func-response-header>)
   - [func (self *Response) SetBody(v []byte) *Response](<#func-response-setbody>)
   - [func (self *Response) SetCookie(key string, value string, expires time.Duration) *Response](<#func-response-setcookie>)
   - [func (self *Response) SetStatus(code int) *Response](<#func-response-setstatus>)
@@ -69,73 +72,73 @@ const (
 
 ```go
 const (
-    StatusContinue           = 100 // RFC 7231, 6.2.1
-    StatusSwitchingProtocols = 101 // RFC 7231, 6.2.2
-    StatusProcessing         = 102 // RFC 2518, 10.1
-    StatusEarlyHints         = 103 // RFC 8297
+    StatusContinue           = 100
+    StatusSwitchingProtocols = 101
+    StatusProcessing         = 102
+    StatusEarlyHints         = 103
 
-    StatusOK                   = 200 // RFC 7231, 6.3.1
-    StatusCreated              = 201 // RFC 7231, 6.3.2
-    StatusAccepted             = 202 // RFC 7231, 6.3.3
-    StatusNonAuthoritativeInfo = 203 // RFC 7231, 6.3.4
-    StatusNoContent            = 204 // RFC 7231, 6.3.5
-    StatusResetContent         = 205 // RFC 7231, 6.3.6
-    StatusPartialContent       = 206 // RFC 7233, 4.1
-    StatusMultiStatus          = 207 // RFC 4918, 11.1
-    StatusAlreadyReported      = 208 // RFC 5842, 7.1
-    StatusIMUsed               = 226 // RFC 3229, 10.4.1
+    StatusOK                   = 200
+    StatusCreated              = 201
+    StatusAccepted             = 202
+    StatusNonAuthoritativeInfo = 203
+    StatusNoContent            = 204
+    StatusResetContent         = 205
+    StatusPartialContent       = 206
+    StatusMultiStatus          = 207
+    StatusAlreadyReported      = 208
+    StatusIMUsed               = 226
 
-    StatusMultipleChoices  = 300 // RFC 7231, 6.4.1
-    StatusMovedPermanently = 301 // RFC 7231, 6.4.2
-    StatusFound            = 302 // RFC 7231, 6.4.3
-    StatusSeeOther         = 303 // RFC 7231, 6.4.4
-    StatusNotModified      = 304 // RFC 7232, 4.1
-    StatusUseProxy         = 305 // RFC 7231, 6.4.5
+    StatusMultipleChoices  = 300
+    StatusMovedPermanently = 301
+    StatusFound            = 302
+    StatusSeeOther         = 303
+    StatusNotModified      = 304
+    StatusUseProxy         = 305
 
-    StatusTemporaryRedirect = 307 // RFC 7231, 6.4.7
-    StatusPermanentRedirect = 308 // RFC 7538, 3
+    StatusTemporaryRedirect = 307
+    StatusPermanentRedirect = 308
 
-    StatusBadRequest                   = 400 // RFC 7231, 6.5.1
-    StatusUnauthorized                 = 401 // RFC 7235, 3.1
-    StatusPaymentRequired              = 402 // RFC 7231, 6.5.2
-    StatusForbidden                    = 403 // RFC 7231, 6.5.3
-    StatusNotFound                     = 404 // RFC 7231, 6.5.4
-    StatusMethodNotAllowed             = 405 // RFC 7231, 6.5.5
-    StatusNotAcceptable                = 406 // RFC 7231, 6.5.6
-    StatusProxyAuthRequired            = 407 // RFC 7235, 3.2
-    StatusRequestTimeout               = 408 // RFC 7231, 6.5.7
-    StatusConflict                     = 409 // RFC 7231, 6.5.8
-    StatusGone                         = 410 // RFC 7231, 6.5.9
-    StatusLengthRequired               = 411 // RFC 7231, 6.5.10
-    StatusPreconditionFailed           = 412 // RFC 7232, 4.2
-    StatusRequestEntityTooLarge        = 413 // RFC 7231, 6.5.11
-    StatusRequestURITooLong            = 414 // RFC 7231, 6.5.12
-    StatusUnsupportedMediaType         = 415 // RFC 7231, 6.5.13
-    StatusRequestedRangeNotSatisfiable = 416 // RFC 7233, 4.4
-    StatusExpectationFailed            = 417 // RFC 7231, 6.5.14
-    StatusTeapot                       = 418 // RFC 7168, 2.3.3
-    StatusMisdirectedRequest           = 421 // RFC 7540, 9.1.2
-    StatusUnprocessableEntity          = 422 // RFC 4918, 11.2
-    StatusLocked                       = 423 // RFC 4918, 11.3
-    StatusFailedDependency             = 424 // RFC 4918, 11.4
-    StatusTooEarly                     = 425 // RFC 8470, 5.2.
-    StatusUpgradeRequired              = 426 // RFC 7231, 6.5.15
-    StatusPreconditionRequired         = 428 // RFC 6585, 3
-    StatusTooManyRequests              = 429 // RFC 6585, 4
-    StatusRequestHeaderFieldsTooLarge  = 431 // RFC 6585, 5
-    StatusUnavailableForLegalReasons   = 451 // RFC 7725, 3
+    StatusBadRequest                   = 400
+    StatusUnauthorized                 = 401
+    StatusPaymentRequired              = 402
+    StatusForbidden                    = 403
+    StatusNotFound                     = 404
+    StatusMethodNotAllowed             = 405
+    StatusNotAcceptable                = 406
+    StatusProxyAuthRequired            = 407
+    StatusRequestTimeout               = 408
+    StatusConflict                     = 409
+    StatusGone                         = 410
+    StatusLengthRequired               = 411
+    StatusPreconditionFailed           = 412
+    StatusRequestEntityTooLarge        = 413
+    StatusRequestURITooLong            = 414
+    StatusUnsupportedMediaType         = 415
+    StatusRequestedRangeNotSatisfiable = 416
+    StatusExpectationFailed            = 417
+    StatusTeapot                       = 418
+    StatusMisdirectedRequest           = 421
+    StatusUnprocessableEntity          = 422
+    StatusLocked                       = 423
+    StatusFailedDependency             = 424
+    StatusTooEarly                     = 425
+    StatusUpgradeRequired              = 426
+    StatusPreconditionRequired         = 428
+    StatusTooManyRequests              = 429
+    StatusRequestHeaderFieldsTooLarge  = 431
+    StatusUnavailableForLegalReasons   = 451
 
-    StatusInternalServerError           = 500 // RFC 7231, 6.6.1
-    StatusNotImplemented                = 501 // RFC 7231, 6.6.2
-    StatusBadGateway                    = 502 // RFC 7231, 6.6.3
-    StatusServiceUnavailable            = 503 // RFC 7231, 6.6.4
-    StatusGatewayTimeout                = 504 // RFC 7231, 6.6.5
-    StatusHTTPVersionNotSupported       = 505 // RFC 7231, 6.6.6
-    StatusVariantAlsoNegotiates         = 506 // RFC 2295, 8.1
-    StatusInsufficientStorage           = 507 // RFC 4918, 11.5
-    StatusLoopDetected                  = 508 // RFC 5842, 7.2
-    StatusNotExtended                   = 510 // RFC 2774, 7
-    StatusNetworkAuthenticationRequired = 511 // RFC 6585, 6
+    StatusInternalServerError           = 500
+    StatusNotImplemented                = 501
+    StatusBadGateway                    = 502
+    StatusServiceUnavailable            = 503
+    StatusGatewayTimeout                = 504
+    StatusHTTPVersionNotSupported       = 505
+    StatusVariantAlsoNegotiates         = 506
+    StatusInsufficientStorage           = 507
+    StatusLoopDetected                  = 508
+    StatusNotExtended                   = 510
+    StatusNetworkAuthenticationRequired = 511
 )
 ```
 
@@ -145,7 +148,7 @@ const (
 func Copy(source interface{}, destine interface{}) error
 ```
 
-Sex utility function to make copy of map or struct to another map or struct Required: Destine need to be a pointer Example: var m struct \{ Name string \`json:"name"\` \} j := map\[string\]interface\{\}\{ "name": "Joao"\, \} Sex\.Copy\(j\, &m\)
+Sex utility function to make copy of map or struct to another map or struct Required: Destine need to be a pointer Example: var m struct \{ Name string \`json:"name"\` \} j := Dict\{ "name": "Joao"\, \} Sex\.Copy\(j\, &m\)
 
 ## func [Debug](<https://github.com/plankiton/SexPistol/blob/root/logging.go#L113>)
 
@@ -211,7 +214,7 @@ func GetEnv(key string, def string) string
 
 Function thats get a environment var or default value if var does not exist
 
-## func [GetPathPattern](<https://github.com/plankiton/SexPistol/blob/root/request.go#L92>)
+## func [GetPathPattern](<https://github.com/plankiton/SexPistol/blob/root/request.go#L84>)
 
 ```go
 func GetPathPattern(t string) string
@@ -219,7 +222,7 @@ func GetPathPattern(t string) string
 
 Function to get regex pattern of a Sex path template Example: Sex\.GetPathPattern\("/hello/\{name\}"\)
 
-## func [GetPathVars](<https://github.com/plankiton/SexPistol/blob/root/request.go#L128>)
+## func [GetPathVars](<https://github.com/plankiton/SexPistol/blob/root/request.go#L120>)
 
 ```go
 func GetPathVars(t string, p string) (map[string]string, error)
@@ -251,16 +254,6 @@ func Logf(args ...interface{})
 
 Logging information formated logs with Sex\.Logger\(\) Example: Logf\("%s %\+v"\, "joao"\, \[\]string\{"joao"\, "maria"\}\) Logf\("%\.2f"\, 409\.845\)
 
-## func [Merge](<https://github.com/plankiton/SexPistol/blob/root/util.go#L48>)
-
-```go
-func Merge(source interface{}, destine interface{}, override ...bool) (map[string]interface{}, error)
-```
-
-Sex utility function to make merge of map or struct and another map or struct Required: Destine need to be a pointer Example: var m := struct \{ Name string \`json:"name"\` \} \{ Name: "Joao"\, \} j := map\[string\]interface\{\}\{ "idade": "Joao"\, "name": nil\, \} Sex\.Copy\(m\, &j\)
-
-Merge rules: If the field on source dont exists on destine it will be created \(just if destine are map\) If the field on source exists on destine but are dont seted it will be seted If the field on source exists on destine but are seted it will not be seted If override are seted as true\, the field on destine will be overrided by source
-
 ## func [RawLog](<https://github.com/plankiton/SexPistol/blob/root/logging.go#L39>)
 
 ```go
@@ -269,7 +262,15 @@ func RawLog(typ string, useCaller bool, args ...interface{})
 
 Logging a raw log
 
-## func [StatusText](<https://github.com/plankiton/SexPistol/blob/root/templates.go#L169>)
+## func [RunRouteFunc](<https://github.com/plankiton/SexPistol/blob/root/response.go#L31>)
+
+```go
+func RunRouteFunc(route_func interface{}, w http.ResponseWriter, r Request)
+```
+
+Function to run route func SexPistol
+
+## func [StatusText](<https://github.com/plankiton/SexPistol/blob/root/templates.go#L157>)
 
 ```go
 func StatusText(code int) string
@@ -301,7 +302,7 @@ func Warf(args ...interface{})
 
 Logging warning formated logs with Sex\.Logger\(\) Example: Warf\("%s %\+v"\, "joao"\, \[\]string\{"joao"\, "maria"\}\) Warf\("%\.2f"\, 409\.845\)
 
-## type [Bullet](<https://github.com/plankiton/SexPistol/blob/root/templates.go#L5-L9>)
+## type [Bullet](<https://github.com/plankiton/SexPistol/blob/root/templates.go#L4-L8>)
 
 Suggested template for Sex\.Json endpoint functions
 
@@ -313,13 +314,23 @@ type Bullet struct {
 }
 ```
 
-## type [Dict](<https://github.com/plankiton/SexPistol/blob/root/templates.go#L15>)
+## type [Dict](<https://github.com/plankiton/SexPistol/blob/root/templates.go#L14>)
 
 ```go
 type Dict map[string]interface{}
 ```
 
-## type [Json](<https://github.com/plankiton/SexPistol/blob/root/templates.go#L12>)
+### func [Merge](<https://github.com/plankiton/SexPistol/blob/root/util.go#L48>)
+
+```go
+func Merge(source interface{}, destine interface{}, override ...bool) (Dict, error)
+```
+
+Sex utility function to make merge of map or struct and another map or struct Required: Destine need to be a pointer Example: var m := struct \{ Name string \`json:"name"\` \} \{ Name: "Joao"\, \} j := Dict\{ "idade": "Joao"\, "name": nil\, \} Sex\.Copy\(m\, &j\)
+
+Merge rules: If the field on source dont exists on destine it will be created \(just if destine are map\) If the field on source exists on destine but are dont seted it will be seted If the field on source exists on destine but are seted it will not be seted If override are seted as true\, the field on destine will be overrided by source
+
+## type [Json](<https://github.com/plankiton/SexPistol/blob/root/templates.go#L11>)
 
 Sex type for json format endpoint outputs
 
@@ -438,26 +449,33 @@ type Plugin interface {
 }
 ```
 
-## type [Prop](<https://github.com/plankiton/SexPistol/blob/root/templates.go#L14>)
+## type [Prop](<https://github.com/plankiton/SexPistol/blob/root/templates.go#L13>)
 
 ```go
 type Prop map[string]interface{}
 ```
 
-## type [Request](<https://github.com/plankiton/SexPistol/blob/root/request.go#L25-L30>)
+## type [Request](<https://github.com/plankiton/SexPistol/blob/root/request.go#L18-L22>)
 
 Request properties sent by client \(\*http\.Request\) with inproviments like path variables and Pistol Route configurations Example: router\.Add\("/hello/\{name\}"\, func \(r Sex\.Request\) string \{ name := r\.PathVars\["name"\] return "Hello "\+ name \}
 
 ```go
 type Request struct {
-    *http.Request
+    http.Request
     PathVars map[string]string
     Conf     Prop
-    Writer   *Response
 }
 ```
 
-### func \(\*Request\) [JsonBody](<https://github.com/plankiton/SexPistol/blob/root/request.go#L36>)
+### func [NewRequest](<https://github.com/plankiton/SexPistol/blob/root/request.go#L25>)
+
+```go
+func NewRequest() *Request
+```
+
+Request constructor function
+
+### func \(\*Request\) [JsonBody](<https://github.com/plankiton/SexPistol/blob/root/request.go#L33>)
 
 ```go
 func (self *Request) JsonBody(v interface{}) error
@@ -465,15 +483,7 @@ func (self *Request) JsonBody(v interface{}) error
 
 Request function to write Json body on a variable Example: var data map\[string\]interface\{\} // Can be Structs too r\.JsonBody\(&data\)
 
-### func \(\*Request\) [MkResponse](<https://github.com/plankiton/SexPistol/blob/root/request.go#L55>)
-
-```go
-func (self *Request) MkResponse() *Response
-```
-
-Request function to get Response Writer
-
-### func \(\*Request\) [RawBody](<https://github.com/plankiton/SexPistol/blob/root/request.go#L46>)
+### func \(\*Request\) [RawBody](<https://github.com/plankiton/SexPistol/blob/root/request.go#L43>)
 
 ```go
 func (self *Request) RawBody(b *[]byte) error
@@ -481,19 +491,34 @@ func (self *Request) RawBody(b *[]byte) error
 
 Request function to write \[\]byte body on a variable Example: var data \[\]byte r\.RawBody\(&data\)
 
-## type [Response](<https://github.com/plankiton/SexPistol/blob/root/request.go#L13-L17>)
+## type [Response](<https://github.com/plankiton/SexPistol/blob/root/response.go#L7-L12>)
 
 Response to make complete response with Cookies\, Headers\, and all http\.ResponseWrite another features
 
 ```go
 type Response struct {
     http.ResponseWriter
-    Body   []byte
-    Status int
+    Headers *http.Header
+    Body    []byte
+    Status  int
 }
 ```
 
-### func \(\*Response\) [SetBody](<https://github.com/plankiton/SexPistol/blob/root/request.go#L66>)
+### func [NewResponse](<https://github.com/plankiton/SexPistol/blob/root/response.go#L26>)
+
+```go
+func NewResponse() *Response
+```
+
+Response constructor function
+
+### func \(\*Response\) [Header](<https://github.com/plankiton/SexPistol/blob/root/response.go#L14>)
+
+```go
+func (self *Response) Header() http.Header
+```
+
+### func \(\*Response\) [SetBody](<https://github.com/plankiton/SexPistol/blob/root/request.go#L58>)
 
 ```go
 func (self *Response) SetBody(v []byte) *Response
@@ -501,7 +526,7 @@ func (self *Response) SetBody(v []byte) *Response
 
 Function to set Response body
 
-### func \(\*Response\) [SetCookie](<https://github.com/plankiton/SexPistol/blob/root/request.go#L78>)
+### func \(\*Response\) [SetCookie](<https://github.com/plankiton/SexPistol/blob/root/request.go#L70>)
 
 ```go
 func (self *Response) SetCookie(key string, value string, expires time.Duration) *Response
@@ -509,7 +534,7 @@ func (self *Response) SetCookie(key string, value string, expires time.Duration)
 
 Function to set Response cookies
 
-### func \(\*Response\) [SetStatus](<https://github.com/plankiton/SexPistol/blob/root/request.go#L72>)
+### func \(\*Response\) [SetStatus](<https://github.com/plankiton/SexPistol/blob/root/request.go#L64>)
 
 ```go
 func (self *Response) SetStatus(code int) *Response
@@ -517,7 +542,7 @@ func (self *Response) SetStatus(code int) *Response
 
 Function to set Response status code
 
-### func \(\*Response\) [WriteHeader](<https://github.com/plankiton/SexPistol/blob/root/request.go#L60>)
+### func \(\*Response\) [WriteHeader](<https://github.com/plankiton/SexPistol/blob/root/request.go#L52>)
 
 ```go
 func (r *Response) WriteHeader(status int)
