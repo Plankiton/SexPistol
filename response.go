@@ -3,6 +3,7 @@ package Sex
 import (
 	"fmt"
 	"net/http"
+	"time"
 )
 
 // Response to make complete response with Cookies, Headers, and all http.ResponseWrite another features
@@ -13,6 +14,36 @@ type Response struct {
 	Status  int
 }
 
+// Function to set Response status code
+func (r *Response) WriteHeader(status int) {
+	r.SetStatus(status)
+}
+
+// Function to set Response body
+func (self *Response) SetBody(v []byte) *Response {
+	self.Body = v
+	return self
+}
+
+// Function to set Response status code
+func (self *Response) SetStatus(code int) *Response {
+	self.Status = 200
+	return self
+}
+
+// Function to set Response cookies
+func (self *Response) SetCookie(key string, value string, expires time.Duration) *Response {
+	cookie := &http.Cookie{
+		Name:    key,
+		Value:   value,
+		Expires: time.Now().Add(expires),
+	}
+	http.SetCookie(self, cookie)
+
+	return self
+}
+
+// Header returns response headers setter
 func (self *Response) Header() http.Header {
 	if self.Headers == nil {
 		self.Headers = &http.Header{
@@ -84,7 +115,7 @@ func runRoute(route_func interface{}, response Response, r Request) error {
 	response_log_message := Fmt("%s %s %s %d: %s", r.Method, r.URL.Path, r.URL.RawQuery, response.Status, StatusText(response.Status))
 	if response.Status >= 400 {
 		RawLog(LogLevelError, false, response_log_message)
-		return fmt.Errorf(response_log_message)
+		return fmt.Errorf(string(response.Body))
 	} else if response.Status >= 300 {
 		RawLog(LogLevelWarn, false, response_log_message)
 	} else if response.Status >= 200 {

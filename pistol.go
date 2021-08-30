@@ -2,6 +2,7 @@ package Sex
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/Showmax/go-fqdn"
 )
@@ -55,6 +56,8 @@ func NewPistol() *Pistol {
 		}
 	}
 
+	pistol.config = make(Config)
+	pistol.routes = make(Dict)
 	pistol.ServeMux = http.NewServeMux()
 	pistol.HandleFunc("/", pistol.root)
 
@@ -81,9 +84,8 @@ func NewPistol() *Pistol {
 //          }, 404
 //       })
 func (pistol *Pistol) Add(path string, route interface{}, methods ...string) *Pistol {
-	conf := Prop{
-		"path-template":   []string{path},
-		"methods-allowed": methods,
+	for i, method := range methods {
+		methods[i] = strings.ToUpper(method)
 	}
 
 	path = fixPath(path)
@@ -94,15 +96,12 @@ func (pistol *Pistol) Add(path string, route interface{}, methods ...string) *Pi
 
 	path_pattern := GetPathPattern(path)
 
-	if _, exist := pistol.config[path_pattern]; !exist {
-		pistol.config[path_pattern] = make(Prop)
+	conf := Prop{
+		"path-template":   []string{path},
+		"methods-allowed": methods,
 	}
 
 	pistol.config[path_pattern] = conf
-
-	if _, exist := pistol.routes[path_pattern]; !exist {
-		pistol.routes[path_pattern] = make(Dict)
-	}
 	pistol.routes[path_pattern] = route
 
 	return pistol
@@ -147,20 +146,15 @@ func (pistol *Pistol) Run(a ...interface{}) error {
 	msg := Fmt("Running Sex Pistol server at %s:%d%s", host, port, path)
 	RawLog(LogLevelInfo, false, msg)
 	if GetEnv("SEX_DEBUG", "false") != "false" {
-		for path, methods := range pistol.routes {
-			methods_str := ""
-			if methods, ok := methods.(Prop); ok {
-				for method := range methods {
-					methods_str += Fmt("%s ", method)
-				}
-			} else {
-				methods_str = "ALL METHODS"
+		for path := range pistol.routes {
+			methods_str := "ALL METHODS"
+			if methods := pistol.config[path].Values("methods-allowed"); len(methods) > 0 {
+				methods_str = strings.Join(methods, ", ")
 			}
 
 			msg := Fmt("%s <- %s", pistol.config[path].Get("path-template"), methods_str)
 			RawLog(LogLevelInfo, false, msg)
 		}
-
 	}
 
 	return http.ListenAndServe(Fmt(":%d", port), pistol)

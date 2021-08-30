@@ -1,6 +1,7 @@
 package Sex
 
 import (
+	"reflect"
 	str "strings"
 
 	"encoding/json"
@@ -103,10 +104,16 @@ func GetEnv(key string, def string) string {
 }
 
 // IndexOf function to index first ocurrence of string on string slice
-func IndexOf(str interface{}, ls interface{}) int {
-	for i, s := range ls.([]interface{}) {
-		if s == str {
-			return i
+func IndexOf(i interface{}, l interface{}) int {
+	if typ := reflect.TypeOf(l).Kind(); typ == reflect.Slice || typ == reflect.Array || typ == reflect.String {
+		list := reflect.ValueOf(l)
+		item := reflect.ValueOf(i)
+
+		for i := 0; i < list.Len(); i++ {
+			value := list.Index(i)
+			if reflect.DeepEqual(value.Interface(), item.Interface()) {
+				return i
+			}
 		}
 	}
 

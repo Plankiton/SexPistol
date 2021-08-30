@@ -17,45 +17,37 @@ type Prop map[string][]string
 
 // Add adds the key, value pair to the header.
 // It appends to any existing values associated with key.
-// The key is case insensitive; it is canonicalized by
-// CanonicalHeaderKey.
+// The key is case sensitive.
 func (h Prop) Add(key, value string) {
-	textproto.MIMEHeader(h).Add(key, value)
+	h[key] = append(h[key], value)
 }
 
 // Set sets the header entries associated with key to the
 // single element value. It replaces any existing values
-// associated with key. The key is case insensitive; it is
-// canonicalized by textproto.CanonicalMIMEHeaderKey.
-// To use non-canonical keys, assign to the map directly.
+// associated with key. The key and value is case sensitive.
 func (h Prop) Set(key, value string) {
-	textproto.MIMEHeader(h).Set(key, value)
+	if h.Has(key) {
+		h[key][0] = value
+		return
+	}
+
+	h.Add(key, value)
 }
 
 // Get gets the first value associated with the given key. If
 // there are no values associated with the key, Get returns "".
-// It is case insensitive; textproto.CanonicalMIMEHeaderKey is
-// used to canonicalize the provided key. To use non-canonical keys,
-// access the map directly.
+// It is case sensitive.
 func (h Prop) Get(key string) string {
-	return textproto.MIMEHeader(h).Get(key)
-}
-
-// Values returns all values associated with the given key.
-// It is case insensitive; textproto.CanonicalMIMEHeaderKey is
-// used to canonicalize the provided key. To use non-canonical
-// keys, access the map directly.
-// The returned slice is not a copy.
-func (h Prop) Values(key string) []string {
-	return textproto.MIMEHeader(h).Values(key)
-}
-
-// get is like Get, but key must already be in CanonicalHeaderKey form.
-func (h Prop) get(key string) string {
 	if v := h[key]; len(v) > 0 {
 		return v[0]
 	}
 	return ""
+}
+
+// Values returns all values associated with the given key.
+// It is case sensitive
+func (h Prop) Values(key string) []string {
+	return h[key]
 }
 
 // Has reports whether h has the provided key defined, even if it's
@@ -66,14 +58,15 @@ func (h Prop) Has(key string) bool {
 }
 
 // Del deletes the values associated with key.
-// The key is case insensitive; it is canonicalized by
-// CanonicalHeaderKey.
+// The key is case sensitive.
 func (h Prop) Del(key string) {
 	textproto.MIMEHeader(h).Del(key)
 }
 
-// Properties group
+// Config is group of properties (Prop)
 type Config map[string]Prop
+
+// Dict is dictionary key:value, but key is always string
 type Dict map[string]interface{}
 
 const (

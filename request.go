@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"errors"
 	"net/http"
-	"time"
 )
 
 // Request properties sent by client (*http.Request) with inproviments like path variables and Pistol Route configurations
@@ -47,36 +46,6 @@ func (self *Request) RawBody(b *[]byte) error {
 	*b = body.Bytes()
 
 	return err
-}
-
-// Function to set Response status code
-func (r *Response) WriteHeader(status int) {
-	r.SetStatus(status)
-	r.ResponseWriter.WriteHeader(status)
-}
-
-// Function to set Response body
-func (self *Response) SetBody(v []byte) *Response {
-	self.Body = v
-	return self
-}
-
-// Function to set Response status code
-func (self *Response) SetStatus(code int) *Response {
-	self.Status = 200
-	return self
-}
-
-// Function to set Response cookies
-func (self *Response) SetCookie(key string, value string, expires time.Duration) *Response {
-	cookie := &http.Cookie{
-		Name:    key,
-		Value:   value,
-		Expires: time.Now().Add(expires),
-	}
-	http.SetCookie(self, cookie)
-
-	return self
 }
 
 // Function to get regex pattern of a Sex path template

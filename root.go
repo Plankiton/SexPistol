@@ -48,21 +48,34 @@ func (pistol *Pistol) root(w http.ResponseWriter, r *http.Request) {
 			request.PathVars, _ = GetPathVars(conf.Get("path-template"), path)
 			methods_allowed := conf.Values("methods-allowed")
 
-			if IndexOf(request.Method, methods_allowed) >= 0 {
-				response := NewResponse()
-				response.ResponseWriter = w
-				if err := runRoute(route, *response, *request); err != nil {
-					http.Error(response, err.Error(), response.Status)
-				}
+			if len(methods_allowed) > 0 && IndexOf(request.Method, methods_allowed) < 0 {
+				st := StatusMethodNotAllowed
+				msg := StatusText(st)
+				http.Error(w, msg, st)
+				RawLog(LogLevelError, false,
+					response_log_message+Fmt("%d: %s", st, msg))
+				return
 			}
 
-			response_log_message += Fmt("%d: %s", StatusMethodNotAllowed, StatusText(StatusMethodNotAllowed))
-			RawLog(LogLevelError, false, response_log_message)
-			w.WriteHeader(StatusMethodNotAllowed)
+			response := NewResponse()
+			response.ResponseWriter = w
+			if err := runRoute(route, *response, *request); err != nil {
+				st := response.Status
+				msg := StatusText(st)
+				if len(response.Body) == 0 {
+					msg = string(response.Body)
+				}
+				RawLog(LogLevelError, false, response_log_message+Fmt("%d: %s", st, msg))
+				http.Error(w, msg, st)
+			}
+
 			return
 		}
 	}
 
-	response_log_message += Fmt("%d: %s", StatusNotFound, StatusText(StatusNotFound))
-	RawLog(LogLevelError, false, response_log_message)
+	st := StatusNotFound
+	msg := StatusText(st)
+	http.Error(w, msg, st)
+	RawLog(LogLevelError, false,
+		response_log_message+Fmt("%d: %s", st, msg))
 }
