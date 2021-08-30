@@ -46,40 +46,33 @@ func Copy(source interface{}, destine interface{}) error {
 //    If the field on source exists on destine but are dont seted it will be seted
 //    If the field on source exists on destine but are seted it will not be seted
 //    If override are seted as true, the field on destine will be overrided by source
-func Merge(source interface{}, destine interface{}, override ...bool) (Dict, error) {
+func Merge(source interface{}, destine interface{}, override ...bool) (interface{}, error) {
 	final := Dict{}
 
-	dst := Dict{}
-	src := Dict{}
-
-	ok := false
-	if src, ok = source.(Dict); !ok {
-		err := Copy(source, &src)
-		if err != nil {
-			return final, err
+	if override != nil && override[0] {
+		if err := Copy(destine, &final); err != nil {
+			return nil, err
+		}
+		if err := Copy(source, &final); err != nil {
+			return nil, err
+		}
+		if err := Copy(destine, &final); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := Copy(source, &final); err != nil {
+			return nil, err
+		}
+		if err := Copy(destine, &final); err != nil {
+			return nil, err
 		}
 	}
 
-	if dst, ok = destine.(Dict); !ok {
-		err := Copy(destine, &dst)
-		if err != nil {
-			return final, err
-		}
+	if err := Copy(final, destine); err != nil {
+		return nil, err
 	}
 
-	for k, v := range src {
-		final[k] = v
-	}
-
-	for k, v := range dst {
-		if _, exists := final[k]; exists && (override != nil && override[0]) {
-			continue
-		}
-
-		final[k] = v
-	}
-
-	return final, nil
+	return destine, nil
 }
 
 // FromJSON function thats parse a byte list on a json and write on a variable
