@@ -336,3 +336,38 @@ func TestMerge(t *testing.T) {
 		}
 	}
 }
+
+func TestFromJSON(t *testing.T) {
+	tests := map[string][3]interface{}{
+		`{"ok":true, "err": true, "Oth": "Maria"}`: [3]interface{}{
+			new(okErr),
+			&okErr{
+				Ok:  true,
+				Err: true,
+				Oth: "Maria",
+			},
+			true,
+		},
+	}
+
+	for in, out := range tests {
+		if err := FromJSON([]byte(in), out[0]); err != nil {
+			t.Error(err)
+		}
+
+		o := reflect.ValueOf(out[0]).Interface()
+		r := reflect.ValueOf(out[1]).Interface()
+
+		if reflect.TypeOf(out[0]).Kind() == reflect.Ptr {
+			o = reflect.ValueOf(out[0]).Elem().Interface()
+		}
+		if reflect.TypeOf(out[1]).Kind() == reflect.Ptr {
+			r = reflect.ValueOf(out[1]).Elem().Interface()
+		}
+
+		if ok := reflect.DeepEqual(o, r); ok != out[2] {
+			t.Errorf("FromJSON(%s, %v): %v == %v -> %v",
+				in, out[0], o, r, ok)
+		}
+	}
+}
