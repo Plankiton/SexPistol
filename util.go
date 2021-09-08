@@ -39,7 +39,7 @@ func Copy(source interface{}, destine interface{}) error {
 //       "idade": "Joao",
 //       "name": nil,
 //    }
-//    Sex.Copy(m, &j)
+//    f := Sex.Merge(m, &j)
 //
 // Merge rules:
 //    If the field on source dont exists on destine it will be created (just if destine are map)
