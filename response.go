@@ -62,6 +62,14 @@ func NewResponse() *Response {
 
 // Function to run route func SexPistol
 func runRoute(route_func interface{}, response Response, r Request) error {
+	if route_func, ok := route_func.(func(Response, Request)); ok {
+		route_func(response, r)
+	}
+
+	if route_func, ok := route_func.(func(*Response, *Request)); ok {
+		route_func(&response, &r)
+	}
+
 	if route_func, ok := route_func.(func(http.ResponseWriter, *http.Request)); ok {
 		route_func(response.ResponseWriter, &r.Request)
 	}
