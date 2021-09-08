@@ -98,10 +98,17 @@ func CopyTestFunc(v interface{}, r interface{}, isMatching bool) (interface{}, e
 		match_string = "is"
 	}
 
-	v2_v := reflect.ValueOf(v2)
-	r_v := reflect.ValueOf(r)
+	v2_v := reflect.ValueOf(v2).Interface()
+	r_v := reflect.ValueOf(r).Interface()
 
-	if reflect.DeepEqual(v2_v.Interface(), r_v.Interface()) != isMatching {
+	if reflect.TypeOf(v2).Kind() == reflect.Ptr {
+		v2_v = reflect.ValueOf(v2).Elem().Interface()
+	}
+	if reflect.TypeOf(r).Kind() == reflect.Ptr {
+		r_v = reflect.ValueOf(r).Elem().Interface()
+	}
+
+	if reflect.DeepEqual(v2_v, r_v) != isMatching {
 		err := fmt.Errorf(`Copy(%v, %v): %v %s matching with "%v"`, v1, v2, v2_v, match_string, r_v)
 		Err(err)
 		return nil, err
@@ -154,11 +161,27 @@ func TestCopy(t *testing.T) {
 				new(Dict),
 			},
 			MatchValue: &Dict{
+				"ok":  true,
+				"err": false,
+				"Oth": "thing",
+			},
+			Match: true,
+		},
+		{
+			Value: []interface{}{
+				okErr{
+					Ok:  true,
+					Err: false,
+					Oth: "thing",
+				},
+				new(Dict),
+			},
+			MatchValue: &Dict{
 				"Ok":  true,
 				"Err": false,
 				"Oth": "thing",
 			},
-			Match: true,
+			Match: false,
 		},
 		{
 			Value: []interface{}{
@@ -202,6 +225,7 @@ func MergeTestFunc(v interface{}, r interface{}, isMatching bool) (interface{}, 
 	v2 := value[1]
 
 	merged, err := Merge(v1, v2)
+
 	if err != nil {
 		Err(err)
 		return nil, err
@@ -212,11 +236,18 @@ func MergeTestFunc(v interface{}, r interface{}, isMatching bool) (interface{}, 
 		match_string = "is"
 	}
 
-	v2_v := reflect.ValueOf(merged)
-	r_v := reflect.ValueOf(r)
+	m_v := reflect.ValueOf(merged).Interface()
+	r_v := reflect.ValueOf(r).Interface()
 
-	if reflect.DeepEqual(v2_v.Interface(), r_v.Interface()) != isMatching {
-		err := fmt.Errorf(`Merge(%v, %v): %v %s matching with "%v"`, v1, v2, v2_v, match_string, r_v)
+	if reflect.TypeOf(merged).Kind() == reflect.Ptr {
+		m_v = reflect.ValueOf(m_v).Elem().Interface()
+	}
+	if reflect.TypeOf(r).Kind() == reflect.Ptr {
+		r_v = reflect.ValueOf(r).Elem().Interface()
+	}
+
+	if reflect.DeepEqual(m_v, r_v) != isMatching {
+		err := fmt.Errorf(`Merge(%v, %v): %v %s matching with "%v"`, v1, v2, m_v, match_string, r_v)
 		Err(err)
 		return nil, err
 	}
@@ -235,7 +266,7 @@ func TestMerge(t *testing.T) {
 				},
 				new(okErr),
 			},
-			MatchValue: okErr{
+			MatchValue: &okErr{
 				Ok:  true,
 				Err: false,
 				Oth: "thing",
@@ -251,7 +282,7 @@ func TestMerge(t *testing.T) {
 				},
 				new(Dict),
 			},
-			MatchValue: Dict{
+			MatchValue: &Dict{
 				"ok":  true,
 				"err": false,
 				"Oth": "thing",
@@ -267,7 +298,7 @@ func TestMerge(t *testing.T) {
 				},
 				new(Dict),
 			},
-			MatchValue: Dict{
+			MatchValue: &Dict{
 				"ok":  true,
 				"err": false,
 				"Oth": "thing",
@@ -283,10 +314,10 @@ func TestMerge(t *testing.T) {
 				},
 				new(okErr),
 			},
-			MatchValue: Dict{
-				"ok":  true,
-				"err": false,
-				"Oth": "thing",
+			MatchValue: &okErr{
+				Ok:  true,
+				Err: false,
+				Oth: "thing",
 			},
 			Match: true,
 		},

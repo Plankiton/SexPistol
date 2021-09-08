@@ -56,14 +56,8 @@ func Merge(source interface{}, destine interface{}, override ...bool) (interface
 		if err := Copy(source, &final); err != nil {
 			return nil, err
 		}
-		if err := Copy(destine, &final); err != nil {
-			return nil, err
-		}
 	} else {
 		if err := Copy(source, &final); err != nil {
-			return nil, err
-		}
-		if err := Copy(destine, &final); err != nil {
 			return nil, err
 		}
 	}
