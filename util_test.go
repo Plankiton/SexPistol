@@ -371,3 +371,31 @@ func TestFromJSON(t *testing.T) {
 		}
 	}
 }
+
+func TestJsonify(t *testing.T) {
+	tests := [][4]interface{}{
+		{
+			`{"ok":true, "err": true, "Oth": "Maria"}`,
+			okErr{},
+			okErr{
+				Ok:  true,
+				Err: true,
+				Oth: "Maria",
+			},
+			true,
+		},
+	}
+
+	for _, out := range tests {
+		if err := FromJSON([]byte(out[0].(string)), &out[1]); err != nil {
+			t.Error(err)
+		}
+
+		v := Jsonify(out[2])
+		r := Jsonify(out[1])
+		if ok := reflect.DeepEqual(r, v); ok == out[3] {
+			t.Errorf("Jsonify(%v): %v == %v -> %v",
+				out[2], r, v, ok)
+		}
+	}
+}
