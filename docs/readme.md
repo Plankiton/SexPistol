@@ -116,4 +116,4 @@ Sex.Bullet {
 }
 ```
 
-# 
+# [GoDoc](/SexPistol/docs/godoc)
