@@ -529,7 +529,7 @@ Request properties sent by client \(\*http\.Request\) with inproviments like pat
 ```go
 type Request struct {
     http.Request
-    PathVars map[string]string
+    PathVars Prop
     Conf     Prop
 }
 ```

@@ -17,7 +17,7 @@ import (
 //    }
 type Request struct {
 	http.Request
-	PathVars map[string]string
+	PathVars Prop
 	Conf     Prop
 }
 
