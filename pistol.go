@@ -26,25 +26,26 @@ type Pistol struct {
 	err error
 }
 
+// Plugin is a extension to Sex Pistol
 type Plugin interface {
 	Name() string
 	Init(*Pistol) (*Pistol, error)
 	Root(http.ResponseWriter, *http.Request) (http.ResponseWriter, *http.Request)
 }
 
-// Get Pistol running path
+// GetPath provides Pistol root path
 func (pistol *Pistol) GetPath() string { return pistol.rootPath }
 
-// Get Pistol route list
+// GetRoutes provides Pistol route list
 func (pistol *Pistol) GetRoutes() Dict { return pistol.routes }
 
-// Get Pistol last error
+// Error provides Pistol last error
 func (pistol *Pistol) Error() error { return pistol.err }
 
-// Set Pistol last error
+// SetErr sets Pistol last error
 func (pistol *Pistol) SetErr(err error) { pistol.err = err }
 
-// Function thats create a Sex.Pistol and create the init configurations
+// NewPistol create new Sex.Pistol and default configurations
 // Example:
 //    router := Sex.NewPistol()
 func NewPistol() *Pistol {
@@ -64,7 +65,7 @@ func NewPistol() *Pistol {
 	return pistol
 }
 
-// Function to Add endpoints to the Sex.Pistol Server
+// Add adds endpoint to the Sex.Pistol Server
 // path are the endpoint location
 // route is a void interface thats need to be on next format list:
 //     - func (http.ResponseWriter, *http.Request)
@@ -107,13 +108,13 @@ func (pistol *Pistol) Add(path string, route interface{}, methods ...string) *Pi
 	return pistol
 }
 
-// Add plugin to Sex Pistol
+// AddPlugin adds plugins to Sex Pistol
 func (pistol *Pistol) AddPlugin(plugin Plugin) *Pistol {
 	pistol.plugins = append(pistol.plugins, plugin)
 	return pistol
 }
 
-// Function to execute de Sex.Pistol server
+// Run set-up Sex.Pistol server
 // Example:
 //    pistol.Run(5000)        // Will run server on port 5000
 //    pistol.Run("/joao")     // will run server on path "/joao"

@@ -12,55 +12,62 @@ type Response struct {
 	Headers *http.Header
 	Body    []byte
 	Status  int
+	err     error
 }
 
-// Function to set Response status code
+// Error provides Pistol last error
+func (r *Response) Error() error { return r.err }
+
+// SetErr sets Pistol last error
+func (r *Response) SetErr(err error) { r.err = err }
+
+// WriteHeader sets Response status code
 func (r *Response) WriteHeader(status int) {
 	r.SetStatus(status)
 }
 
-// Function to set Response body
-func (self *Response) SetBody(v []byte) *Response {
-	self.Body = v
-	return self
+// SetBody sets Response body
+func (r *Response) SetBody(v []byte) *Response {
+	r.Body = v
+	return r
 }
 
-// Function to set Response status code
-func (self *Response) SetStatus(code int) *Response {
-	self.Status = 200
-	return self
+// SetStatus sets Response status code
+func (r *Response) SetStatus(code int) *Response {
+	r.Status = 200
+	return r
 }
 
-// Function to set Response cookies
-func (self *Response) SetCookie(key string, value string, expires time.Duration) *Response {
+// SetCookie sets Response cookies
+func (r *Response) SetCookie(key string, value string, expires time.Duration) *Response {
 	cookie := &http.Cookie{
 		Name:    key,
 		Value:   value,
 		Expires: time.Now().Add(expires),
 	}
-	http.SetCookie(self, cookie)
+	http.SetCookie(r, cookie)
 
-	return self
+	return r
 }
 
 // Header returns response headers setter
-func (self *Response) Header() http.Header {
-	if self.Headers == nil {
-		self.Headers = &http.Header{
+func (r *Response) Header() http.Header {
+	if r.Headers == nil {
+		r.Headers = &http.Header{
 			"Content-Type":   {"text/pain; charset=UTF-8"},
 			"Content-Length": {"0"},
 		}
 	}
 
-	return *self.Headers
+	return *r.Headers
 }
 
-// Response constructor function
+// NewResponse provides new Response
 func NewResponse() *Response {
 	return new(Response)
 }
 
-// Function to run route func SexPistol
+// runRoute run sex route function
 func runRoute(route_func interface{}, response Response, r Request) error {
 	if route_func, ok := route_func.(func(Response, Request)); ok {
 		route_func(response, r)
@@ -111,13 +118,13 @@ func runRoute(route_func interface{}, response Response, r Request) error {
 		res, status := route_func(r)
 		response.Header().Set("Content-Type", "application/json")
 		response.WriteHeader(status)
-		response.Write(Jsonify(res))
+		response.Write(Byteify(res))
 	}
 
 	if route_func, ok := route_func.(func(Request) Json); ok {
 		res := route_func(r)
 		response.Header().Set("Content-Type", "application/json")
-		response.Write(Jsonify(res))
+		response.Write(Byteify(res))
 	}
 
 	response_log_message := Fmt("%s %s %s %d: %s", r.Method, r.URL.Path, r.URL.RawQuery, response.Status, StatusText(response.Status))

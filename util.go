@@ -12,7 +12,7 @@ func fixPath(path string) string {
 	return "/" + str.Trim(str.Trim(path, " "), "/")
 }
 
-// Sex utility function to make copy of map or struct to another map or struct
+// Copy provides util to copy map or struct to another map or struct
 // Required: Destine need to be a pointer
 // Example:
 //    var m struct { Name string `json:"name"` }
@@ -29,7 +29,7 @@ func Copy(source interface{}, destine interface{}) error {
 	return json.Unmarshal(encoded, destine)
 }
 
-// Sex utility function to make merge of map or struct and another map or struct
+// Merge provides util to merge map or struct to another map or struct
 // Required: Destine need to be a pointer
 // Example:
 //    var m := struct { Name string `json:"name"` } {
@@ -69,16 +69,21 @@ func Merge(source interface{}, destine interface{}, override ...bool) (interface
 	return destine, nil
 }
 
-// FromJSON function thats parse a byte list on a json and write on a variable
+// Jsonify decode JSON encoded byte array into variable
 // Required: v needs to be a pointer
-func FromJSON(encoded []byte, v interface{}) error {
+func Jsonify(encoded []byte, v interface{}) error {
 	return json.Unmarshal(encoded, v)
 }
 
-// Jsonify function thats parse a byte list on a json and write on a variable
-func Jsonify(v interface{}) []byte {
+// Byteify encode variable into JSON encoded byte array
+func Byteify(v interface{}) []byte {
 	res, _ := json.Marshal(v)
 	return res
+}
+
+// Stringify encode variable into JSON encoded string
+func Stringify(v interface{}) string {
+	return string(Byteify(v))
 }
 
 // GetEnv function thats get a environment var or default value if var does not exist
@@ -90,7 +95,7 @@ func GetEnv(key string, def string) string {
 	return val
 }
 
-// IndexOf function to index first ocurrence of string on string slice
+// IndexOf function to index first ocurrence of thing in thing slice
 func IndexOf(i interface{}, l interface{}) int {
 	if typ := reflect.TypeOf(l).Kind(); typ == reflect.Slice || typ == reflect.Array || typ == reflect.String {
 		list := reflect.ValueOf(l)

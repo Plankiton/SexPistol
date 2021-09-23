@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-// Request properties sent by client (*http.Request) with inproviments like path variables and Pistol Route configurations
+// Request is the request sent by client (*http.Request) with inproviments like path variables and Pistol Route configurations
 // Example:
 //    router.Add("/hello/{name}", func (r Sex.Request) string {
 //        name := r.PathVars["name"]
@@ -21,34 +21,34 @@ type Request struct {
 	Conf     Prop
 }
 
-// Request constructor function
+// NewRequest create new Request
 func NewRequest() *Request {
 	return new(Request)
 }
 
-// Request function to write Json body on a variable
+// JSON provides marshalled Json body to a variable
 // Example:
 //      var data map[string]interface{} // Can be Structs too
 //      r.JsonBody(&data)
-func (self *Request) JsonBody(v interface{}) error {
+func (r *Request) Json(v interface{}) error {
 	encoded := new(bytes.Buffer)
-	encoded.ReadFrom(self.Body)
-	return FromJSON(encoded.Bytes(), v)
+	encoded.ReadFrom(r.Body)
+	return Jsonify(encoded.Bytes(), v)
 }
 
-// Request function to write []byte body on a variable
+// Raw provides byte array body to a variable
 // Example:
 //      var data []byte
-//      r.RawBody(&data)
-func (self *Request) RawBody(b *[]byte) error {
+//      r.Raw(&data)
+func (r *Request) Raw(b *[]byte) error {
 	body := new(bytes.Buffer)
-	_, err := body.ReadFrom(self.Body)
+	_, err := body.ReadFrom(r.Body)
 	*b = body.Bytes()
 
 	return err
 }
 
-// Function to get regex pattern of a Sex path template
+// GetPathPattern provides regex pattern of a Sex path template
 // Example:
 //    Sex.GetPathPattern("/hello/{name}")
 func GetPathPattern(t string) string {
@@ -84,17 +84,17 @@ func GetPathPattern(t string) string {
 	return path_pattern
 }
 
-// Function to get variables of a path using a Sex path template
+// GetPathVars provides path variables a Sex path template
 // Example:
 //    Sex.GetPathVars("/hello/{name}", "/hello/joao")
-func GetPathVars(t string, p string) (map[string]string, error) {
+func GetPathVars(t string, p string) (Prop, error) {
 	var_patt := re.MustCompile(`\{(\w{1,}):{0,1}(.{0,})\}`)
 
 	path_tmplt := str.Split(fixPath(t), "/")
 	path := str.Split(fixPath(p), "/")
 
 	if len(path) != len(path_tmplt) {
-		return map[string]string{}, errors.New("Path don't match with the path template")
+		return Prop{}, errors.New("Path don't match with the path template")
 	}
 
 	path_vars_values := []map[string]string{}
@@ -112,7 +112,7 @@ func GetPathVars(t string, p string) (map[string]string, error) {
 					"value": path[i],
 				})
 			} else {
-				return map[string]string{}, errors.New(
+				return Prop{}, errors.New(
 					Fmt("Variable \"%s\" need that \"%s\"  match to \"%s\"", values[1], path[i], values[2]),
 				)
 			}
@@ -126,10 +126,10 @@ func GetPathVars(t string, p string) (map[string]string, error) {
 
 	}
 
-	path_vars := map[string]string{}
+	path_vars := Prop{}
 	for _, v := range path_vars_values {
 		if _, exist := v["name"]; exist {
-			path_vars[v["name"]] = v["value"]
+			path_vars.Add(v["name"], v["value"])
 		}
 	}
 

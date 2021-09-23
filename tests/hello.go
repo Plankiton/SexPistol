@@ -10,12 +10,12 @@ func main() {
 	router := Sex.NewPistol()
 	router.
 		Add(`/hello/{name}`, func(r Sex.Request) (string, int) {
-			name := r.PathVars["name"]
+			name := r.PathVars.Get("name")
 			Sex.Logf("Hello %s", name)
 			return Sex.Fmt("Hello %s", name), 200
 		}).
 		Add(`/hello/{name}/joao`, func(r Sex.Request) (string, int) {
-			name := r.PathVars["name"]
+			name := r.PathVars.Get("name")
 			Sex.Logf("Hello %s", name)
 			return Sex.Fmt("Hello %s", name), 200
 		}, "get").

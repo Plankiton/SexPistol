@@ -9,6 +9,7 @@ import "github.com/Plankiton/SexPistol"
 ## Index
 
 - [Constants](<#constants>)
+- [func Byteify(v interface{}) []byte](<#func-byteify>)
 - [func Copy(source interface{}, destine interface{}) error](<#func-copy>)
 - [func Debug(v ...interface{})](<#func-debug>)
 - [func Die(args ...interface{})](<#func-die>)
@@ -16,17 +17,16 @@ import "github.com/Plankiton/SexPistol"
 - [func Err(args ...interface{})](<#func-err>)
 - [func Errf(args ...interface{})](<#func-errf>)
 - [func Fmt(s string, v ...interface{}) string](<#func-fmt>)
-- [func FromJSON(encoded []byte, v interface{}) error](<#func-fromjson>)
 - [func GetEnv(key string, def string) string](<#func-getenv>)
 - [func GetPathPattern(t string) string](<#func-getpathpattern>)
-- [func GetPathVars(t string, p string) (map[string]string, error)](<#func-getpathvars>)
 - [func IndexOf(i interface{}, l interface{}) int](<#func-indexof>)
-- [func Jsonify(v interface{}) []byte](<#func-jsonify>)
+- [func Jsonify(encoded []byte, v interface{}) error](<#func-jsonify>)
 - [func Log(args ...interface{})](<#func-log>)
 - [func Logf(args ...interface{})](<#func-logf>)
 - [func Merge(source interface{}, destine interface{}, override ...bool) (interface{}, error)](<#func-merge>)
 - [func RawLog(typ string, useCaller bool, args ...interface{})](<#func-rawlog>)
 - [func StatusText(code int) string](<#func-statustext>)
+- [func Stringify(v interface{}) string](<#func-stringify>)
 - [func UseLogger(l *Logger)](<#func-uselogger>)
 - [func War(args ...interface{})](<#func-war>)
 - [func Warf(args ...interface{})](<#func-warf>)
@@ -48,6 +48,7 @@ import "github.com/Plankiton/SexPistol"
   - [func (pistol *Pistol) SetErr(err error)](<#func-pistol-seterr>)
 - [type Plugin](<#type-plugin>)
 - [type Prop](<#type-prop>)
+  - [func GetPathVars(t string, p string) (Prop, error)](<#func-getpathvars>)
   - [func (h Prop) Add(key, value string)](<#func-prop-add>)
   - [func (h Prop) Del(key string)](<#func-prop-del>)
   - [func (h Prop) Get(key string) string](<#func-prop-get>)
@@ -56,14 +57,16 @@ import "github.com/Plankiton/SexPistol"
   - [func (h Prop) Values(key string) []string](<#func-prop-values>)
 - [type Request](<#type-request>)
   - [func NewRequest() *Request](<#func-newrequest>)
-  - [func (self *Request) JsonBody(v interface{}) error](<#func-request-jsonbody>)
-  - [func (self *Request) RawBody(b *[]byte) error](<#func-request-rawbody>)
+  - [func (r *Request) Json(v interface{}) error](<#func-request-json>)
+  - [func (r *Request) Raw(b *[]byte) error](<#func-request-raw>)
 - [type Response](<#type-response>)
   - [func NewResponse() *Response](<#func-newresponse>)
-  - [func (self *Response) Header() http.Header](<#func-response-header>)
-  - [func (self *Response) SetBody(v []byte) *Response](<#func-response-setbody>)
-  - [func (self *Response) SetCookie(key string, value string, expires time.Duration) *Response](<#func-response-setcookie>)
-  - [func (self *Response) SetStatus(code int) *Response](<#func-response-setstatus>)
+  - [func (r *Response) Error() error](<#func-response-error>)
+  - [func (r *Response) Header() http.Header](<#func-response-header>)
+  - [func (r *Response) SetBody(v []byte) *Response](<#func-response-setbody>)
+  - [func (r *Response) SetCookie(key string, value string, expires time.Duration) *Response](<#func-response-setcookie>)
+  - [func (r *Response) SetErr(err error)](<#func-response-seterr>)
+  - [func (r *Response) SetStatus(code int) *Response](<#func-response-setstatus>)
   - [func (r *Response) WriteHeader(status int)](<#func-response-writeheader>)
 
 
@@ -149,13 +152,21 @@ const (
 )
 ```
 
+## func [Byteify](<https://github.com/plankiton/SexPistol/blob/root/util.go#L79>)
+
+```go
+func Byteify(v interface{}) []byte
+```
+
+Byteify encode variable into JSON encoded byte array
+
 ## func [Copy](<https://github.com/plankiton/SexPistol/blob/root/util.go#L23>)
 
 ```go
 func Copy(source interface{}, destine interface{}) error
 ```
 
-Sex utility function to make copy of map or struct to another map or struct Required: Destine need to be a pointer Example: var m struct \{ Name string \`json:"name"\` \} j := Dict\{ "name": "Joao"\, \} Sex\.Copy\(j\, &m\)
+Copy provides util to copy map or struct to another map or struct Required: Destine need to be a pointer Example: var m struct \{ Name string \`json:"name"\` \} j := Dict\{ "name": "Joao"\, \} Sex\.Copy\(j\, &m\)
 
 ## func [Debug](<https://github.com/plankiton/SexPistol/blob/root/logging.go#L114>)
 
@@ -171,7 +182,7 @@ Debuging stdout display
 func Die(args ...interface{})
 ```
 
-Logging error logs with Sex\.Logger\(\) and killing the application
+Die logs error logs with Sex\.Logger\(\) and kill application
 
 ## func [Dief](<https://github.com/plankiton/SexPistol/blob/root/logging.go#L108>)
 
@@ -179,7 +190,7 @@ Logging error logs with Sex\.Logger\(\) and killing the application
 func Dief(args ...interface{})
 ```
 
-Logging error logs with Sex\.Logger\(\) and killing the application Example: Dief\("%s %\+v"\, "joao"\, \[\]string\{"joao"\, "maria"\}\) Dief\("%\.2f"\, 409\.845\)
+Dief logs error with Sex\.Logger\(\) and killing the application Example: Dief\("%s %\+v"\, "joao"\, \[\]string\{"joao"\, "maria"\}\) Dief\("%\.2f"\, 409\.845\)
 
 ## func [Err](<https://github.com/plankiton/SexPistol/blob/root/logging.go#L65>)
 
@@ -187,7 +198,7 @@ Logging error logs with Sex\.Logger\(\) and killing the application Example: Die
 func Err(args ...interface{})
 ```
 
-Logging error logs with Sex\.Logger\(\)
+Err logs error logs with Sex\.Logger\(\)
 
 ## func [Errf](<https://github.com/plankiton/SexPistol/blob/root/logging.go#L92>)
 
@@ -195,7 +206,7 @@ Logging error logs with Sex\.Logger\(\)
 func Errf(args ...interface{})
 ```
 
-Logging error formated logs with Sex\.Logger\(\) Example: Errf\("%s %\+v"\, "joao"\, \[\]string\{"joao"\, "maria"\}\) Errf\("%\.2f"\, 409\.845\)
+Errf logs error formated with Sex\.Logger\(\) Example: Errf\("%s %\+v"\, "joao"\, \[\]string\{"joao"\, "maria"\}\) Errf\("%\.2f"\, 409\.845\)
 
 ## func [Fmt](<https://github.com/plankiton/SexPistol/blob/root/logging.go#L17>)
 
@@ -203,17 +214,9 @@ Logging error formated logs with Sex\.Logger\(\) Example: Errf\("%s %\+v"\, "joa
 func Fmt(s string, v ...interface{}) string
 ```
 
-Geting formated string
+Fmt provides formated string
 
-## func [FromJSON](<https://github.com/plankiton/SexPistol/blob/root/util.go#L74>)
-
-```go
-func FromJSON(encoded []byte, v interface{}) error
-```
-
-FromJSON function thats parse a byte list on a json and write on a variable Required: v needs to be a pointer
-
-## func [GetEnv](<https://github.com/plankiton/SexPistol/blob/root/util.go#L85>)
+## func [GetEnv](<https://github.com/plankiton/SexPistol/blob/root/util.go#L90>)
 
 ```go
 func GetEnv(key string, def string) string
@@ -227,31 +230,23 @@ GetEnv function thats get a environment var or default value if var does not exi
 func GetPathPattern(t string) string
 ```
 
-Function to get regex pattern of a Sex path template Example: Sex\.GetPathPattern\("/hello/\{name\}"\)
+GetPathPattern provides regex pattern of a Sex path template Example: Sex\.GetPathPattern\("/hello/\{name\}"\)
 
-## func [GetPathVars](<https://github.com/plankiton/SexPistol/blob/root/request.go#L90>)
-
-```go
-func GetPathVars(t string, p string) (map[string]string, error)
-```
-
-Function to get variables of a path using a Sex path template Example: Sex\.GetPathVars\("/hello/\{name\}"\, "/hello/joao"\)
-
-## func [IndexOf](<https://github.com/plankiton/SexPistol/blob/root/util.go#L94>)
+## func [IndexOf](<https://github.com/plankiton/SexPistol/blob/root/util.go#L99>)
 
 ```go
 func IndexOf(i interface{}, l interface{}) int
 ```
 
-IndexOf function to index first ocurrence of string on string slice
+IndexOf function to index first ocurrence of thing in thing slice
 
-## func [Jsonify](<https://github.com/plankiton/SexPistol/blob/root/util.go#L79>)
+## func [Jsonify](<https://github.com/plankiton/SexPistol/blob/root/util.go#L74>)
 
 ```go
-func Jsonify(v interface{}) []byte
+func Jsonify(encoded []byte, v interface{}) error
 ```
 
-Jsonify function thats parse a byte list on a json and write on a variable
+Jsonify decode JSON encoded byte array into variable Required: v needs to be a pointer
 
 ## func [Log](<https://github.com/plankiton/SexPistol/blob/root/logging.go#L60>)
 
@@ -259,7 +254,7 @@ Jsonify function thats parse a byte list on a json and write on a variable
 func Log(args ...interface{})
 ```
 
-Logging information logs with Sex\.Logger\(\)
+Log logs information logs with Sex\.Logger\(\)
 
 ## func [Logf](<https://github.com/plankiton/SexPistol/blob/root/logging.go#L84>)
 
@@ -267,7 +262,7 @@ Logging information logs with Sex\.Logger\(\)
 func Logf(args ...interface{})
 ```
 
-Logging information formated logs with Sex\.Logger\(\) Example: Logf\("%s %\+v"\, "joao"\, \[\]string\{"joao"\, "maria"\}\) Logf\("%\.2f"\, 409\.845\)
+Logf logs information formated logs with Sex\.Logger\(\) Example: Logf\("%s %\+v"\, "joao"\, \[\]string\{"joao"\, "maria"\}\) Logf\("%\.2f"\, 409\.845\)
 
 ## func [Merge](<https://github.com/plankiton/SexPistol/blob/root/util.go#L49>)
 
@@ -275,7 +270,7 @@ Logging information formated logs with Sex\.Logger\(\) Example: Logf\("%s %\+v"\
 func Merge(source interface{}, destine interface{}, override ...bool) (interface{}, error)
 ```
 
-Sex utility function to make merge of map or struct and another map or struct Required: Destine need to be a pointer Example: var m := struct \{ Name string \`json:"name"\` \} \{ Name: "Joao"\, \} j := Dict\{ "idade": "Joao"\, "name": nil\, \} f := Sex\.Merge\(m\, &j\)
+Merge provides util to merge map or struct to another map or struct Required: Destine need to be a pointer Example: var m := struct \{ Name string \`json:"name"\` \} \{ Name: "Joao"\, \} j := Dict\{ "idade": "Joao"\, "name": nil\, \} f := Sex\.Merge\(m\, &j\)
 
 Merge rules: If the field on source dont exists on destine it will be created \(just if destine are map\) If the field on source exists on destine but are dont seted it will be seted If the field on source exists on destine but are seted it will not be seted If override are seted as true\, the field on destine will be overrided by source
 
@@ -285,7 +280,7 @@ Merge rules: If the field on source dont exists on destine it will be created \(
 func RawLog(typ string, useCaller bool, args ...interface{})
 ```
 
-Logging a raw log
+RawLog logs a raw log
 
 ## func [StatusText](<https://github.com/plankiton/SexPistol/blob/root/templates.go#L213>)
 
@@ -295,13 +290,21 @@ func StatusText(code int) string
 
 StatusText returns a text for the HTTP status code\. It returns the empty string if the code is unknown\.
 
+## func [Stringify](<https://github.com/plankiton/SexPistol/blob/root/util.go#L85>)
+
+```go
+func Stringify(v interface{}) string
+```
+
+Stringify encode variable into JSON encoded string
+
 ## func [UseLogger](<https://github.com/plankiton/SexPistol/blob/root/logging.go#L35>)
 
 ```go
 func UseLogger(l *Logger)
 ```
 
-Set SexPistol logger
+UseLogger sets SexPistol logger
 
 ## func [War](<https://github.com/plankiton/SexPistol/blob/root/logging.go#L70>)
 
@@ -309,7 +312,7 @@ Set SexPistol logger
 func War(args ...interface{})
 ```
 
-Logging warning logs with Sex\.Logger\(\)
+War logs warning logs with Sex\.Logger\(\)
 
 ## func [Warf](<https://github.com/plankiton/SexPistol/blob/root/logging.go#L100>)
 
@@ -317,7 +320,7 @@ Logging warning logs with Sex\.Logger\(\)
 func Warf(args ...interface{})
 ```
 
-Logging warning formated logs with Sex\.Logger\(\) Example: Warf\("%s %\+v"\, "joao"\, \[\]string\{"joao"\, "maria"\}\) Warf\("%\.2f"\, 409\.845\)
+Warf logs warning formated with Sex\.Logger\(\) Example: Warf\("%s %\+v"\, "joao"\, \[\]string\{"joao"\, "maria"\}\) Warf\("%\.2f"\, 409\.845\)
 
 ## type [Bullet](<https://github.com/plankiton/SexPistol/blob/root/templates.go#L6-L10>)
 
@@ -369,7 +372,7 @@ type Logger struct {
 func NewLogger() *Logger
 ```
 
-Get SexPistol logger
+NewLogger provides new SexPistol logger
 
 ## type [Pistol](<https://github.com/plankiton/SexPistol/blob/root/pistol.go#L17-L27>)
 
@@ -382,61 +385,61 @@ type Pistol struct {
 }
 ```
 
-### func [NewPistol](<https://github.com/plankiton/SexPistol/blob/root/pistol.go#L50>)
+### func [NewPistol](<https://github.com/plankiton/SexPistol/blob/root/pistol.go#L51>)
 
 ```go
 func NewPistol() *Pistol
 ```
 
-Function thats create a Sex\.Pistol and create the init configurations Example: router := Sex\.NewPistol\(\)
+NewPistol create new Sex\.Pistol and default configurations Example: router := Sex\.NewPistol\(\)
 
-### func \(\*Pistol\) [Add](<https://github.com/plankiton/SexPistol/blob/root/pistol.go#L86>)
+### func \(\*Pistol\) [Add](<https://github.com/plankiton/SexPistol/blob/root/pistol.go#L87>)
 
 ```go
 func (pistol *Pistol) Add(path string, route interface{}, methods ...string) *Pistol
 ```
 
-Function to Add endpoints to the Sex\.Pistol Server path are the endpoint location route is a void interface thats need to be on next format list: \- func \(http\.ResponseWriter\, \*http\.Request\) \- func \(Sex\.Request\) Sex\.Response \(res\, status\) \- func \(Sex\.Request\) string   // Or \(string\,   int\) \- func \(Sex\.Request\) \[\]byte   // Or \(\[\]byte\,   int\) \- func \(Sex\.Request\) Sex\.Json // Or \(Sex\.Json\, int\) methods are a list of accepted HTTP methods to endpoint Example: router\.Add\("/"\, func\(Sex\.Request\) string \{ return "Hello World" \}\, "POST"\) router\.Add\("/ok"\, func\(Sex\.Request\) Sex\.Json\, int \{ return map\[stirng\]bool\{ "ok": true\, \}\, 404 \}\)
+Add adds endpoint to the Sex\.Pistol Server path are the endpoint location route is a void interface thats need to be on next format list: \- func \(http\.ResponseWriter\, \*http\.Request\) \- func \(Sex\.Request\) Sex\.Response \(res\, status\) \- func \(Sex\.Request\) string   // Or \(string\,   int\) \- func \(Sex\.Request\) \[\]byte   // Or \(\[\]byte\,   int\) \- func \(Sex\.Request\) Sex\.Json // Or \(Sex\.Json\, int\) methods are a list of accepted HTTP methods to endpoint Example: router\.Add\("/"\, func\(Sex\.Request\) string \{ return "Hello World" \}\, "POST"\) router\.Add\("/ok"\, func\(Sex\.Request\) Sex\.Json\, int \{ return map\[stirng\]bool\{ "ok": true\, \}\, 404 \}\)
 
-### func \(\*Pistol\) [AddPlugin](<https://github.com/plankiton/SexPistol/blob/root/pistol.go#L111>)
+### func \(\*Pistol\) [AddPlugin](<https://github.com/plankiton/SexPistol/blob/root/pistol.go#L112>)
 
 ```go
 func (pistol *Pistol) AddPlugin(plugin Plugin) *Pistol
 ```
 
-Add plugin to Sex Pistol
+AddPlugin adds plugins to Sex Pistol
 
-### func \(\*Pistol\) [Error](<https://github.com/plankiton/SexPistol/blob/root/pistol.go#L42>)
+### func \(\*Pistol\) [Error](<https://github.com/plankiton/SexPistol/blob/root/pistol.go#L43>)
 
 ```go
 func (pistol *Pistol) Error() error
 ```
 
-Get Pistol last error
+Error provides Pistol last error
 
-### func \(\*Pistol\) [GetPath](<https://github.com/plankiton/SexPistol/blob/root/pistol.go#L36>)
+### func \(\*Pistol\) [GetPath](<https://github.com/plankiton/SexPistol/blob/root/pistol.go#L37>)
 
 ```go
 func (pistol *Pistol) GetPath() string
 ```
 
-Get Pistol running path
+GetPath provides Pistol root path
 
-### func \(\*Pistol\) [GetRoutes](<https://github.com/plankiton/SexPistol/blob/root/pistol.go#L39>)
+### func \(\*Pistol\) [GetRoutes](<https://github.com/plankiton/SexPistol/blob/root/pistol.go#L40>)
 
 ```go
 func (pistol *Pistol) GetRoutes() Dict
 ```
 
-Get Pistol route list
+GetRoutes provides Pistol route list
 
-### func \(\*Pistol\) [Run](<https://github.com/plankiton/SexPistol/blob/root/pistol.go#L124>)
+### func \(\*Pistol\) [Run](<https://github.com/plankiton/SexPistol/blob/root/pistol.go#L125>)
 
 ```go
 func (pistol *Pistol) Run(a ...interface{}) error
 ```
 
-Function to execute de Sex\.Pistol server Example: pistol\.Run\(5000\)        // Will run server on port 5000 pistol\.Run\("/joao"\)     // will run server on path "/joao" pistol\.Run\("/joao"\, 80\) // will run server on path "/joao" and port 80 pistol\.Run\(80\, "/joao"\) // will run server on path "/joao" and port 80
+Run set\-up Sex\.Pistol server Example: pistol\.Run\(5000\)        // Will run server on port 5000 pistol\.Run\("/joao"\)     // will run server on path "/joao" pistol\.Run\("/joao"\, 80\) // will run server on path "/joao" and port 80 pistol\.Run\(80\, "/joao"\) // will run server on path "/joao" and port 80
 
 If you run a Sex Pistol server with $SEX\_DEBUG setted as "true" thats function will to log list all Sex endpoints of router
 
@@ -448,15 +451,17 @@ func (pistol *Pistol) ServeHTTP(w http.ResponseWriter, r *http.Request)
 
 Function to make Sex\.Pistol a http\.Handler
 
-### func \(\*Pistol\) [SetErr](<https://github.com/plankiton/SexPistol/blob/root/pistol.go#L45>)
+### func \(\*Pistol\) [SetErr](<https://github.com/plankiton/SexPistol/blob/root/pistol.go#L46>)
 
 ```go
 func (pistol *Pistol) SetErr(err error)
 ```
 
-Set Pistol last error
+SetErr sets Pistol last error
 
-## type [Plugin](<https://github.com/plankiton/SexPistol/blob/root/pistol.go#L29-L33>)
+## type [Plugin](<https://github.com/plankiton/SexPistol/blob/root/pistol.go#L30-L34>)
+
+Plugin is a extension to Sex Pistol
 
 ```go
 type Plugin interface {
@@ -473,6 +478,14 @@ Prop are map of properties
 ```go
 type Prop map[string][]string
 ```
+
+### func [GetPathVars](<https://github.com/plankiton/SexPistol/blob/root/request.go#L90>)
+
+```go
+func GetPathVars(t string, p string) (Prop, error)
+```
+
+GetPathVars provides path variables a Sex path template Example: Sex\.GetPathVars\("/hello/\{name\}"\, "/hello/joao"\)
 
 ### func \(Prop\) [Add](<https://github.com/plankiton/SexPistol/blob/root/templates.go#L21>)
 
@@ -524,7 +537,7 @@ Values returns all values associated with the given key\. It is case sensitive
 
 ## type [Request](<https://github.com/plankiton/SexPistol/blob/root/request.go#L18-L22>)
 
-Request properties sent by client \(\*http\.Request\) with inproviments like path variables and Pistol Route configurations Example: router\.Add\("/hello/\{name\}"\, func \(r Sex\.Request\) string \{ name := r\.PathVars\["name"\] return "Hello "\+ name \}
+Request is the request sent by client \(\*http\.Request\) with inproviments like path variables and Pistol Route configurations Example: router\.Add\("/hello/\{name\}"\, func \(r Sex\.Request\) string \{ name := r\.PathVars\["name"\] return "Hello "\+ name \}
 
 ```go
 type Request struct {
@@ -540,25 +553,25 @@ type Request struct {
 func NewRequest() *Request
 ```
 
-Request constructor function
+NewRequest create new Request
 
-### func \(\*Request\) [JsonBody](<https://github.com/plankiton/SexPistol/blob/root/request.go#L33>)
-
-```go
-func (self *Request) JsonBody(v interface{}) error
-```
-
-Request function to write Json body on a variable Example: var data map\[string\]interface\{\} // Can be Structs too r\.JsonBody\(&data\)
-
-### func \(\*Request\) [RawBody](<https://github.com/plankiton/SexPistol/blob/root/request.go#L43>)
+### func \(\*Request\) [Json](<https://github.com/plankiton/SexPistol/blob/root/request.go#L33>)
 
 ```go
-func (self *Request) RawBody(b *[]byte) error
+func (r *Request) Json(v interface{}) error
 ```
 
-Request function to write \[\]byte body on a variable Example: var data \[\]byte r\.RawBody\(&data\)
+JSON provides marshalled Json body to a variable Example: var data map\[string\]interface\{\} // Can be Structs too r\.JsonBody\(&data\)
 
-## type [Response](<https://github.com/plankiton/SexPistol/blob/root/response.go#L10-L15>)
+### func \(\*Request\) [Raw](<https://github.com/plankiton/SexPistol/blob/root/request.go#L43>)
+
+```go
+func (r *Request) Raw(b *[]byte) error
+```
+
+Raw provides byte array body to a variable Example: var data \[\]byte r\.Raw\(&data\)
+
+## type [Response](<https://github.com/plankiton/SexPistol/blob/root/response.go#L10-L16>)
 
 Response to make complete response with Cookies\, Headers\, and all http\.ResponseWrite another features
 
@@ -568,56 +581,73 @@ type Response struct {
     Headers *http.Header
     Body    []byte
     Status  int
+    // contains filtered or unexported fields
 }
 ```
 
-### func [NewResponse](<https://github.com/plankiton/SexPistol/blob/root/response.go#L59>)
+### func [NewResponse](<https://github.com/plankiton/SexPistol/blob/root/response.go#L66>)
 
 ```go
 func NewResponse() *Response
 ```
 
-Response constructor function
+NewResponse provides new Response
 
-### func \(\*Response\) [Header](<https://github.com/plankiton/SexPistol/blob/root/response.go#L47>)
+### func \(\*Response\) [Error](<https://github.com/plankiton/SexPistol/blob/root/response.go#L19>)
 
 ```go
-func (self *Response) Header() http.Header
+func (r *Response) Error() error
+```
+
+Error provides Pistol last error
+
+### func \(\*Response\) [Header](<https://github.com/plankiton/SexPistol/blob/root/response.go#L54>)
+
+```go
+func (r *Response) Header() http.Header
 ```
 
 Header returns response headers setter
 
-### func \(\*Response\) [SetBody](<https://github.com/plankiton/SexPistol/blob/root/response.go#L23>)
+### func \(\*Response\) [SetBody](<https://github.com/plankiton/SexPistol/blob/root/response.go#L30>)
 
 ```go
-func (self *Response) SetBody(v []byte) *Response
+func (r *Response) SetBody(v []byte) *Response
 ```
 
-Function to set Response body
+SetBody sets Response body
 
-### func \(\*Response\) [SetCookie](<https://github.com/plankiton/SexPistol/blob/root/response.go#L35>)
+### func \(\*Response\) [SetCookie](<https://github.com/plankiton/SexPistol/blob/root/response.go#L42>)
 
 ```go
-func (self *Response) SetCookie(key string, value string, expires time.Duration) *Response
+func (r *Response) SetCookie(key string, value string, expires time.Duration) *Response
 ```
 
-Function to set Response cookies
+SetCookie sets Response cookies
 
-### func \(\*Response\) [SetStatus](<https://github.com/plankiton/SexPistol/blob/root/response.go#L29>)
+### func \(\*Response\) [SetErr](<https://github.com/plankiton/SexPistol/blob/root/response.go#L22>)
 
 ```go
-func (self *Response) SetStatus(code int) *Response
+func (r *Response) SetErr(err error)
 ```
 
-Function to set Response status code
+SetErr sets Pistol last error
 
-### func \(\*Response\) [WriteHeader](<https://github.com/plankiton/SexPistol/blob/root/response.go#L18>)
+### func \(\*Response\) [SetStatus](<https://github.com/plankiton/SexPistol/blob/root/response.go#L36>)
+
+```go
+func (r *Response) SetStatus(code int) *Response
+```
+
+SetStatus sets Response status code
+
+### func \(\*Response\) [WriteHeader](<https://github.com/plankiton/SexPistol/blob/root/response.go#L25>)
 
 ```go
 func (r *Response) WriteHeader(status int)
 ```
 
-Function to set Response status code
+WriteHeader sets Response status code
 
 
 
