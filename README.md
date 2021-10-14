@@ -2,6 +2,7 @@
 
 
 # Sex Pistol
+[![CodeQL](https://github.com/Plankiton/SexPistol/actions/workflows/codeql-analysis.yml/badge.svg?branch=root)](https://github.com/Plankiton/SexPistol/actions/workflows/codeql-analysis.yml)
 
 ----
 
